@@ -32,12 +32,14 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
@@ -112,6 +114,8 @@ public final class StatusRow extends Row {
     private static class StatusViewHolder {
         private final Button complete;
         private final Button validate;
+        private final TextView tv;
+
         private final OnCompleteClickListener onCompleteButtonClickListener;
         private final OnValidateClickListener onValidateButtonClickListener;
         private final Event event;
@@ -126,25 +130,28 @@ public final class StatusRow extends Row {
             /* views */
             complete = (Button) view.findViewById(R.id.complete);
             validate = (Button) view.findViewById(R.id.validate);
+            tv = (TextView) view.findViewById(R.id.tv_complete);
+
 //            this.detailedInfoButton = detailedInfoButton;
 
             /* text watchers and click listener */
-            onCompleteButtonClickListener = new OnCompleteClickListener(context, complete, this.event, this.programStage);
+            onCompleteButtonClickListener = new OnCompleteClickListener(context, complete, tv, this.event, this.programStage);
             onValidateButtonClickListener = new OnValidateClickListener(context, validate, this.event);
             complete.setOnClickListener(onCompleteButtonClickListener);
             validate.setOnClickListener(onValidateButtonClickListener);
 
-            updateViews(event, programStage, complete, context);
+            updateViews(event, programStage, complete, tv, context);
         }
 
-        public static void updateViews(Event event, ProgramStage programStage,Button button, Context context) {
+        public static void updateViews(Event event, ProgramStage programStage,Button button, TextView tv, Context context) {
             if(event.getStatus().equals(Event.STATUS_COMPLETED)) {
                 if(context != null) {
-                    if(programStage.isBlockEntryForm()) {
+                    if (programStage.isBlockEntryForm()) {
                         button.setText(context.getString(R.string.edit));
-                    }
-                    else {
+                    } else {
                         button.setText(context.getString(R.string.incomplete));
+                        button.setBackgroundColor(Color.RED);
+                        tv.setVisibility(View.VISIBLE);
                     }
                 }
             } else {
@@ -155,16 +162,18 @@ public final class StatusRow extends Row {
 
     private static class OnCompleteClickListener implements View.OnClickListener, DialogInterface.OnClickListener {
         private final Button complete;
+        private final TextView tv;
         private final Event event;
         private final ProgramStage programStage;
         private final Context context;
         private Activity activity;
 
-        public OnCompleteClickListener(Context context, Button complete, Event event, ProgramStage programStage) {
+        public OnCompleteClickListener(Context context, Button complete, TextView tv, Event event, ProgramStage programStage) {
             this.context = context;
             this.complete = complete;
             this.event = event;
             this.programStage = programStage;
+            this.tv = tv;
         }
 
         @Override
@@ -176,7 +185,7 @@ public final class StatusRow extends Row {
                     activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
 //            Dhis2.showConfirmDialog(activity, label, action, label, activity.getString(R.string.cancel), this);
 
-            Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete));
+            Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete,tv));
         }
 
         private void setActivity(Activity activity) {
@@ -190,7 +199,7 @@ public final class StatusRow extends Row {
             } else {
                 event.setStatus(Event.STATUS_COMPLETED);
             }
-            StatusViewHolder.updateViews(event, programStage, complete, context);
+            StatusViewHolder.updateViews(event, programStage, complete, tv, context);
         }
     }
 

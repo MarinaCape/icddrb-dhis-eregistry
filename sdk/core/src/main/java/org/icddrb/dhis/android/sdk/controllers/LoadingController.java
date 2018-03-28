@@ -172,89 +172,16 @@ public final class LoadingController {
     }
 
     /// Norway
-    static HashMap<String, List<OrganisationUnitUser>> getUnionUsers(List<OrganisationUnitUser> orgOptionSets) {
-        List<String> ids = new ArrayList<>();
-        HashMap<String, String> levels = new HashMap<>();
-        HashMap<String, List<OrganisationUnitUser>> idMap = new HashMap<>();
-
-        if (orgOptionSets.size() > 0) {
-            // First do Unions
-            for (OrganisationUnitUser org : orgOptionSets) {
-                if (org.getLevel() == 5) {
-                    ids.add(org.getId());
-                    List<OrganisationUnitUser> n = new ArrayList<>();
-                    n.add(org);
-                    idMap.put(org.getId(), n);
-                }
-            }
-
-            // Do next level
-            for (OrganisationUnitUser org : orgOptionSets) {
-                if (org.getLevel() == 6 && inArray(ids,org.getParent()) ) {
-                    idMap.get(org.getParent()).add(org);
-                    levels.put(org.getId(), org.getParent());
-                }
-            }
-            // Do last level
-            for (OrganisationUnitUser org : orgOptionSets) {
-                if (org.getLevel() == 7 && levels.containsKey(org.getParent())) {
-                    idMap.get(levels.get(org.getParent())).add(org);
-                }
-            }
-        }
-        return idMap;
-    }
-
-    static boolean inArray(List<String> a, String i) {
-        for (String s : a) {
-            if (s.trim().equalsIgnoreCase(i.trim())) return true;
-        }
-        return false;
-    }
-
     static void loadUnionData(Context context, SyncStrategy syncStrategy, DhisApi dhisApi) throws APIException {
         Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_START));
         try {
             List<OrganisationUnitUser> orgOptionSets = unwrapResponse(dhisApi.getOrgsAndUsers(), "organisationUnits");
 
-            System.out.println("Norway - Org unit size: " + orgOptionSets.size());
             if (orgOptionSets.size() > 0) {
-                UnionFWA dropData = new UnionFWA();
-                HashMap<String, List<OrganisationUnitUser>> unionUsers = getUnionUsers(orgOptionSets);
-                System.out.println("Norway - users org size: " + unionUsers.size());
-
-                for (OrganisationUnitUser org : orgOptionSets) {
-                    if (unionUsers.containsKey(org.getId())) {
-                        if (!unionUsers.get(org.getId()).isEmpty()) {
-                            for(OrganisationUnitUser o : unionUsers.get(org.getId())) {
-                                List<User> userOptionSets =  o.getUsers();
-                                //System.out.println("Norway - Getting users for " + o.getLabel() + "(" + o.getId() + ") found " + userOptionSets.size() + " users");
-                                if (userOptionSets.size() > 0) {
-                                    List<UnionFWADropDownItem> users = new ArrayList<>();
-                                    for (User user : userOptionSets) {
-                                        UserCredentials uc = user.getUserCredential();
-                                        if (uc.hasRole("FWA: Family Welfare Assistant") ||
-                                                uc.hasRole("Field Worker Program Access (no authorities)") ||
-                                                uc.hasRole("FWV Test")) {
-                                            //System.out.println("Norway - Adding user " + user.getDisplayName() + " for " + o.getLabel());
-                                            users.add(new UnionFWADropDownItem(user.getUid(), user.getDisplayName()));
-                                        }
-                                    }
-                                    if (users.size() > 0) {
-                                        dropData.addUsers(org.getId(), users);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (org.getLevel() == 5) {
-                        dropData.addOrg(org.getId(), org.getLabel());
-                    }
-                }
-
                 AppPreferences prefs = new AppPreferences(context);
+                UnionFWA dropData = new UnionFWA();
+                dropData.init(orgOptionSets);
                 prefs.putDropdownInfo(dropData);
-
             } else {
                 System.out.println("Norway - no orgs found");
             }

@@ -67,6 +67,7 @@ import org.icddrb.dhis.android.sdk.synchronization.domain.trackedentityinstance
         .ITrackedEntityInstanceRepository;
 import org.icddrb.dhis.android.sdk.utils.SyncDateWrapper;
 import org.icddrb.dhis.client.sdk.ui.AppPreferencesImpl;
+import org.icddrb.dhis.client.sdk.utils.StringUtils;
 
 public final class DhisController {
     private static final String CLASS_TAG = "Dhis2";
@@ -97,6 +98,7 @@ public final class DhisController {
     private SyncDateWrapper syncDateWrapper;
     private AppPreferencesImpl appPreferences;
     public AppPreferences preferences;
+    public Context context;
 
 
     private boolean blocking = false;
@@ -124,6 +126,9 @@ public final class DhisController {
 
     public AppPreferences getAppPreferences() {
         return preferences;
+    }
+    public Context getContext() {
+        return context;
     }
 
 
@@ -186,21 +191,32 @@ public final class DhisController {
     }
 
     static UserAccount signInUser(HttpUrl serverUrl, Credentials credentials) throws APIException {
-        DhisApi dhisApi = RepoManager
-                .createService(serverUrl, credentials);
+        String username = getInstance().getAppPreferences().getUsername();
+
+        // Norway: if it's not the same user, do a hard clear out first.
+        if (!StringUtils.isEmpty(username) &&  !credentials.getUsername().equals(username)) {
+            hardLogoutClear(getInstance().getContext());
+        }
+
+        DhisApi dhisApi = RepoManager.createService(serverUrl, credentials);
         SystemInfo systemInfo = dhisApi.getSystemInfo();
         systemInfo.save();
-        UserAccount user = (new UserController(dhisApi)
-                .logInUser(serverUrl, credentials));
+        UserAccount user = (new UserController(dhisApi).logInUser(serverUrl, credentials));
 
         // fetch meta data from disk
         readSession();
         return user;
     }
 
-    static void logOutUser(Context context) throws APIException {
+    static void logOutUser(Context context, boolean hardLogout) throws APIException {
         (new UserController(getInstance().dhisApi)).logOut();
 
+        if (hardLogout) {
+            hardLogoutClear(context);
+        }
+    }
+
+    static void hardLogoutClear(Context context) {
         // fetch meta data from disk
         readSession();
 

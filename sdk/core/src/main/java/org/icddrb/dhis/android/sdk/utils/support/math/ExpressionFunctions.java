@@ -350,6 +350,16 @@ public class ExpressionFunctions {
     }
 
     /**
+     * Return the length of a given string.
+     *
+     * @param input input value.
+     * @return the length of the string
+     */
+    public static Integer length(Integer input) {
+        return input == null ? 0 : String.valueOf(input).length();
+    }
+
+    /**
      * Split a string given a separator and get the nth item.
      *
      * @param inputString input value.

@@ -20,7 +20,9 @@ public class DownloadEventSnackbar {
     public void show(OnTeiDownloadedEvent downloadEvent) {
         switch (downloadEvent.getEventType()) {
             case START: // new download cycle. reset snackbar
-                snackbar.dismiss();
+                if (snackbar != null) {
+                    snackbar.dismiss();
+                }
                 snackbar = null;
                 errorHasOccured = false;
             case ERROR:

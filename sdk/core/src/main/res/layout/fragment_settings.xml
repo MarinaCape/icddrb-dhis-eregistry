@@ -44,7 +44,7 @@
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/settings_logout_button">
+                android:layout_above="@+id/settings_soft_logout_button">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -179,12 +179,28 @@
                             android:textSize="@dimen/small_text_size"
                             android:visibility="invisible"
                             app:font="@string/medium_font_name" />
+
+                        <org.icddrb.dhis.android.sdk.ui.views.FontButton
+                            android:id="@+id/settings_logout_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginBottom="6dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/button_red_selector"
+                            android:padding="6dp"
+                            android:singleLine="true"
+                            android:text="@string/logout"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/small_text_size"
+                            android:visibility="invisible"
+                            app:font="@string/medium_font_name" />
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>
 
             <org.icddrb.dhis.android.sdk.ui.views.FontButton
-                android:id="@id/settings_logout_button"
+                android:id="@+id/settings_soft_logout_button"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_alignParentBottom="true"
@@ -192,7 +208,7 @@
                 android:layout_marginBottom="6dp"
                 android:background="@drawable/button_red_selector"
                 android:singleLine="true"
-                android:text="@string/logout"
+                android:text="@string/soft_logout"
                 android:textColor="@color/white"
                 android:textSize="@dimen/small_text_size"
                 app:font="@string/medium_font_name" />

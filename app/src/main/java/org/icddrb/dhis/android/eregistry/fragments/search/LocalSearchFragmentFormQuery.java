@@ -23,7 +23,7 @@ public class LocalSearchFragmentFormQuery implements Query<LocalSearchFragmentFo
     private String orgUnitId;
     private String programId;
     private String[] allowedRows = {"Couple number", "Household number", "Full name", "FWA Name",
-            "Union Name", "Husband's Name", "Phone number",
+            "Union Name", "Husband's Name", "Phone number", "Village name (English)",
             "Alternate family mobile number","Birth date"};
 
     public LocalSearchFragmentFormQuery(String orgUnitId, String programId) {
@@ -53,7 +53,7 @@ public class LocalSearchFragmentFormQuery implements Query<LocalSearchFragmentFo
             value.setTrackedEntityAttributeId(trackedEntityAttribute.getUid());
             values.add(value);
 
-           // System.out.println("Norway - tea: "+trackedEntityAttribute.getName() + " va: "+value.getValue());
+            //System.out.println("Norway - tea: "+trackedEntityAttribute.getName() + " va: "+value.getValue());
 
             if (ptea.getMandatory()) {
                 ptea.setMandatory(

@@ -94,11 +94,11 @@ public final class DhisService extends Service {
         });
     }
 
-    public static void logOutUser(final Context context) {
+    public static void logOutUser(final Context context, final boolean hardLogout) {
         JobExecutor.enqueueJob(new Job<UiEvent>(LOG_OUT) {
             @Override
             public UiEvent inBackground() {
-                DhisController.logOutUser(context);
+                DhisController.logOutUser(context, hardLogout);
                 return new UiEvent(UiEvent.UiEventType.USER_LOG_OUT);
             }
 

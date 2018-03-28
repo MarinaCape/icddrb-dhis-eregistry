@@ -55,6 +55,15 @@ public class ExpressionUtils {
 
     private static final Pattern NUMERIC_PATTERN = Pattern.compile( "^(-?0|-?[1-9]\\d*)(\\.\\d+)?$" );
 
+    private static final Pattern LENGTH_FIX_PATTERN = Pattern.compile("^d2:length\\(\\d+\\).*?");
+
+    private static final Pattern LT_FIX_PATTERN = Pattern.compile(".*?=<.*?");
+
+    private static final Pattern DATE_FIX_PATTERN = Pattern.compile(".*?d2:yearsBetween\\('\\d{2}-\\d{2}-\\d{4}'.*?");
+
+    private static final Pattern NULL_FIX_PATTERN = Pattern.compile(".*?'null'.*?");
+
+
     static
     {
         Map<String, Object> functions = new HashMap<>();
@@ -90,8 +99,9 @@ public class ExpressionUtils {
         try {
             return evaluate(expression, vars, false);
         } catch (Exception e) {
-            System.out.println("Norway - expression: "+expression);
-            e.printStackTrace();
+            System.out.println("Norway - expression error: "+ e.getMessage() + " expr: " + expression);
+            System.out.println("Norway - expression: " + expression);
+            // e.printStackTrace();
             return null;
         }
     }
@@ -108,11 +118,44 @@ public class ExpressionUtils {
 
         JexlEngine engine = strict ? JEXL_STRICT : JEXL;
 
+        // Norway
+        expression = exprFix(expression);
+
         Expression exp = engine.createExpression( expression );
 
         JexlContext context = vars != null ? new MapContext( vars ) : new MapContext();
 
         return exp.evaluate( context );
+    }
+
+    private static String exprFix(String expression)
+    {
+        if (LENGTH_FIX_PATTERN.matcher(expression).matches()) {
+            //System.out.println("Phone 1: " + expression);
+            expression = expression.replaceAll("\\(([0-9]+)\\)","('$1')");
+            //System.out.println("Phone 2: " + expression);
+        }
+
+        if (LT_FIX_PATTERN.matcher(expression).matches()) {
+            // System.out.println("Less than 1: " + expression);
+            expression = expression.replaceAll("=<", "<=");
+            // System.out.println("Less than 2: " + expression);
+        }
+
+        if (DATE_FIX_PATTERN.matcher(expression).matches()) {
+             //System.out.println("Date format 1: " + expression);
+             expression = expression.replaceAll("d2:yearsBetween\\('(\\d{2})-(\\d{2})-(\\d{4})'", "d2:yearsBetween('$3-$2-$1'");
+             //System.out.println("Date format 2: " + expression);
+        }
+
+
+        if (NULL_FIX_PATTERN.matcher(expression).matches()) {
+            System.out.println("Null 1: " + expression);
+            expression = expression.replaceAll("'null'", "''");
+            System.out.println("Null 2: " + expression);
+        }
+
+        return expression;
     }
 
     /**

@@ -37,6 +37,8 @@ public class AutoCompleteOnTextChangedListener extends AbsTextWatcher {
         String name = s != null ? s.toString() : AutoCompleteRow.EMPTY_FIELD;
         String newValue;
         String previousValue = value.getValue();
+        //System.out.println("Norway - option set id: "+optionSetId + "  s: "+name);
+
         if(AutoCompleteRow.EMPTY_FIELD.equals(name)) {
             newValue = AutoCompleteRow.EMPTY_FIELD;
         } else {
@@ -52,6 +54,9 @@ public class AutoCompleteOnTextChangedListener extends AbsTextWatcher {
         if (isEmpty(newValue)) {
             newValue = AutoCompleteRow.EMPTY_FIELD;
         }
+
+        //System.out.println("Norway - new value: "+newValue);
+
 
         if (!newValue.equals(previousValue)) {
             value.setValue(newValue);

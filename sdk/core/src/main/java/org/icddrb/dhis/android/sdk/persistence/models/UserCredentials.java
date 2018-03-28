@@ -40,6 +40,9 @@ public class UserCredentials {
     @JsonProperty("userRoles")
     List<UserRole> userRoles;
 
+    @JsonProperty("username")
+    String username;
+
     public UserCredentials() {
         // explicit empty constructor
     }
@@ -51,6 +54,10 @@ public class UserCredentials {
             }
         }
         return false;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
 

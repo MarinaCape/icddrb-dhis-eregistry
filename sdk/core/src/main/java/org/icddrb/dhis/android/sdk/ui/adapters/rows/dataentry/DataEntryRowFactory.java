@@ -89,6 +89,9 @@ public class DataEntryRowFactory {
             UnionFWA dropdown = mPref.getDropdownInfo();
             OptionSet os = getAllUsersOptionSet(c, dropdown.getUsers(mPref.getChosenOrg()));
             mPref.putUserOptionId(os.getUid());
+
+            //System.out.println("Norway - username ("+trackedEntityAttributeName+"): " + baseValue.getValue());
+
             row = new AutoCompleteRow(trackedEntityAttributeName, mandatory, null, baseValue, os);
 
         }  else  if (valueType.equals(ValueType.ORGANISATION_UNIT)) {
@@ -160,11 +163,11 @@ public class DataEntryRowFactory {
                 o.setSortIndex(i);
                 o.setOptionSet(user.getId());
                 o.setName(user.getLabel());
-                o.setCode(user.getId());
+                o.setCode(user.getAlternateId());
                 o.setUid(o.getOptionSet() + user.getLabel().toLowerCase().replace(" ", "-").replace(",", ""));
                 options.add(o);
                 osString += o.getOptionSet();
-                // System.out.println("Norway - Adding User to dropdown " + user.getLabel() + ": " + user.getId());
+               // System.out.println("Norway - Adding User to dropdown " + user.getLabel() + ": " + user.getId() + " username: "+user.getAlternateId());
                 i++;
             }
 

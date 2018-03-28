@@ -35,7 +35,7 @@
     <string name="drawer_item_other">Other</string>
     <string name="drawer_item_status">Status</string>
     <string name="drawer_item_profile">Profile</string>
-    <string name="drawer_item_settings">Settings</string>
+    <string name="drawer_item_settings">Sync &amp; Logout</string>
     <string name="drawer_item_dashboard">Dashboard</string>
     <string name="drawer_item_data_capture">Data capture</string>
     <string name="drawer_item_event_capture">Event capture</string>
@@ -105,7 +105,7 @@
     <string name="account_description">Managing current login session</string>
 
     <!--Settings menu label -->
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Sync &amp; Logout</string>
 
     <!-- Status indicators: -->
     <string name="syncing">Synchronizing</string>

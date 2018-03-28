@@ -1,5 +1,6 @@
 package org.icddrb.dhis.android.eregistry.fragments.search;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -203,7 +204,6 @@ public class OnlineSearchFragment extends Fragment implements View.OnClickListen
         getLoaderManager().initLoader(LOADER_ID, argumentsBundle, this);
         getActionBar().setTitle(getString(R.string.download_entities_title));
         getActionBar().setTitle("Global Search");
-
     }
 
     @Override
@@ -348,8 +348,7 @@ public class OnlineSearchFragment extends Fragment implements View.OnClickListen
             try {
                 queryTrackedEntityInstances(getChildFragmentManager(),
                         mForm.getOrganisationUnit(), mForm.getProgram(),
-                        mForm.getQueryString
-                                (), detailedSearch, searchValues.toArray(new TrackedEntityAttributeValue[]{}));
+                        mForm.getQueryString(), detailedSearch, searchValues.toArray(new TrackedEntityAttributeValue[]{}));
             } catch (Exception e) {
                 showQueryError();
             }
@@ -360,8 +359,10 @@ public class OnlineSearchFragment extends Fragment implements View.OnClickListen
     }
 
     private void showQueryError() {
-        progressBar.setVisibility(View.INVISIBLE);
-        Toast.makeText(getContext(), getContext().getString(R.string.search_error), Toast.LENGTH_SHORT).show();
+        if (progressBar != null) {
+            progressBar.setVisibility(View.INVISIBLE);
+            Toast.makeText(getContext(), getContext().getString(R.string.search_error), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -371,6 +372,7 @@ public class OnlineSearchFragment extends Fragment implements View.OnClickListen
      * @param program can be null
      * @param params  can be null
      */
+    @SuppressLint("StaticFieldLeak")
     public void queryTrackedEntityInstances(final FragmentManager fragmentManager, final String orgUnit, final String program, final String queryString, final boolean detailedSearch, final TrackedEntityAttributeValue... params)
             throws APIException {
 

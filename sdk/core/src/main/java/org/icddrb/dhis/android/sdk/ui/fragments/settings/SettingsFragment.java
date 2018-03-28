@@ -60,6 +60,7 @@ import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.controllers.SyncStrategy;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent;
 import org.icddrb.dhis.android.sdk.events.UiEvent;
+import org.icddrb.dhis.android.sdk.network.Credentials;
 import org.icddrb.dhis.android.sdk.network.Session;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.preferences.AppPreferences;
@@ -108,7 +109,7 @@ public class SettingsFragment extends Fragment
         synchronizeButton = (Button) view.findViewById(R.id.settings_sync_button);
         synchronizeRemovedEventsButton = (Button) view.findViewById(
                 R.id.settings_sync_remotely_deleted_events_button);
-        logoutButton = (Button) view.findViewById(R.id.settings_logout_button);
+        logoutButton = (Button) view.findViewById(R.id.settings_soft_logout_button);
         mProgressBar = (ProgressBar) view.findViewById(R.id.settings_progessbar);
         syncTextView = (TextView) view.findViewById(R.id.settings_sync_textview);
         mProgressBar.setVisibility(View.GONE);
@@ -140,10 +141,10 @@ public class SettingsFragment extends Fragment
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.settings_logout_button) {
+        if (view.getId() == R.id.settings_soft_logout_button) {
             UiUtils.showConfirmDialog(getActivity(), getString(R.string.logout_title),
-                    getString(R.string.logout_message),
-                    getString(R.string.logout), getString(R.string.cancel),
+                    getString(R.string.soft_logout_message),
+                    getString(R.string.soft_logout), getString(R.string.cancel),
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -164,14 +165,22 @@ public class SettingsFragment extends Fragment
                                 Session session = DhisController.getInstance().getSession();
                                 if (session != null) {
                                     HttpUrl httpUrl = session.getServerUrl();
+                                    Credentials c = session.getCredentials();
+
                                     if (httpUrl != null) {
                                         String serverUrlString = httpUrl.toString();
                                         AppPreferences appPreferences = new AppPreferences(
                                                 getActivity().getApplicationContext());
                                         appPreferences.putServerUrl(serverUrlString);
                                     }
+
+                                    if (c != null) {
+                                        AppPreferences appPreferences = new AppPreferences(
+                                                getActivity().getApplicationContext());
+                                        appPreferences.putUserName(c.getUsername());
+                                    }
                                 }
-                                DhisService.logOutUser(getActivity());
+                                DhisService.logOutUser(getActivity(), false);
 
                                 int apiVersion = Build.VERSION.SDK_INT;
                                 if(apiVersion >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {

@@ -341,7 +341,7 @@ public final class MetaDataController extends ResourceController {
                 new Select().from(OrganisationUnitProgramRelationship.class).where(
                         Condition.column(OrganisationUnitProgramRelationship$Table.ORGANISATIONUNITID).
                                 is(organisationUnitId)).queryList();
-        System.out.println("Norway - Number of org rel: " + organisationUnitProgramRelationships.size());
+        // System.out.println("Norway - Number of org rel: " + organisationUnitProgramRelationships.size());
 
         List<Program> programs = new ArrayList<Program>();
         for (OrganisationUnitProgramRelationship oupr : organisationUnitProgramRelationships) {
@@ -754,7 +754,7 @@ public final class MetaDataController extends ResourceController {
         Map<String, Program> programMap = new HashMap<>();
         List<Program> assignedProgramUids = userAccount.getPrograms();
 
-        System.out.println("Norway - Number of assigned programs: " + assignedProgramUids.size());
+        // System.out.println("Norway - Number of assigned programs: " + assignedProgramUids.size());
 
 
         for (Program program : assignedProgramUids) {

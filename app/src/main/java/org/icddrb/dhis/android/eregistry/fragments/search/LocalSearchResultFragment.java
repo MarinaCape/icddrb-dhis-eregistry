@@ -170,7 +170,6 @@ public class LocalSearchResultFragment extends Fragment implements LoaderManager
         mAddLayout = (RelativeLayout) view.findViewById(R.id.add_layout);
 
         mAdapter = new TrackedEntityInstanceAdapter(getLayoutInflater(savedInstanceState));
-        mAdapter.setFilteredColumn(TrackedEntityInstanceAdapter.FILTER_FIRST_COLUMN);
         searchResultsListView.setAdapter(mAdapter);
 
         progressBar.setVisibility(View.VISIBLE);
@@ -309,7 +308,8 @@ public class LocalSearchResultFragment extends Fragment implements LoaderManager
         if (LOADER_ID == loader.getId()) {
             progressBar.setVisibility(View.GONE);
             mForm = data;
-            mAdapter.swapData(data.getEventRowList());
+            mAdapter.setData(data.getEventRowList());
+            mAdapter.getFilter().filter(Integer.toString(TrackedEntityInstanceAdapter.FILTER_FIRST_COLUMN));
         }
     }
 

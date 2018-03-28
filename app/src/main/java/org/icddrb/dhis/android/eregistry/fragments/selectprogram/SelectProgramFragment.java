@@ -29,6 +29,7 @@
 
 package org.icddrb.dhis.android.eregistry.fragments.selectprogram;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -48,22 +49,35 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.MediaController;
 import android.widget.TextView;
 
 import com.raizlabs.android.dbflow.structure.Model;
 import com.squareup.otto.Subscribe;
 
+import org.icddrb.dhis.android.sdk.controllers.DhisController;
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.events.OnRowClick;
 import org.icddrb.dhis.android.sdk.events.OnTeiDownloadedEvent;
 import org.icddrb.dhis.android.sdk.events.OnTrackerItemClick;
 import org.icddrb.dhis.android.sdk.events.UiEvent;
+import org.icddrb.dhis.android.sdk.job.JobExecutor;
+import org.icddrb.dhis.android.sdk.job.NetworkJob;
+import org.icddrb.dhis.android.sdk.network.APIException;
+import org.icddrb.dhis.android.sdk.network.DhisApi;
+import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.loaders.DbLoader;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseSerializableModel;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnitUser;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.icddrb.dhis.android.sdk.persistence.preferences.AppPreferences;
+import org.icddrb.dhis.android.sdk.persistence.preferences.ResourceType;
+import org.icddrb.dhis.android.sdk.ui.activities.SynchronisationStateHandler;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.OnTrackedEntityInstanceColumnClick;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.TrackedEntityInstanceItemRow;
 import org.icddrb.dhis.android.sdk.ui.fragments.selectprogram.SelectProgramFragmentForm;
@@ -81,6 +95,8 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.icddrb.dhis.android.sdk.utils.NetworkUtils.unwrapResponse;
+
 public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragments.selectprogram.SelectProgramFragment
         implements SearchView.OnQueryTextListener, SearchView.OnFocusChangeListener, SearchView.OnCloseListener,
         MenuItemCompat.OnActionExpandListener, LoaderManager.LoaderCallbacks<SelectProgramFragmentForm>, IEnroller {
@@ -94,6 +110,11 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
     protected TextView noRowsTextView;
     private DownloadEventSnackbar snackbar;
     private MenuItem item;
+
+    // Norway
+    private FloatingActionButton mQueryAllButton;
+    private List<TrackedEntityInstance> downloadedTrackedEntityInstances;
+    private List<Enrollment> downloadedEnrollments;
 
     @Override
     protected TrackedEntityInstanceAdapter getAdapter(Bundle savedInstanceState) {
@@ -119,6 +140,8 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
         );
         mRegisterEventButton = (FloatingActionButton) header.findViewById(R.id.register_new_event);
         mQueryTrackedEntityInstancesButton = (FloatingActionButton) header.findViewById(R.id.query_trackedentityinstances_button);
+        mQueryAllButton = (FloatingActionButton) header.findViewById(R.id.query_all_button);
+
         mUpcomingEventsButton = (FloatingActionButton) header.findViewById(R.id.upcoming_events_button);
         mLocalSearchButton = (FloatingActionButton) header.findViewById(R.id.local_search_button);
         noRowsTextView = (TextView) header.findViewById(R.id.textview_no_items);
@@ -126,12 +149,14 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
 
         mRegisterEventButton.setOnClickListener(this);
         mQueryTrackedEntityInstancesButton.setOnClickListener(this);
+        mQueryAllButton.setOnClickListener(this);
         mUpcomingEventsButton.setOnClickListener(this);
         mLocalSearchButton.setOnClickListener(this);
 
         mRegisterEventButton.hide();
         mUpcomingEventsButton.hide();
         mQueryTrackedEntityInstancesButton.hide();
+        mQueryAllButton.hide();
         mLocalSearchButton.hide();
         noRowsTextView.setVisibility(View.GONE);
         return header;
@@ -211,6 +236,10 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
                 showOnlineSearchFragment(mState.getOrgUnitId(), mState.getProgramId());
                 break;
             }
+            case R.id.query_all_button: {
+                downloadAll(mState.getOrgUnitId(), mState.getProgramId());
+                break;
+            }
             case R.id.local_search_button: {
                 HolderActivity.navigateToLocalSearchFragment(getActivity(), mState.getOrgUnitId(), mState.getProgramId());
                 break;
@@ -252,8 +281,88 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
         showOnlineSearchFragment(mState.getOrgUnitId(), mState.getProgramId());
     }
 
-    private final void showOnlineSearchFragment(String orgUnit, String program) {
+    private final void showOnlineSearchFragment(final String orgUnit, final String program)  throws APIException {
         HolderActivity.navigateToOnlineSearchFragment(getActivity(), program, orgUnit, false, null);
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public final void downloadAll(final String orgUnit, final String program)  throws APIException {
+        // Norway - downloads all records from union
+        final List<TrackedEntityAttributeValue> searchValues = new ArrayList<>();
+        final TrackedEntityAttributeValue[] params = searchValues.toArray(new TrackedEntityAttributeValue[]{});
+
+        JobExecutor.enqueueJob(new NetworkJob<Object>(1, null) {
+            @Override
+            public Object execute() throws APIException {
+                List<OrganisationUnitUser> orgOptionSets = unwrapResponse(Dhis2Application.dhisController.getDhisApi().getOrgsAndUsers(), "organisationUnits");
+                String unionId = Dhis2Application.dhisController.getAppPreferences().getRootUnionId(orgUnit, orgOptionSets);
+                System.out.println("Norway - current orgId: " + orgUnit + " main union: " + unionId);
+                if (unionId == null) {
+                    unionId = orgUnit;
+                }
+                final String queryString = unionId;
+                List<TrackedEntityInstance> trackedEntityInstancesQueryResult = null;
+                trackedEntityInstancesQueryResult = TrackerController.queryTrackedEntityInstancesDataFromAllAccessibleOrgUnits(DhisController.getInstance().getDhisApi(), orgUnit, program, queryString, true, params);
+                initiateDownload(trackedEntityInstancesQueryResult, program);
+                return new Object();
+            }
+        });
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    private final void initiateDownload(final List<TrackedEntityInstance> trackedEntityInstancesQueryResult, final String programId) {
+        Dhis2Application.getEventBus().post(
+                new OnTeiDownloadedEvent(OnTeiDownloadedEvent.EventType.START,
+                        trackedEntityInstancesQueryResult.size()));
+
+        Log.d(TAG, "loading: " + trackedEntityInstancesQueryResult.size());
+        downloadedTrackedEntityInstances = new ArrayList<>();
+        downloadedEnrollments = new ArrayList<>();
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_START));
+            }
+        });
+
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, ResourceType.TRACKEDENTITYINSTANCE) {
+
+            @Override
+            public Object execute() throws APIException {
+                SynchronisationStateHandler.getInstance().changeState(true);
+                List<TrackedEntityInstance> trackedEntityInstances = TrackerController.getTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), trackedEntityInstancesQueryResult, true, true);
+
+                if (trackedEntityInstances != null) {
+                    if (downloadedTrackedEntityInstances == null) {
+                        downloadedTrackedEntityInstances = new ArrayList<>();
+                    }
+                    downloadedTrackedEntityInstances.addAll(trackedEntityInstances);
+                }
+
+                for (int i = 0; i < downloadedTrackedEntityInstances.size(); i++) {
+                    List<Enrollment> enrollments = TrackerController.getEnrollmentDataFromServer(DhisController.getInstance().getDhisApi(), downloadedTrackedEntityInstances.get(i), null);
+                    if (enrollments != null) {
+                        if (downloadedEnrollments == null) {
+                            downloadedEnrollments = new ArrayList<>();
+                        }
+                        downloadedEnrollments.addAll(enrollments);
+                    }
+
+                    Dhis2Application.getEventBus().post(
+                            new OnTeiDownloadedEvent(OnTeiDownloadedEvent.EventType.UPDATE,
+                                    trackedEntityInstances.size(), (int) Math.ceil((downloadedTrackedEntityInstances.size() + i + 1) / 2.0)));
+                }
+
+                Dhis2Application.getEventBus().post(
+                        new OnTeiDownloadedEvent(OnTeiDownloadedEvent.EventType.END, trackedEntityInstancesQueryResult.size()));
+
+                Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_END));
+                SynchronisationStateHandler.getInstance().changeState(false);
+
+                return new Object();
+            }
+        });
     }
 
     public void showStatusDialog(BaseSerializableModel model) {
@@ -268,12 +377,14 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
                 mRegisterEventButton.hide();
                 mUpcomingEventsButton.hide();
                 mQueryTrackedEntityInstancesButton.hide();
+                mQueryAllButton.hide();
                 mLocalSearchButton.hide();
                 break;
             case 1:
                 if (! (mState.isClientRegister() || mState.isMCH()) ) { mRegisterEventButton.show(); } else { mRegisterEventButton.hide(); }
                 mUpcomingEventsButton.hide();
-                mQueryTrackedEntityInstancesButton.show();
+                mQueryTrackedEntityInstancesButton.hide();
+                mQueryAllButton.show();
                 mLocalSearchButton.show();
         }
     }
@@ -404,7 +515,6 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
         }
 
         snackbar.show(event);
-
     }
 
     @Override

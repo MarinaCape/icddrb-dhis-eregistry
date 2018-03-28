@@ -60,6 +60,13 @@
             android:src="@drawable/ic_new"/>
 
         <org.icddrb.dhis.android.sdk.ui.views.FloatingActionButton
+            android:id="@+id/query_all_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:src="@drawable/ic_download" />
+
+        <org.icddrb.dhis.android.sdk.ui.views.FloatingActionButton
             android:id="@+id/query_trackedentityinstances_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

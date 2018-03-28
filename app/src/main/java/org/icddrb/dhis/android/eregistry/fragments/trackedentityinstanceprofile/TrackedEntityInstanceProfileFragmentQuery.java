@@ -132,6 +132,7 @@ public class TrackedEntityInstanceProfileFragmentQuery implements
             List<TrackedEntityAttributeValue> trackedEntityAttributeValues) {
         for (TrackedEntityAttributeValue trackedEntityAttributeValue :
                 trackedEntityAttributeValues) {
+
             if (trackedEntityAttributeValue.getTrackedEntityAttributeId().equals(
                     trackedEntityAttribute)) {
                 return trackedEntityAttributeValue;

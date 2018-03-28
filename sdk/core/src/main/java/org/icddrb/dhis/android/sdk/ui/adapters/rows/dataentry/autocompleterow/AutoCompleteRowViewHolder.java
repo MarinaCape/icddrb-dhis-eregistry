@@ -29,7 +29,7 @@ class AutoCompleteRowViewHolder {
         clearButton = (ImageButton) view.findViewById(R.id.clear_option_value);
 //            this.detailedInfoButton = detailedInfoButton;
 
-       onOptionListener = new OnOptionItemSelectedListener(valueTextView);
+        onOptionListener = new OnOptionItemSelectedListener(valueTextView);
         onClearButtonListener = new AutoCompleteOnClearButtonListener(valueTextView);
         onTextChangedListener = new AutoCompleteOnTextChangedListener();
         onDropDownButtonListener = new AutoCompleteDropDownButtonListener();

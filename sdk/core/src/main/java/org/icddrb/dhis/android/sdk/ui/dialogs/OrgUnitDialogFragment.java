@@ -156,7 +156,7 @@ public class OrgUnitDialogFragment extends AutoCompleteDialogFragment
             OrgUnitDialogFragmentForm mForm = new OrgUnitDialogFragmentForm();
 
             List<OrganisationUnit> orgUnits = queryUnits();
-            System.out.println("Norway - Number of assigned: " + orgUnits.size());
+            // System.out.println("Norway - Number of assigned: " + orgUnits.size());
             List<OptionAdapterValue> values = new ArrayList<>();
             if(orgUnits.isEmpty()) {
                 mForm.setType(OrgUnitDialogFragmentForm.Error.NO_ASSIGNED_ORGANISATION_UNITS);

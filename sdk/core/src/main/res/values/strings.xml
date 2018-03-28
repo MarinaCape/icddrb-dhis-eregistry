@@ -29,7 +29,7 @@
 
 <resources>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Sync &amp; Logout</string>
     <string name="imgdesc">imgdesc</string>
     <string name="title_activity_main">Main Menu</string>
     <string name="title_activity_splash">DHIS2 Tracker</string>
@@ -135,8 +135,11 @@
 
     <string name="update_frequency">Automatic synchronization frequency</string>
     <string name="logout">"Delete all local data &amp; log out"</string>
+    <string name="soft_logout">Logout</string>
     <string name="un_enroll">Un-enroll</string>
-    <string name="complete">Mark Form Complete</string>
+    <string name="complete">Mark Form Complete &amp; Exit</string>
+    <string name="form_complete">Form is Now Complete</string>
+    <string name="incomplete">Mark Form Incomplete</string>
     <string name="finishing_up">Finishing initial database setup. This may take several minutes so please be patient.</string>
     <string name="loading_server_info">Loading server info</string>
     <string name="loading_assigned_programs">Loading assigned programs</string>
@@ -150,7 +153,6 @@
     <string name="loading_programruleactions">Loading programId rule actions</string>
     <string name="loading_tracked_entity_instances">Loading tracked entity instances</string>
     <string name="loading_relationshiptypes">Loading tracked entity instances</string>
-    <string name="incomplete">Mark Form Incomplete</string>
     <string name="discard">Discard</string>
     <string name="discard_confirm_changes">Are you sure you want to discard the current changes?</string>
     <string name="save_and_close">Save and close</string>
@@ -219,6 +221,7 @@
     <string name="gender_female">Female</string>
     <string name="gender_other">Other</string>
     <string name="logout_message">Are you sure you want to log out? All your data stored on the device will get lost if you choose to log out.</string>
+    <string name="soft_logout_message">Are you sure you want to log out?</string>
     <string name="logout_title">Logging out</string>
     <string name="complete_confirm">Are you sure you want to complete the event?</string>
     <string name="incomplete_confirm">Are you sure you want to incomplete the event?</string>

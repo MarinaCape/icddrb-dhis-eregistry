@@ -30,7 +30,7 @@
 
 <resources>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Sync &amp; Logout</string>
     <string name="register_new_event">Register new event</string>
     <string name="registered_events">Registered events</string>
     <string name="register_relationship">Register relationship</string>

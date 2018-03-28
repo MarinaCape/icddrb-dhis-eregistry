@@ -151,8 +151,7 @@ public class TrackedEntityInstanceAdapter extends AbsAdapter<EventRow> implement
             FilterResults result = new FilterResults();
             List<EventRow> filteredItems = new ArrayList<>();
             if (constraint.toString().startsWith(Integer.toString(FILTER_SEARCH))) {
-                constraint = constraint.subSequence(1,
-                        constraint.length()); // remove the filter flag from search string
+                constraint = constraint.subSequence(1, constraint.length()); // remove the filter flag from search string
 
                 if (constraint != null && constraint.toString().length() > 0) {
 
@@ -250,6 +249,7 @@ public class TrackedEntityInstanceAdapter extends AbsAdapter<EventRow> implement
                     filteredItems.add(row);
                 }
             }
+
             Collections.sort(filteredItems, new RowComparator(columnNumber));
             filteredItems.add(0, headerRow); // setting headerRow to first row
             return filteredItems;
@@ -288,6 +288,8 @@ public class TrackedEntityInstanceAdapter extends AbsAdapter<EventRow> implement
         private final int column;
         DateTime lhsDate = null;
         DateTime rhsDate = null;
+        TrackedEntityInstanceItemRow left = null;
+        TrackedEntityInstanceItemRow right = null;
 
         public RowComparator(int column) {
             this.column = column;
@@ -295,11 +297,10 @@ public class TrackedEntityInstanceAdapter extends AbsAdapter<EventRow> implement
 
         @Override
         public int compare(T lhs, T rhs) {
-            if (column == getFilteredColumn()) // if the filteredColumn is the current one, reverse it
+            /*if (column == getFilteredColumn()) // if the filteredColumn is the current one, reverse it
             {
-                setListIsReversed(true, column);
-                return sortDescending(lhs,
-                        rhs); // we cannot return sortAscending * (-1) because it is prone to
+                // setListIsReversed(true, column);
+                return sortDescending(lhs, rhs); // we cannot return sortAscending * (-1) because it is prone to
                 // overflow
             } else if (isListIsReversed(column)) // if list is reversed, sort Ascending
             {
@@ -307,70 +308,80 @@ public class TrackedEntityInstanceAdapter extends AbsAdapter<EventRow> implement
                 return sortAscending(lhs, rhs);
             } else {
                 return sortAscending(lhs, rhs);
-            }
+            }*/
+            return sortAscending(lhs, rhs);
         }
 
         private int sortAscending(T lhs, T rhs) {
-            TrackedEntityInstanceItemRow left = (TrackedEntityInstanceItemRow) lhs;
-            TrackedEntityInstanceItemRow right = (TrackedEntityInstanceItemRow) rhs;
-           /* try {
-                lhsDate = new DateTime(
+            try {
+                /*lhsDate = new DateTime(
                         ((TrackedEntityInstanceItemRow) lhs).getColumns().get(column));
                 rhsDate = new DateTime(
                         ((TrackedEntityInstanceItemRow) rhs).getColumns().get(column));
-
+                */
+                left = (TrackedEntityInstanceItemRow) lhs;
+                right = (TrackedEntityInstanceItemRow) rhs;
             } catch (Exception e) {
             }
+            /*
             if (lhsDate != null && rhsDate != null) {
                 return lhsDate.compareTo(rhsDate);
             }*/
             int compare = 0;
-            String leftFirstItem = left.getColumns().get(column);
-            String rightFirstItem = right.getColumns().get(column);
-            if (leftFirstItem == null) {
-                leftFirstItem = "";
-            }
+            if (left != null && right != null) {
+                String leftFirstItem = left.getColumns().get(0);
+                String rightFirstItem = right.getColumns().get(0);
+                if (leftFirstItem == null) {
+                    leftFirstItem = "";
+                }
 
-            if (rightFirstItem == null) {
-                rightFirstItem = "";
-            }
-            if (rightFirstItem.equalsIgnoreCase(leftFirstItem)) {
-                return 0;
-            } else {
-                compare = rightFirstItem.toLowerCase().compareTo(leftFirstItem.toLowerCase());
+                if (rightFirstItem == null) {
+                    rightFirstItem = "";
+                }
+
+                // System.out.println("Norway - Sort ASC Comparing '" + leftFirstItem + "' to '" + rightFirstItem + "'");
+                if (rightFirstItem.equalsIgnoreCase(leftFirstItem)) {
+                    compare = 0;
+                } else {
+                    compare = leftFirstItem.toLowerCase().compareTo(rightFirstItem.toLowerCase());
+                }
             }
             return compare;
         }
 
         private int sortDescending(T lhs, T rhs) {
-            TrackedEntityInstanceItemRow left = (TrackedEntityInstanceItemRow) lhs;
-            TrackedEntityInstanceItemRow right = (TrackedEntityInstanceItemRow) rhs;
-            /*try {
-                lhsDate = new DateTime(
-                        ((TrackedEntityInstanceItemRow) lhs).getColumns().get(column));
-                rhsDate = new DateTime(
-                        ((TrackedEntityInstanceItemRow) rhs).getColumns().get(column));
-
+            try {
+                /*lhsDate = new DateTime(((TrackedEntityInstanceItemRow) lhs).getColumns().get(column));
+                rhsDate = new DateTime(((TrackedEntityInstanceItemRow) rhs).getColumns().get(column));
+                */
+                left = (TrackedEntityInstanceItemRow) lhs;
+                right = (TrackedEntityInstanceItemRow) rhs;
             } catch (Exception e) {
             }
+            /*
             if (lhsDate != null && rhsDate != null) {
                 return rhsDate.compareTo(lhsDate);
             }*/
             int compare = 0;
-            String leftFirstItem = left.getColumns().get(column);
-            String rightFirstItem = right.getColumns().get(column);
-            if (leftFirstItem == null) {
-                leftFirstItem = "";
-            }
+            if (left != null && right != null) {
+                String leftFirstItem = left.getColumns().get(0);
+                String rightFirstItem = right.getColumns().get(0);
 
-            if (rightFirstItem == null) {
-                rightFirstItem = "";
-            }
+                if (leftFirstItem == null) {
+                    leftFirstItem = "";
+                }
 
-            if (rightFirstItem.equalsIgnoreCase(leftFirstItem)) {
-                return 0;
-            } else {
-                compare = rightFirstItem.toLowerCase().compareTo(leftFirstItem.toLowerCase());
+                if (rightFirstItem == null) {
+                    rightFirstItem = "";
+                }
+
+                //System.out.println("Norway - Sort DESC Comparing '" + leftFirstItem + "' to '" + rightFirstItem + "'");
+
+                if (rightFirstItem.equalsIgnoreCase(leftFirstItem)) {
+                    return 0;
+                } else {
+                    compare = rightFirstItem.toLowerCase().compareTo(leftFirstItem.toLowerCase());
+                }
             }
             return compare;
         }

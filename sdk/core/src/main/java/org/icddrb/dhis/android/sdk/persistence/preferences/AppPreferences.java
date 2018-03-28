@@ -34,7 +34,10 @@ import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
 
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnitUser;
 import org.icddrb.dhis.android.sdk.persistence.models.UnionFWA;
+
+import java.util.List;
 
 import static org.icddrb.dhis.android.sdk.utils.Preconditions.isNull;
 
@@ -122,5 +125,13 @@ public final class AppPreferences {
         String json = get(DROPDOWN_INFO);
         UnionFWA o = (json == null) ? new UnionFWA() : gson.fromJson(json, UnionFWA.class);
         return o;
+    }
+
+    public String getRootUnionId(String orgId, List<OrganisationUnitUser> orgOptionSets) {
+        UnionFWA o = getDropdownInfo();
+        if (o != null) {
+            return o.getRootUnion(orgId,  orgOptionSets);
+        }
+        return null;
     }
 }

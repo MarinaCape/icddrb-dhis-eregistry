@@ -60,8 +60,7 @@ final class UserController {
                 "firstName,surname,gender,birthday,introduction," +
                 "education,employer,interests,jobTitle,languages,email,phoneNumber," +
                 "teiSearchOrganisationUnits[id],organisationUnits[id],userGroups");
-        UserAccount userAccount = dhisApi
-                .getCurrentUserAccount(QUERY_PARAMS);
+        UserAccount userAccount = dhisApi.getCurrentUserAccount(QUERY_PARAMS);
 
         // if we got here, it means http
         // request was executed successfully

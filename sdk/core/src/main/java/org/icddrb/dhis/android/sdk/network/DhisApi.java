@@ -73,7 +73,7 @@ import retrofit.mime.TypedString;
 
 public interface DhisApi {
 
-    @GET("/organisationUnits?paging=false&fields=id,displayName,parent,level,users[id,displayName,userCredentials[userRoles[displayName,name]]]")
+    @GET("/organisationUnits?paging=false&fields=id,displayName,parent,level,users[id,displayName,userCredentials[username,userRoles[displayName,name]]]")
     Map<String, List<OrganisationUnitUser>> getOrgsAndUsers();
 
 

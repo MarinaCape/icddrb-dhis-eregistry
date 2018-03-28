@@ -733,12 +733,12 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                                         String labelForCompleteButton = "";
                                         if (form.getStage().isBlockEntryForm()) {
                                             labelForCompleteButton = getString(R.string.edit);
+                                            eventClick.getComplete().setText(labelForCompleteButton);
                                         } else {
-                                            labelForCompleteButton = getString(R.string.incomplete);
-                                            eventClick.getComplete().setBackgroundColor(Color.RED);
+                                            //labelForCompleteButton = getString(R.string.incomplete);
+                                            //eventClick.getComplete().setBackgroundColor(Color.RED);
                                         }
 
-                                        eventClick.getComplete().setText(labelForCompleteButton);
                                         eventClick.getEvent().setStatus(Event.STATUS_COMPLETED);
                                         form.getEvent().setFromServer(false);
                                         form.getEnrollment().setFromServer(false);
@@ -785,17 +785,18 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
                                         Dhis2Application.getEventBus().post(new RowValueChangedEvent(null, null));
                                         //Exit the activity if it has just been completed.
-                                        if (currentProgramStage.isBlockEntryForm() && !isShowingSchedulingOfNewEvent) {
+                                        //if (currentProgramStage.isBlockEntryForm() && !isShowingSchedulingOfNewEvent) {
                                             goBackToPreviousActivity();
-                                        }
+                                        //}
                                     }
                                 });
 
                     }
                 });
             } else {
+                eventClick.getTv().setVisibility(View.GONE);
                 eventClick.getComplete().setText(R.string.complete);
-                eventClick.getComplete().setBackgroundColor(Color.GREEN);
+                eventClick.getComplete().setBackgroundColor(Color.parseColor("#FF9900"));
 
                 form.getEvent().setStatus(Event.STATUS_ACTIVE);
                 form.getEvent().setFromServer(false);

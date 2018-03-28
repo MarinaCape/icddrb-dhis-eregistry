@@ -93,7 +93,7 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
         for (ProgramRule programRule : programRules) {
             try {
                 boolean evaluatedTrue = ProgramRuleService.evaluate(programRule.getCondition());
-                Log.d("PROGRAM RULE", "evaluating program rule: "+programRule.getCondition() + " Name: " + programRule.getName());
+                //Log.d("PROGRAM RULE", "evaluating program rule: "+programRule.getCondition() + " Name: " + programRule.getName());
                 for (ProgramRuleAction action : programRule.getProgramRuleActions()) {
                     if (evaluatedTrue) {
                         applyProgramRuleAction(action, affectedFieldsWithValue);

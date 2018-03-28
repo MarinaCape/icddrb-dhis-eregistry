@@ -116,8 +116,7 @@ public class LocalSearchFragment extends Fragment implements
 
 
     @Subscribe
-    public void onShowDetailedInfo(
-            OnDetailedInfoButtonClick eventClick) // may re-use code from DataEntryFragment
+    public void onShowDetailedInfo(OnDetailedInfoButtonClick eventClick) // may re-use code from DataEntryFragment
     {
         String message = "";
 

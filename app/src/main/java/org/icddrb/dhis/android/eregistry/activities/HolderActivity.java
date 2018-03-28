@@ -132,6 +132,7 @@ public class HolderActivity extends AbsHomeActivity {
                 onBackPressedListener = null;
                 OnlineSearchFragment onlineSearchFragment = new OnlineSearchFragment();
                 onlineSearchFragment.setArguments(getIntent().getExtras());
+                onlineSearchFragment.runQuery();
                 getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, onlineSearchFragment).commit();
                 break;
             }

@@ -106,8 +106,8 @@ final class TrackerDataLoader extends ResourceController {
                     serverDateTime);
         }
         //check if events is updated on server
-        //List<Enrollment> activeEnrollments = TrackerController.getActiveEnrollments();
-        //updateEventsForEnrollments(context, dhisApi, activeEnrollments, serverDateTime);
+        List<Enrollment> activeEnrollments = TrackerController.getActiveEnrollments();
+        updateEventsForEnrollments(context, dhisApi, activeEnrollments, serverDateTime);
 
         if (LoadingController.isLoadFlagEnabled(context, ResourceType.EVENTS)) {
             for (OrganisationUnit organisationUnit : assignedOrganisationUnits) {
@@ -580,16 +580,13 @@ final class TrackerDataLoader extends ResourceController {
                 if (teav != null && teav.getValue() != null) {
                     if (!teav.getValue().isEmpty()) {
                         valueParams.add(teav);
-//                        QUERY_MAP_FULL.put("filter",teav.getTrackedEntityAttributeId()
-// +":LIKE:"+teav.getValue());
                     }
                 }
             }
         }
         for (TrackedEntityAttributeValue val : valueParams) {
             if (!QUERY_MAP_FULL.containsKey("filter")) {
-                QUERY_MAP_FULL.put("filter",
-                        val.getTrackedEntityAttributeId() + ":LIKE:" + val.getValue());
+                QUERY_MAP_FULL.put("filter",val.getTrackedEntityAttributeId() + ":LIKE:" + val.getValue());
             } else {
                 String currentFilter = QUERY_MAP_FULL.get("filter");
                 QUERY_MAP_FULL.put("filter",
@@ -601,8 +598,7 @@ final class TrackerDataLoader extends ResourceController {
 
         //doesnt work with both attribute filter and query
         if (queryString != null && !queryString.isEmpty() && valueParams.isEmpty()) {
-            QUERY_MAP_FULL.put("query", "LIKE:"
-                    + queryString);//todo: make a map where we can use more than one of each key
+            QUERY_MAP_FULL.put("query", "LIKE:" + queryString);//todo: make a map where we can use more than one of each key
         }
         List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
                 .getTrackedEntityInstances(organisationUnitUid,
@@ -630,8 +626,6 @@ final class TrackerDataLoader extends ResourceController {
                 if (teav != null && teav.getValue() != null) {
                     if (!teav.getValue().isEmpty()) {
                         valueParams.add(teav);
-//                        QUERY_MAP_FULL.put("filter",teav.getTrackedEntityAttributeId()
-// +":LIKE:"+teav.getValue());
                     }
                 }
             }
@@ -667,13 +661,11 @@ final class TrackerDataLoader extends ResourceController {
 
         //doesnt work with both attribute filter and query
         if (queryString != null && !queryString.isEmpty() && valueParams.isEmpty()) {
-            QUERY_MAP_FULL.put("query", "LIKE:"
-                    + queryString);//todo: make a map where we can use more than one of each key
+            QUERY_MAP_FULL.put("query", "LIKE:" + queryString);//todo: make a map where we can use more than one of each key
         }
         List<TrackedEntityInstance> trackedEntityInstances = unwrapResponse(dhisApi
                         .getTrackedEntityInstancesFromAllAccessibleOrgUnits(organisationUnitUid,
-                                QUERY_MAP_FULL),
-                ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
+                                QUERY_MAP_FULL), ApiEndpointContainer.TRACKED_ENTITY_INSTANCES);
         return trackedEntityInstances;
     }
 

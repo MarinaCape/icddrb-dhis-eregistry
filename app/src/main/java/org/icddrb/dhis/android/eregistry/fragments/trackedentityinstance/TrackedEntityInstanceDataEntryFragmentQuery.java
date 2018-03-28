@@ -167,6 +167,7 @@ class TrackedEntityInstanceDataEntryFragmentQuery implements Query<TrackedEntity
             List<TrackedEntityAttributeValue> trackedEntityAttributeValues) {
         for (TrackedEntityAttributeValue trackedEntityAttributeValue :
                 trackedEntityAttributeValues) {
+
             if (trackedEntityAttributeValue.getTrackedEntityAttributeId().equals(
                     trackedEntityAttribute)) {
                 return trackedEntityAttributeValue;
@@ -176,8 +177,7 @@ class TrackedEntityInstanceDataEntryFragmentQuery implements Query<TrackedEntity
         //the datavalue didnt exist for some reason. Create a new one.
         TrackedEntityAttributeValue trackedEntityAttributeValue = new TrackedEntityAttributeValue();
         trackedEntityAttributeValue.setTrackedEntityAttributeId(trackedEntityAttribute);
-        trackedEntityAttributeValue.setTrackedEntityInstanceId(
-                currentTrackedEntityInstance.getTrackedEntityInstance());
+        trackedEntityAttributeValue.setTrackedEntityInstanceId(currentTrackedEntityInstance.getTrackedEntityInstance());
         trackedEntityAttributeValue.setValue("");
         trackedEntityAttributeValues.add(trackedEntityAttributeValue);
         return trackedEntityAttributeValue;
