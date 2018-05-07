@@ -86,6 +86,8 @@ import org.icddrb.dhis.android.sdk.persistence.models.RelationshipType;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.icddrb.dhis.android.sdk.persistence.models.UnionFWA;
+import org.icddrb.dhis.android.sdk.persistence.preferences.AppPreferences;
 import org.icddrb.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.icddrb.dhis.android.sdk.synchronization.data.enrollment.EnrollmentLocalDataSource;
 import org.icddrb.dhis.android.sdk.synchronization.data.enrollment.EnrollmentRemoteDataSource;
@@ -182,6 +184,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
 
     private CardView profileCardView;
     private CardView enrollmentCardview;
+    private CardView pregcompleteCardview;
     private CardView pregenrollCardview;
 
     private CardView programIndicatorCardView;
@@ -321,6 +324,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         incidentDateValue = (TextView) header.findViewById(R.id.dateOfIncidentValue);
         profileCardView = (CardView) header.findViewById(R.id.profile_cardview);
         enrollmentCardview = (CardView) header.findViewById(R.id.enrollment_cardview);
+        pregcompleteCardview = (CardView) header.findViewById(R.id.pregcomplete_cardview);
         pregenrollCardview = (CardView) header.findViewById(R.id.pregenroll_cardview);
         noActiveEnrollment = (TextView) header.findViewById(R.id.noactiveenrollment);
         programIndicatorCardView = (CardView) header.findViewById(R.id.programindicators_cardview);
@@ -387,30 +391,50 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     public void norwayChanges(View header) {
         CardView relationshipCV = (CardView) header.findViewById(R.id.relationships_cardview);
         relationshipCV.setVisibility(GONE);
-
         terminateButton.setVisibility(GONE);
 
-        if (mState.isMCH()) {
-            enableEnrollButton();
-        }else {
-            disableEnrollButton();
-        }
+        setPregCloseButtonState();
+        setEnrollButtonState();
     }
 
     //Norway
-    private void enableEnrollButton() {
-        newEnrollmentButton.setVisibility(VISIBLE);
-        completeButton.setVisibility(VISIBLE);
-        pregenrollCardview.setVisibility(VISIBLE);
-        pregEnrollButton.setVisibility(GONE);
-        pregEnrollButton.setClickable(false);
+    private void setPregCloseButtonState() {
+        System.out.println("Norway - " + (mForm==null ? "Mform is null" : "enrollment is " + mForm.getEnrollment().getStatus()));
+        boolean active = (mForm != null && Enrollment.ACTIVE.equals(mForm.getEnrollment().getStatus()));
+
+        if (mState.isMCH() && active) {
+            pregcompleteCardview.setVisibility(VISIBLE);
+            completeButton.setVisibility(VISIBLE);
+        } else {
+            pregcompleteCardview.setVisibility(GONE);
+            completeButton.setVisibility(GONE);
+        }
     }
 
-    private void disableEnrollButton() {
-        pregenrollCardview.setVisibility(View.GONE);
-        pregEnrollButton.setVisibility(View.GONE);
-        pregEnrollButton.setClickable(false);
-        completeButton.setVisibility(GONE);
+    private void setEnrollButtonState() {
+        if (mState.isMCH()) {
+            pregenrollCardview.setVisibility(VISIBLE);
+            newEnrollmentButton.setVisibility(VISIBLE);
+            pregEnrollButton.setVisibility(VISIBLE);
+        } else {
+            pregenrollCardview.setVisibility(GONE);
+        }
+        /*boolean active = (mForm != null && Enrollment.ACTIVE.equals(mForm.getEnrollment().getStatus()));
+
+        System.out.println("Norway - isMCH: " + mState.isMCH() + " active: " + active);
+
+        if (mState.isMCH() && !active) {
+            pregenrollCardview.setVisibility(VISIBLE);
+            newEnrollmentButton.setVisibility(VISIBLE);
+            // pregEnrollButton.setVisibility(VISIBLE);
+            // pregEnrollButton.setClickable(true);
+        } else {
+            pregenrollCardview.setVisibility(GONE);
+            newEnrollmentButton.setVisibility(GONE);
+            // pregEnrollButton.setVisibility(GONE);
+            // pregEnrollButton.setClickable(false);
+        }
+        */
     }
 
     @Override
@@ -719,11 +743,8 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                     programEventsLayout.addView(view);
             }
 
-            if (mState.isMCH()) {
-                enableEnrollButton();
-            } else {
-                disableEnrollButton();
-            }
+            setPregCloseButtonState();
+            setEnrollButtonState();
 
             //evaluateAndApplyProgramRules();
         }
@@ -1011,7 +1032,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         reOpenButton.setVisibility(View.VISIBLE);
 
         //Norway
-        if (mState.isClientRegister()) {
+        if (mState.isMCH()) {
             reOpenButton.setText("Re-open previous pregnancy record");
             noActiveEnrollment.setText("No active pregnancy record");
             newnewEnrollmentButton.setVisibility(VISIBLE);
@@ -1046,6 +1067,9 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                 TrackerController.getVisibleTrackedEntityAttributeValues(
                         trackedEntityInstance.getLocalId());
         {
+            AppPreferences mPref = new AppPreferences(getContext());
+            UnionFWA userList = mPref.getDropdownInfo();
+
             //update profile view
             if (trackedEntityAttributeValues != null && trackedEntityAttributeValues.size()>0) {
                 for (TrackedEntityAttributeValue a : trackedEntityAttributeValues) {
@@ -1059,8 +1083,10 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
                                 attribute1Value.setText(a.getValue());
                                 break;
                             case "FWA Name":
+                                String fwaName = userList.getFullName(a.getValue());
+                                // System.out.println("Norway - Searching for "+a.getValue() + "  found: " + fwaName);
                                 attribute2Label.setText(e.getDisplayName());
-                                attribute2Value.setText(a.getValue());
+                                attribute2Value.setText((fwaName==null) ? a.getValue() : fwaName);
                                 break;
                             case "Village name":
                                 attribute3Label.setText(e.getDisplayName());

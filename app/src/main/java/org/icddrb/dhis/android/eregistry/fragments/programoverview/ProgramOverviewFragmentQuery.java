@@ -42,7 +42,9 @@ import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.icddrb.dhis.android.sdk.persistence.models.UnionFWA;
 import org.icddrb.dhis.android.sdk.persistence.models.UserAccount;
+import org.icddrb.dhis.android.sdk.persistence.preferences.AppPreferences;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
 import org.icddrb.dhis.android.sdk.utils.Utils;
 import org.icddrb.dhis.android.sdk.utils.comparators.EventDateComparator;
@@ -105,6 +107,9 @@ class ProgramOverviewFragmentQuery implements Query<ProgramOverviewFragmentForm>
         List<TrackedEntityAttributeValue> trackedEntityAttributeValues =
                 TrackerController.getTrackedEntityAttributeValues(trackedEntityInstance.getLocalId());
         if(trackedEntityAttributeValues!=null) {
+            AppPreferences mPref = new AppPreferences(context);
+            UnionFWA userList = mPref.getDropdownInfo();
+
             for(TrackedEntityAttributeValue a : trackedEntityAttributeValues) {
                 TrackedEntityAttribute e = MetaDataController.getTrackedEntityAttribute(a.getTrackedEntityAttributeId());
                 // System.out.println("Norway - Label: " + ((e==null) ? "null" : e.getDisplayName()) + " Value: " + a.getValue());
@@ -116,8 +121,11 @@ class ProgramOverviewFragmentQuery implements Query<ProgramOverviewFragmentForm>
                             programOverviewFragmentForm.setAttribute1Value(a.getValue());
                             break;
                         case "FWA Name":
+                            String fwaName = userList.getFullName(a.getValue());
+                            // System.out.println("Norway - Searching for "+a.getValue() + "  found: " + fwaName);
                             programOverviewFragmentForm.setAttribute2Label(e.getDisplayName());
-                            programOverviewFragmentForm.setAttribute2Value(a.getValue());
+                            programOverviewFragmentForm.setAttribute2Value((fwaName==null) ? a.getValue() : fwaName);
+                            //programOverviewFragmentForm.setAttribute2Value(a.getValue());
                             break;
                         case "Village name (English)":
                             programOverviewFragmentForm.setAttribute3Label(e.getDisplayName());

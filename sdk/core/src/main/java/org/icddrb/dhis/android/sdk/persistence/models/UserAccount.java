@@ -208,6 +208,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
         return this.userGroups;
     }
 
+    public UserCredentials getUserCredentials() { return userCredentials; }
 
     @JsonIgnore
     public static UserAccount getCurrentUserAccountFromDb() {

@@ -7,6 +7,7 @@ import org.icddrb.dhis.android.sdk.events.OnTeiDownloadedEvent;
 import org.icddrb.dhis.android.eregistry.R;
 import org.icddrb.dhis.android.eregistry.fragments.selectprogram.SelectProgramFragment;
 
+
 public class DownloadEventSnackbar {
 
     private final SelectProgramFragment selectProgramFragment;
@@ -34,7 +35,7 @@ public class DownloadEventSnackbar {
                     snackbar.setAction(selectProgramFragment.getContext().getString(R.string.retry), new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            selectProgramFragment.showOnlineSearchFragment();
+                            selectProgramFragment.downloadAll();
                         }
                     });
                     return;

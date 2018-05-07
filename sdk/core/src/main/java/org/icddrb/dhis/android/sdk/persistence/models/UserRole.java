@@ -36,6 +36,9 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class UserRole {
 
+    @JsonProperty("id")
+    String id;
+
     @JsonProperty("displayName")
     String displayName;
 
@@ -48,6 +51,8 @@ class UserRole {
     public UserRole() {
         // explicit empty constructor
     }
+
+    public String getId()  { return id; }
 
     public String getDisplayName() { return displayName; }
 

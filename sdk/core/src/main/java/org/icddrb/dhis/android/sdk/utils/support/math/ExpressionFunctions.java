@@ -29,12 +29,16 @@
 
 package org.icddrb.dhis.android.sdk.utils.support.math;
 
+import static android.text.TextUtils.isEmpty;
 import static org.icddrb.dhis.android.sdk.utils.support.DateUtils.getMediumDateString;
-import static org.icddrb.dhis.client.sdk.utils.StringUtils.isEmpty;
 
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramRuleVariable;
+import org.icddrb.dhis.android.sdk.persistence.models.User;
+import org.icddrb.dhis.android.sdk.persistence.models.UserAccount;
+import org.icddrb.dhis.android.sdk.persistence.models.UserCredentials;
 import org.icddrb.dhis.android.sdk.utils.services.VariableService;
 import org.icddrb.dhis.android.sdk.utils.support.ExpressionUtils;
 import org.joda.time.DateTime;
@@ -163,6 +167,7 @@ public class ExpressionFunctions {
         DateTime startDate = new DateTime(start);
         DateTime endDate = new DateTime(end);
         int years = Years.yearsBetween(startDate.withDayOfMonth(1).withMonthOfYear(1), endDate.withDayOfMonth(1).withMonthOfYear(1)).getYears();
+        // System.out.println("Norway - checking years between " + startDate.toString() + " to " + endDate.toString() + " years: " + years);
         return years;
     }
 
@@ -399,5 +404,20 @@ public class ExpressionFunctions {
         } catch (NumberFormatException ex) {
             return null;
         }
+    }
+
+    // Norway
+    public static Boolean hasUserRole(String roleId) {
+        Boolean hasRole = false;
+        try {
+            UserAccount ua = MetaDataController.getUserAccount();
+            UserCredentials uc = ua.getUserCredentials();
+            hasRole = uc != null && uc.hasRoleId(roleId);
+            // System.out.println("Norway - checking role " + roleId + " result: " + hasRole.toString());
+        } catch (Exception e) {
+            System.out.println("Norway - checking role " + roleId + " failed.");
+            e.printStackTrace();
+        }
+        return hasRole;
     }
 }

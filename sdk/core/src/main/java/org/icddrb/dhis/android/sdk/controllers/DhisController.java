@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.squareup.okhttp.HttpUrl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.events.UiEvent;
@@ -67,7 +68,6 @@ import org.icddrb.dhis.android.sdk.synchronization.domain.trackedentityinstance
         .ITrackedEntityInstanceRepository;
 import org.icddrb.dhis.android.sdk.utils.SyncDateWrapper;
 import org.icddrb.dhis.client.sdk.ui.AppPreferencesImpl;
-import org.icddrb.dhis.client.sdk.utils.StringUtils;
 
 public final class DhisController {
     private static final String CLASS_TAG = "Dhis2";
@@ -114,6 +114,7 @@ public final class DhisController {
         appPreferences = new AppPreferencesImpl(context);
         preferences = new AppPreferences(context);
         syncDateWrapper = new SyncDateWrapper(context, appPreferences);
+        this.context = context;
     }
 
     public void init() {
@@ -128,7 +129,7 @@ public final class DhisController {
         return preferences;
     }
     public Context getContext() {
-        return context;
+        return this.context;
     }
 
 
@@ -155,7 +156,7 @@ public final class DhisController {
         sendData();
         LoadingController.loadMetaData(context, SyncStrategy.DOWNLOAD_ALL, getInstance().getDhisApi());
         LoadingController.loadDataValues(context, SyncStrategy.DOWNLOAD_ALL, getInstance().getDhisApi());
-        LoadingController.loadUnionData(context, SyncStrategy.DOWNLOAD_ONLY_NEW, getInstance().getDhisApi());
+        LoadingController.loadUnionData(context, SyncStrategy.DOWNLOAD_ALL, getInstance().getDhisApi());
         getInstance().getSyncDateWrapper().setLastSyncedNow();
     }
 
@@ -220,8 +221,9 @@ public final class DhisController {
         // fetch meta data from disk
         readSession();
 
-        AppPreferences mPref = new AppPreferences(context);
-        mPref.clearChosenOptions();
+        getInstance().getAppPreferences().clearChosenOptions();
+        //AppPreferences mPref = new AppPreferences(context);
+        //mPref.clearChosenOptions();
 
         MetaDataController.clearMetaDataLoadedFlags();
         TrackerController.clearDataValueLoadedFlags();

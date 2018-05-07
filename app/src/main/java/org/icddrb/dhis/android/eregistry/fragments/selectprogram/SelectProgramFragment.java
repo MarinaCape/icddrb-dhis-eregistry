@@ -285,6 +285,10 @@ public class SelectProgramFragment extends org.icddrb.dhis.android.sdk.ui.fragme
         HolderActivity.navigateToOnlineSearchFragment(getActivity(), program, orgUnit, false, null);
     }
 
+    public final void downloadAll() {
+        downloadAll(mState.getOrgUnitId(), mState.getProgramId());
+    }
+
     @SuppressLint("StaticFieldLeak")
     public final void downloadAll(final String orgUnit, final String program)  throws APIException {
         // Norway - downloads all records from union

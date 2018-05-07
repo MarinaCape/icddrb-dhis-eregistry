@@ -204,7 +204,7 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
             }
         }
 
-        //the datavalue didnt exist for some reason. Create a new one.
+        //the data value didnt exist for some reason. Create a new one.
         TrackedEntityAttributeValue trackedEntityAttributeValue = new TrackedEntityAttributeValue();
         trackedEntityAttributeValue.setTrackedEntityAttributeId(trackedEntityAttribute);
         trackedEntityAttributeValue.setTrackedEntityInstanceId(

@@ -97,6 +97,7 @@ public class ExpressionUtils {
     public static Object evaluate( String expression, Map<String, Object> vars )
     {
         try {
+            //System.out.println("Norway - EU evaluate expression: " + expression);
             return evaluate(expression, vars, false);
         } catch (Exception e) {
             System.out.println("Norway - expression error: "+ e.getMessage() + " expr: " + expression);

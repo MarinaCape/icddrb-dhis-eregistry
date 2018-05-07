@@ -56,6 +56,17 @@ public class UserCredentials {
         return false;
     }
 
+    public boolean hasRoleId(String roleId) {
+        if (roleId != null) {
+            for (UserRole r : userRoles) {
+                if (roleId.equals(r.getId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public String getUsername() {
         return username;
     }

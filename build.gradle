@@ -39,7 +39,7 @@ ext {
     configuration = [
             package          : "org.icddrb.dhis.android.eregistry",
             applicationId    : "org.icddrb.dhis.android.eregistry",
-            buildToolsVersion: "26.0.2",
+            buildToolsVersion: "27.0.3",
             minSdkVersion    : 15,
             compileSdkVersion: 23,
             targetSdkVersion : 23,

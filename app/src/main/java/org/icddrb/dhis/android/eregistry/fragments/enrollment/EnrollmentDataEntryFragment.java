@@ -450,7 +450,7 @@ public class EnrollmentDataEntryFragment extends DataEntryFragment<EnrollmentDat
         super.onRowValueChanged(event);
 
         // Norway: update FWA name based on chosen union
-        if (event.getRowType().equals(DataEntryRowTypes.ORGANISATION_UNIT.toString())) {
+        if (event.getRowType()!=null && event.getRowType().equals(DataEntryRowTypes.ORGANISATION_UNIT.toString())) {
             updateFWADropdown(getActivity().getBaseContext(), event);
         }
 

@@ -73,7 +73,7 @@ import retrofit.mime.TypedString;
 
 public interface DhisApi {
 
-    @GET("/organisationUnits?paging=false&fields=id,displayName,parent,level,users[id,displayName,userCredentials[username,userRoles[displayName,name]]]")
+    @GET("/organisationUnits?paging=false&fields=id,displayName,parent,level,users[id,displayName,userCredentials[username,userRoles[id,displayName,name]]]")
     Map<String, List<OrganisationUnitUser>> getOrgsAndUsers();
 
 
@@ -219,7 +219,7 @@ public interface DhisApi {
     Response getAssignedPrograms(@QueryMap Map<String, String> queryMap);
 
     // Norway @GET("/me?fields=organisationUnits[id,displayName,programs[id]],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
-    @GET("/me?fields=userGroups,organisationUnits[id,displayName,programs[id,userGroupAccesses,trackedEntityType]],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
+    @GET("/me?fields=userGroups,organisationUnits[id,displayName,programs[id,userGroupAccesses,trackedEntityType]],userCredentials[userRoles[programs[id],id]],teiSearchOrganisationUnits")
     UserAccount getUserAccount();
 
     @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")

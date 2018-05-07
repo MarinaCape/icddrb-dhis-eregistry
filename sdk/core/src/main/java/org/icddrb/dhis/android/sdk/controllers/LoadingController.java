@@ -124,6 +124,7 @@ public final class LoadingController {
             message = context.getString(R.string.finishing_up);
             UiUtils.postProgressMessage(message, LoadingMessageEvent.EventType.STARTUP);
             loadDataValues(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
+            loadUnionData(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
             Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.INITIAL_SYNCING_END));
         } else if (!TrackerController.isDataLoaded(context)) {
             Log.d(CLASS_TAG, "loading initial datavalues");
@@ -131,6 +132,7 @@ public final class LoadingController {
             message = context.getString(R.string.finishing_up);
             UiUtils.postProgressMessage(message, LoadingMessageEvent.EventType.STARTUP);
             loadDataValues(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
+            loadUnionData(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
         }
     }
 

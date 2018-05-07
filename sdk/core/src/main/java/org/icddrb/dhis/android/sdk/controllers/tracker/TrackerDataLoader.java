@@ -29,8 +29,8 @@
 
 package org.icddrb.dhis.android.sdk.controllers.tracker;
 
+import static android.text.TextUtils.isEmpty;
 import static org.icddrb.dhis.android.sdk.utils.NetworkUtils.unwrapResponse;
-import static org.icddrb.dhis.client.sdk.utils.StringUtils.isEmpty;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

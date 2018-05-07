@@ -30,10 +30,12 @@
 package org.icddrb.dhis.android.sdk.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.icddrb.dhis.android.sdk.utils.StringUtils;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Access {
 
     public Access() {

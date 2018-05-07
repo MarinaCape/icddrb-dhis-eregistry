@@ -96,6 +96,7 @@ public final class AppPreferences {
 
     // Norway
     public void putUserOptionId(String id) {
+        // System.out.println("Norway - User id set to " + id);
         put(USER_OPTION_ID, id);
     }
     public String getUserOptionId() {
@@ -103,7 +104,7 @@ public final class AppPreferences {
     }
 
     public void putChosenOrg(String id) {
-        System.out.println("Norway - Org id set to " + id);
+        // System.out.println("Norway - Org id set to " + id);
         put(CHOSEN_ORG, id);
     }
     public String getChosenOrg() {
