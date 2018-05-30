@@ -207,6 +207,12 @@ class ProgramOverviewRuleHelper implements IProgramRuleFragmentHelper {
     }
 
     @Override
+    public void applySendMessageRuleAction(ProgramRuleAction programRuleAction) {
+
+    }
+
+
+    @Override
     public void showWarningHiddenValuesDialog(Fragment fragment, ArrayList affectedValues) {
         //do nothing
     }

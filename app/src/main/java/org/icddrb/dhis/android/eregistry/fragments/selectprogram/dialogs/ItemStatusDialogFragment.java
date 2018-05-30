@@ -88,15 +88,24 @@ public class ItemStatusDialogFragment extends org.icddrb.dhis.android.sdk.ui.dia
 
     @Override
     public void sendToServer(BaseSerializableModel item, org.icddrb.dhis.android.sdk.ui.dialogs.ItemStatusDialogFragment fragment) {
+
+
         if(item instanceof TrackedEntityInstance) {
+            System.out.println("Norway - item: TrackedEntityInstance");
+
             TrackedEntityInstance trackedEntityInstance = (TrackedEntityInstance) item;
             sendTrackedEntityInstance(trackedEntityInstance);
+
         } else if(item instanceof Enrollment) {
+            System.out.println("Norway - item: Enrollment");
+
             Enrollment enrollment = (Enrollment) item;
             sendEnrollment(enrollment);
         }
         else if(item instanceof Event)
         {
+            System.out.println("Norway - item: event");
+
             Event event = (Event) item;
             sendEvent(event);
         }

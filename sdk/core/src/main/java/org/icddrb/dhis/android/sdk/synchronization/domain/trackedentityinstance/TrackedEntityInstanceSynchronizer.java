@@ -93,7 +93,7 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
         }
     }
 
-    private void syncTeis(List<TrackedEntityInstance> trackedEntityInstances) {
+    private void syncTeis(List<TrackedEntityInstance> trackedEntityInstances)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {
         try {
             Map<String, TrackedEntityInstance> trackedEntityInstanceMap =
                     TrackedEntityInstance.toMap(trackedEntityInstances);

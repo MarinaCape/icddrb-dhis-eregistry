@@ -40,6 +40,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -97,6 +98,7 @@ import java.util.Map;
 
 public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFragmentForm> {
 
+    //region don't change
     public static final String TAG = EventDataEntryFragment.class.getSimpleName();
     private Map<String, List<ProgramRule>> programRulesForDataElements;
     private Map<String, List<ProgramIndicator>> programIndicatorsForDataElements;
@@ -716,6 +718,29 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         completeEvent(eventClick);
     }
 
+    //endregion
+
+    public void completeEnrollment() {
+        if (form == null || form.getEnrollment() == null) {
+            Log.i("ENROLLMENT",
+                    "Unable to complete enrollment. mForm or mForm.getEnrollment() is null");
+            return;
+        }
+        System.out.println("Norway - completing enrollment");
+        form.getEnrollment().setStatus(Enrollment.COMPLETED);
+    }
+
+
+    public void unCompleteEnrollment() {
+        if (form == null || form.getEnrollment() == null) {
+            Log.i("ENROLLMENT",
+                    "Unable to uncomplete enrollment. mForm or mForm.getEnrollment() is null");
+            return;
+        }
+        System.out.println("Norway - uncompleting enrollment");
+        form.getEnrollment().setStatus(Enrollment.ACTIVE);
+    }
+
     private void completeEvent(final OnCompleteEventClick eventClick) {
         if (isValid()) {
             if (!eventClick.getEvent().getStatus().equals(Event.STATUS_COMPLETED)) {
@@ -776,8 +801,11 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                                                 }
                                             }
                                         }
+
+                                        boolean isPregCloseStage = "HaOwL7bIdrs".equals(currentProgramStage.getUid());
+
                                         // Checking if dataEntryForm should be blocked after completed
-                                        if (currentProgramStage.isBlockEntryForm()) {
+                                        if (currentProgramStage.isBlockEntryForm() || isPregCloseStage) {
                                             setEditableDataEntryRows(form, false, true);
                                         }
 
@@ -786,6 +814,11 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
                                         Dhis2Application.getEventBus().post(new RowValueChangedEvent(null, null));
                                         //Exit the activity if it has just been completed.
                                         //if (currentProgramStage.isBlockEntryForm() && !isShowingSchedulingOfNewEvent) {
+
+                                        if (isPregCloseStage) {
+                                            completeEnrollment();
+                                        }
+
                                             goBackToPreviousActivity();
                                         //}
                                     }
@@ -803,9 +836,14 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
 
                 // Checking if dataEntryForm should be enabled after un-completed
                 ProgramStage currentProgramStage = MetaDataController.getProgramStage(form.getEvent().getProgramStageId());
+                boolean isPregCloseStage = "HaOwL7bIdrs".equals(currentProgramStage.getUid());
 
-                if (currentProgramStage.isBlockEntryForm()) {
+                if (currentProgramStage.isBlockEntryForm() || isPregCloseStage) {
                     setEditableDataEntryRows(form, true, true);
+                }
+
+                if (isPregCloseStage) {
+                    unCompleteEnrollment();
                 }
 
                 Dhis2Application.getEventBus().post(new RowValueChangedEvent(null, null));
@@ -854,6 +892,7 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         return false;
     }
 
+    //region Don't change
     @Nullable
     private ProgramStage getFirstValidProgramStage(Program currentProgram,
             ProgramStage programStageToSchedule) {
@@ -1115,4 +1154,5 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
             }
         }
     }
+    //endregion
 }

@@ -125,6 +125,12 @@ public class TrackedEntityInstanceDataEntryRuleHelper implements IProgramRuleFra
 
     }
 
+
+    @Override
+    public void applySendMessageRuleAction(ProgramRuleAction programRuleAction) {
+
+    }
+
     @Override
     public void applyDisplayKeyValuePairRuleAction(ProgramRuleAction programRuleAction) {
 

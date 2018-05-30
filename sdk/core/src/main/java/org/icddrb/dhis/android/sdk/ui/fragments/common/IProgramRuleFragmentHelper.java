@@ -181,6 +181,13 @@ public interface IProgramRuleFragmentHelper {
      * @param programRuleAction
      */
     void applyWarningOnCompleteRuleAction(ProgramRuleAction programRuleAction);
+
+    /**
+     * Applies a {@link ProgramRuleAction} of type {@link org.icddrb.dhis.android.sdk.utils.api.ProgramRuleActionType#SENDMESSAGE}
+     * @param programRuleAction
+     */
+    void applySendMessageRuleAction(ProgramRuleAction programRuleAction);
+
     /**
      * Applies a {@link ProgramRuleAction} of type {@link org.icddrb.dhis.android.sdk.utils.api.ProgramRuleActionType#ERRORONCOMPLETE}
      * @param programRuleAction

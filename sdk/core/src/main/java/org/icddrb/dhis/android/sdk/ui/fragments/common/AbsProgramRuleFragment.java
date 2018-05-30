@@ -175,6 +175,11 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
                 programRuleFragmentHelper.applyWarningOnCompleteRuleAction(programRuleAction);
                 break;
             }
+            case SENDMESSAGE: {
+                // Log.i("Apply programrule:", "WARNINGONCOMPLETE");
+                programRuleFragmentHelper.applySendMessageRuleAction(programRuleAction);
+                break;
+            }
         }
     }
 

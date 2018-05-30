@@ -175,6 +175,11 @@ public class EventDataEntryRuleHelper implements IProgramRuleFragmentHelper {
     }
 
     @Override
+    public void applySendMessageRuleAction(ProgramRuleAction programRuleAction) {
+        //do nothing
+    }
+
+    @Override
     public Enrollment getEnrollment() {
         return eventDataEntryFragment.getForm().getEnrollment();
     }

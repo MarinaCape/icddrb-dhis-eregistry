@@ -164,6 +164,12 @@ public class TrackedEntityInstanceProfileRuleHelper implements IProgramRuleFragm
     }
 
     @Override
+    public void applySendMessageRuleAction(ProgramRuleAction programRuleAction) {
+
+    }
+
+
+    @Override
     public void applyHideSectionRuleAction(ProgramRuleAction programRuleAction) {
     }
 

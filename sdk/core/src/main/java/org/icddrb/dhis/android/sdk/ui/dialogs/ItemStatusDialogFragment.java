@@ -405,32 +405,32 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
 
 
 
-        private class MediaScanner implements MediaScannerConnection.MediaScannerConnectionClient
+    private class MediaScanner implements MediaScannerConnection.MediaScannerConnectionClient
+    {
+
+        private MediaScannerConnection mediaScannerConnection;
+        private String pathToFile;
+
+
+        public MediaScanner(Context context, String pathToFile)
         {
-
-            private MediaScannerConnection mediaScannerConnection;
-            private String pathToFile;
-
-
-            public MediaScanner(Context context, String pathToFile)
-            {
-                this.pathToFile = pathToFile;
-                mediaScannerConnection = new MediaScannerConnection(context, this);
-                mediaScannerConnection.connect();
-            }
-
-            @Override
-            public void onMediaScannerConnected()
-            {
-                mediaScannerConnection.scanFile(pathToFile, null); // when passing null reference, grabbing extension from file path (.txt for a text file)
-            }
-
-            @Override
-            public void onScanCompleted(String path, Uri uri)
-            {
-                mediaScannerConnection.disconnect();
-            }
+            this.pathToFile = pathToFile;
+            mediaScannerConnection = new MediaScannerConnection(context, this);
+            mediaScannerConnection.connect();
         }
+
+        @Override
+        public void onMediaScannerConnected()
+        {
+            mediaScannerConnection.scanFile(pathToFile, null); // when passing null reference, grabbing extension from file path (.txt for a text file)
+        }
+
+        @Override
+        public void onScanCompleted(String path, Uri uri)
+        {
+            mediaScannerConnection.disconnect();
+        }
+    }
 
 
     public static void sendEvent(final Event event) {

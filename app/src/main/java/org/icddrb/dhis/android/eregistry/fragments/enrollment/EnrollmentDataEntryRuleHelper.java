@@ -131,6 +131,12 @@ public class EnrollmentDataEntryRuleHelper implements IProgramRuleFragmentHelper
     }
 
     @Override
+    public void applySendMessageRuleAction(ProgramRuleAction programRuleAction) {
+
+    }
+
+
+    @Override
     public void applyDisplayTextRuleAction(ProgramRuleAction programRuleAction) {
 
     }

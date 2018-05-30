@@ -577,6 +577,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/rounded_imagebutton_red"
+                android:visibility="gone"
                 android:text="@string/enroll" />
         </LinearLayout>
 

@@ -403,8 +403,9 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         boolean active = (mForm != null && Enrollment.ACTIVE.equals(mForm.getEnrollment().getStatus()));
 
         if (mState.isMCH() && active) {
-            pregcompleteCardview.setVisibility(VISIBLE);
-            completeButton.setVisibility(VISIBLE);
+            // TODO: remove completely
+            pregcompleteCardview.setVisibility(GONE);
+            completeButton.setVisibility(GONE);
         } else {
             pregcompleteCardview.setVisibility(GONE);
             completeButton.setVisibility(GONE);
@@ -412,29 +413,21 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
     }
 
     private void setEnrollButtonState() {
-        if (mState.isMCH()) {
+        boolean active = (mForm != null && Enrollment.ACTIVE.equals(mForm.getEnrollment().getStatus()));
+
+        if (mState.isMCH() & !active) {
             pregenrollCardview.setVisibility(VISIBLE);
             newEnrollmentButton.setVisibility(VISIBLE);
             pregEnrollButton.setVisibility(VISIBLE);
-        } else {
-            pregenrollCardview.setVisibility(GONE);
-        }
-        /*boolean active = (mForm != null && Enrollment.ACTIVE.equals(mForm.getEnrollment().getStatus()));
-
-        System.out.println("Norway - isMCH: " + mState.isMCH() + " active: " + active);
-
-        if (mState.isMCH() && !active) {
-            pregenrollCardview.setVisibility(VISIBLE);
-            newEnrollmentButton.setVisibility(VISIBLE);
-            // pregEnrollButton.setVisibility(VISIBLE);
-            // pregEnrollButton.setClickable(true);
+            pregEnrollButton.setClickable(true);
         } else {
             pregenrollCardview.setVisibility(GONE);
             newEnrollmentButton.setVisibility(GONE);
-            // pregEnrollButton.setVisibility(GONE);
-            // pregEnrollButton.setClickable(false);
+            pregEnrollButton.setVisibility(GONE);
+            pregEnrollButton.setClickable(false);
         }
-        */
+
+        System.out.println("Norway - isMCH: " + mState.isMCH() + " active: " + active);
     }
 
     @Override

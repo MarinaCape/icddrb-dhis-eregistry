@@ -48,6 +48,10 @@ public class SyncEventUseCase {
         //else if (Do you have to synchronize enrollment?)
         //EnrollmentSynchronizer.sync(enrollment);
 
+        // Norway
+        mEventSynchronizer.sync(event);
+
+        /*
         Enrollment enrollment = mEnrollmentRepository.getEnrollment(event.getEnrollment());
         TrackedEntityInstance tei = mTrackedEntityInstanceRepository.getTrackedEntityInstance(
                 enrollment.getTrackedEntityInstance());
@@ -57,7 +61,7 @@ public class SyncEventUseCase {
             mEnrollmentSynchronizer.sync(enrollment);
         } else {
             mEventSynchronizer.sync(event);
-        }
+        }*/
     }
 
 }

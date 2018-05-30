@@ -41,6 +41,7 @@ public enum ProgramRuleActionType {
     ERRORONCOMPLETE("erroroncomplete"),
     HIDEPROGRAMSTAGE( "hideprogramstage"),
     WARNINGONCOMPLETE("warningoncomplete"),
+    SENDMESSAGE("sendmessage"),
     SETMANDATORYFIELD("setmandatoryfield");
 
     

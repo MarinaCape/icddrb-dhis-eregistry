@@ -179,11 +179,22 @@ public final class StatusRow extends Row {
         @Override
         public void onClick(View v) {
             if(activity==null) return;
-            String label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                    activity.getString(R.string.incomplete) : activity.getString(R.string.complete);
-            String action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                    activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
+
+            String label;
+            String action;
+
+            if ("HaOwL7bIdrs".equals(this.programStage.getUid())) {
+                label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete) : "Complete Pregnancy Record";
+                action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
+            } else {
+                label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete) : activity.getString(R.string.complete);
+                action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
+                        activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
 //            Dhis2.showConfirmDialog(activity, label, action, label, activity.getString(R.string.cancel), this);
+            }
 
             Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete,tv));
         }
