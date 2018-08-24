@@ -1,34 +1,6 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.views;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Context;
@@ -38,30 +10,25 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.os.Build;
+import android.os.Build.VERSION;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
-
-import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.C0845R;
 
 public class FloatingActionButton extends ImageButton {
-    private final static OvershootInterpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
-    private final static AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
-
-    public static final int TYPE_NORMAL = 0;
-    public static final int TYPE_MINI = 1;
-
+    private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
+    private static final OvershootInterpolator OVERSHOOT_INTERPOLATOR = new OvershootInterpolator();
     private static final int SHADOW_LAYER_INSET_INDEX = 1;
-
-    private int mType;
+    public static final int TYPE_MINI = 1;
+    public static final int TYPE_NORMAL = 0;
     private int mColorNormal;
     private int mColorPressed;
-    private int mShadowSize;
-    private boolean mShadow;
     private boolean mHidden;
+    private boolean mShadow;
+    private int mShadowSize;
+    private int mType;
 
     public FloatingActionButton(Context context) {
         super(context);
@@ -80,70 +47,50 @@ public class FloatingActionButton extends ImageButton {
 
     private void init(AttributeSet attributeSet) {
         setClickable(true);
-
-        mType = TYPE_NORMAL;
-
-        mColorNormal = getColor(R.color.navy_blue);
-        mColorPressed = getColor(R.color.dark_navy_blue);
-
-        mShadow = true;
-        mShadowSize = getDimension(R.dimen.floating_action_button_shadow_size);
-
+        this.mType = 0;
+        this.mColorNormal = getColor(C0845R.color.navy_blue);
+        this.mColorPressed = getColor(C0845R.color.dark_navy_blue);
+        this.mShadow = true;
+        this.mShadowSize = getDimension(C0845R.dimen.floating_action_button_shadow_size);
         if (attributeSet != null) {
-            TypedArray attrs = getContext().obtainStyledAttributes(attributeSet, R.styleable.FloatingActionButton);
+            TypedArray attrs = getContext().obtainStyledAttributes(attributeSet, C0845R.styleable.FloatingActionButton);
             if (attrs != null) {
                 try {
-                    mColorNormal = attrs.getColor(R.styleable.FloatingActionButton_colorNormal, mColorNormal);
-                    mColorPressed = attrs.getColor(R.styleable.FloatingActionButton_colorPressed, mColorPressed);
-                    mShadow = attrs.getBoolean(R.styleable.FloatingActionButton_shadow, mShadow);
-                    mType = attrs.getInt(R.styleable.FloatingActionButton_type, TYPE_NORMAL);
+                    this.mColorNormal = attrs.getColor(C0845R.styleable.FloatingActionButton_colorNormal, this.mColorNormal);
+                    this.mColorPressed = attrs.getColor(C0845R.styleable.FloatingActionButton_colorPressed, this.mColorPressed);
+                    this.mShadow = attrs.getBoolean(C0845R.styleable.FloatingActionButton_shadow, this.mShadow);
+                    this.mType = attrs.getInt(C0845R.styleable.FloatingActionButton_type, 0);
                 } finally {
                     attrs.recycle();
                 }
             }
         }
-
         updateBackground();
     }
 
     private Drawable createDrawable(int color) {
-        OvalShape ovalShape = new OvalShape();
-        ShapeDrawable shapeDrawable = new ShapeDrawable(ovalShape);
+        Drawable shapeDrawable = new ShapeDrawable(new OvalShape());
         shapeDrawable.getPaint().setColor(color);
-
-        if (mShadow) {
-            Drawable shadowDrawable;
-            if (mType == TYPE_NORMAL) {
-                shadowDrawable = getResources().getDrawable(R.drawable.shadow);
-            } else {
-                shadowDrawable = getResources().getDrawable(R.drawable.shadow_mini);
-            }
-
-            Drawable[] layerDrawableArray = new Drawable[]{
-                    shadowDrawable, shapeDrawable
-            };
-
-            LayerDrawable layerDrawable = new LayerDrawable(layerDrawableArray);
-            layerDrawable.setLayerInset(
-                    SHADOW_LAYER_INSET_INDEX, mShadowSize, mShadowSize, mShadowSize, mShadowSize
-            );
-
-            return layerDrawable;
-        } else {
+        if (!this.mShadow) {
             return shapeDrawable;
         }
+        Drawable shadowDrawable;
+        if (this.mType == 0) {
+            shadowDrawable = getResources().getDrawable(C0845R.drawable.shadow);
+        } else {
+            shadowDrawable = getResources().getDrawable(C0845R.drawable.shadow_mini);
+        }
+        LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{shadowDrawable, shapeDrawable});
+        layerDrawable.setLayerInset(1, this.mShadowSize, this.mShadowSize, this.mShadowSize, this.mShadowSize);
+        return layerDrawable;
     }
 
     private void updateBackground() {
         StateListDrawable stateList = new StateListDrawable();
-        // Empty array goes for every other state of button
-        int[] unpressedState = new int[]{};
-        int[] pressedState = new int[]{android.R.attr.state_pressed};
-
-        stateList.addState(pressedState, createDrawable(mColorPressed));
-        stateList.addState(unpressedState, createDrawable(mColorNormal));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        int[] unpressedState = new int[0];
+        stateList.addState(new int[]{16842919}, createDrawable(this.mColorPressed));
+        stateList.addState(unpressedState, createDrawable(this.mColorNormal));
+        if (VERSION.SDK_INT >= 16) {
             setBackground(stateList);
         } else {
             setBackgroundDrawable(stateList);
@@ -155,12 +102,12 @@ public class FloatingActionButton extends ImageButton {
     }
 
     public int getColorNormal() {
-        return mColorNormal;
+        return this.mColorNormal;
     }
 
     public void setColorNormal(int color) {
-        if (color != mColorNormal) {
-            mColorNormal = color;
+        if (color != this.mColorNormal) {
+            this.mColorNormal = color;
             updateBackground();
         }
     }
@@ -170,36 +117,36 @@ public class FloatingActionButton extends ImageButton {
     }
 
     public int getColorPressed() {
-        return mColorPressed;
+        return this.mColorPressed;
     }
 
     public void setColorPressed(int color) {
-        if (color != mColorPressed) {
-            mColorPressed = color;
+        if (color != this.mColorPressed) {
+            this.mColorPressed = color;
             updateBackground();
         }
     }
 
     public int getType() {
-        return mType;
+        return this.mType;
     }
 
     public void setType(int type) {
-        if (type != mType) {
-            mType = type;
+        if (type != this.mType) {
+            this.mType = type;
             updateBackground();
         }
     }
 
     public void setShadow(boolean shadow) {
-        if (shadow != mShadow) {
-            mShadow = shadow;
+        if (shadow != this.mShadow) {
+            this.mShadow = shadow;
             updateBackground();
         }
     }
 
     public boolean hasShadow() {
-        return mShadow;
+        return this.mShadow;
     }
 
     private int getColor(int id) {
@@ -211,21 +158,20 @@ public class FloatingActionButton extends ImageButton {
     }
 
     public void hide() {
-        if (!mHidden) {
-            setVisibility(View.GONE);
-            mHidden = true;
+        if (!this.mHidden) {
+            setVisibility(8);
+            this.mHidden = true;
         }
     }
 
     public void show() {
-        if (mHidden) {
-            setVisibility(View.VISIBLE);
-            mHidden = false;
-
-            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, "scaleX", 0, 1);
-            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, "scaleY", 0, 1);
+        if (this.mHidden) {
+            setVisibility(0);
+            this.mHidden = false;
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(this, "scaleX", new float[]{0.0f, 1.0f});
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(this, "scaleY", new float[]{0.0f, 1.0f});
             AnimatorSet animSetXY = new AnimatorSet();
-            animSetXY.playTogether(scaleX, scaleY);
+            animSetXY.playTogether(new Animator[]{scaleX, scaleY});
             animSetXY.setInterpolator(OVERSHOOT_INTERPOLATOR);
             animSetXY.setDuration(200);
             animSetXY.start();

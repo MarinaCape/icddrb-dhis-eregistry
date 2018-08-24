@@ -1,39 +1,10 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import java.io.Serializable;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.persistence.models.DataElement;
@@ -41,96 +12,90 @@ import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 
-import java.io.Serializable;
-
-/**
- * Created by erling on 9/9/15.
- */
 public abstract class Row implements DataEntryRow, Serializable {
-    protected String mLabel;
-    protected String mWarning;
+    private boolean editable = true;
+    private boolean hideDetailedInfoButton;
+    protected String mDescription;
     protected String mError;
     protected Integer mErrorStringId;
-    protected BaseValue mValue;
-    protected String mDescription;
-    protected DataEntryRowTypes mRowType;
-//    protected View detailedInfoButton;
-    private boolean hideDetailedInfoButton;
-    private boolean editable = true;
+    protected String mLabel;
     protected boolean mMandatory = false;
+    protected DataEntryRowTypes mRowType;
+    protected BaseValue mValue;
+    protected String mWarning;
+    private String orgId = null;
     private boolean shouldNeverBeEdited = false;
 
-//    public View getDetailedInfoButton(){
-//        return detailedInfoButton;
-//    }
+    public abstract View getView(FragmentManager fragmentManager, LayoutInflater layoutInflater, View view, ViewGroup viewGroup);
 
-    public BaseValue getValue(){
-        return mValue;
+    public abstract int getViewType();
+
+    public void setOrg(String v) {
+        this.orgId = v;
+    }
+
+    public String getOrgId() {
+        return this.orgId;
+    }
+
+    public BaseValue getValue() {
+        return this.mValue;
     }
 
     public boolean isEditable() {
-        return editable;
+        return this.editable;
     }
 
     public void setEditable(boolean editable) {
         this.editable = editable;
     }
 
-    @Override
-    public abstract View getView(FragmentManager fragmentManager, LayoutInflater inflater, View convertView, ViewGroup container);
-
-    @Override
-    public abstract int getViewType();
-
-    @Override
-    public Integer getValidationError(){
-        return mErrorStringId;
+    public Integer getValidationError() {
+        return this.mErrorStringId;
     }
 
-    public String getItemId()
-    {
-        if(mValue instanceof DataValue)
-            return ((DataValue) mValue).getDataElement();
-        else if(mValue instanceof TrackedEntityAttributeValue)
-            return ((TrackedEntityAttributeValue) mValue).getTrackedEntityAttributeId();
-        else
-            return "";
+    public String getItemId() {
+        if (this.mValue instanceof DataValue) {
+            return ((DataValue) this.mValue).getDataElement();
+        }
+        if (this.mValue instanceof TrackedEntityAttributeValue) {
+            return ((TrackedEntityAttributeValue) this.mValue).getTrackedEntityAttributeId();
+        }
+        return "";
     }
 
     public String getDescription() {
-        if(this instanceof EventCoordinatesRow) {
-            mDescription = "";
+        if (this instanceof EventCoordinatesRow) {
+            this.mDescription = "";
         } else if (this instanceof StatusRow) {
-            mDescription = "";
-        } else if(this instanceof IndicatorRow) {
-            return mDescription;
+            this.mDescription = "";
+        } else if (this instanceof IndicatorRow) {
+            return this.mDescription;
         }
-
         String itemId = getItemId();
         DataElement dataElement = MetaDataController.getDataElement(itemId);
-        if(dataElement != null) {
-            mDescription = dataElement.getDescription();
+        if (dataElement != null) {
+            this.mDescription = dataElement.getDescription();
         } else {
             TrackedEntityAttribute attribute = MetaDataController.getTrackedEntityAttribute(itemId);
-            if(attribute != null) {
-                mDescription = attribute.getDescription();
+            if (attribute != null) {
+                this.mDescription = attribute.getDescription();
             }
         }
-
-        return mDescription;
+        return this.mDescription;
     }
-    public void checkNeedsForDescriptionButton()
-    {
-        mDescription = getDescription();
-        if(mDescription == null || mDescription.equals("")) {
+
+    public void checkNeedsForDescriptionButton() {
+        this.mDescription = getDescription();
+        if (this.mDescription == null || this.mDescription.equals("")) {
             setHideDetailedInfoButton(true);
-        }
-        else {
+        } else {
             setHideDetailedInfoButton(false);
         }
     }
+
     public boolean isDetailedInfoButtonHidden() {
-        return hideDetailedInfoButton;
+        return this.hideDetailedInfoButton;
     }
 
     public void setHideDetailedInfoButton(boolean hideDetailedInfoButton) {
@@ -138,7 +103,7 @@ public abstract class Row implements DataEntryRow, Serializable {
     }
 
     public String getWarning() {
-        return mWarning;
+        return this.mWarning;
     }
 
     public void setWarning(String mWarning) {
@@ -146,7 +111,7 @@ public abstract class Row implements DataEntryRow, Serializable {
     }
 
     public String getError() {
-        return mError;
+        return this.mError;
     }
 
     public void setError(String mError) {
@@ -154,7 +119,7 @@ public abstract class Row implements DataEntryRow, Serializable {
     }
 
     public boolean isShouldNeverBeEdited() {
-        return shouldNeverBeEdited;
+        return this.shouldNeverBeEdited;
     }
 
     public void setShouldNeverBeEdited(boolean shouldNeverBeEdited) {
@@ -162,23 +127,17 @@ public abstract class Row implements DataEntryRow, Serializable {
     }
 
     public boolean isMandatory() {
-        return mMandatory;
+        return this.mMandatory;
     }
 
     public void setMandatory(boolean mandatory) {
-        mMandatory = mandatory;
+        this.mMandatory = mandatory;
     }
 
-    public boolean isEditTextRow(){
-         return !(!DataEntryRowTypes.TEXT.equals(mRowType) &&
-                !DataEntryRowTypes.LONG_TEXT.equals(mRowType) &&
-                !DataEntryRowTypes.NUMBER.equals(mRowType) &&
-                !DataEntryRowTypes.INTEGER.equals(mRowType) &&
-                !DataEntryRowTypes.INTEGER_NEGATIVE.equals(mRowType) &&
-                !DataEntryRowTypes.INTEGER_ZERO_OR_POSITIVE.equals(mRowType) &&
-                !DataEntryRowTypes.PHONE_NUMBER.equals(mRowType) &&
-                !DataEntryRowTypes.PERCENTAGE.equals(mRowType) &&
-                !DataEntryRowTypes.INTEGER_POSITIVE.equals(mRowType) &&
-                !DataEntryRowTypes.INVALID_DATA_ENTRY.equals(mRowType));
+    public boolean isEditTextRow() {
+        if (DataEntryRowTypes.TEXT.equals(this.mRowType) || DataEntryRowTypes.LONG_TEXT.equals(this.mRowType) || DataEntryRowTypes.NUMBER.equals(this.mRowType) || DataEntryRowTypes.INTEGER.equals(this.mRowType) || DataEntryRowTypes.INTEGER_NEGATIVE.equals(this.mRowType) || DataEntryRowTypes.INTEGER_ZERO_OR_POSITIVE.equals(this.mRowType) || DataEntryRowTypes.PHONE_NUMBER.equals(this.mRowType) || DataEntryRowTypes.PERCENTAGE.equals(this.mRowType) || DataEntryRowTypes.INTEGER_POSITIVE.equals(this.mRowType) || DataEntryRowTypes.INVALID_DATA_ENTRY.equals(this.mRowType)) {
+            return true;
+        }
+        return false;
     }
 }

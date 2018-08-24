@@ -1,71 +1,157 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.Update;
-
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import java.io.Serializable;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.utils.Utils;
 
-import java.io.Serializable;
-
-/**
- * @author Simen Skogly Russnes on 03.03.15.
- */
-@Table(databaseName = Dhis2Database.NAME)
 public class TrackedEntityAttributeValue extends BaseValue implements Serializable {
     private static final String CLASS_TAG = TrackedEntityAttributeValue.class.getSimpleName();
-
-    @JsonProperty("attribute")
-    @Column(name = "trackedEntityAttributeId")
-    @PrimaryKey
-    String trackedEntityAttributeId;
-
     @JsonIgnore
-    @Column(name = "trackedEntityInstanceId")
-    @PrimaryKey
+    long localTrackedEntityInstanceId;
+    @JsonProperty("attribute")
+    String trackedEntityAttributeId;
+    @JsonIgnore
     String trackedEntityInstanceId;
 
-    @JsonIgnore
-    @Column(name = "localTrackedEntityInstanceId")
-    long localTrackedEntityInstanceId;
+    public final class Adapter extends ModelAdapter<TrackedEntityAttributeValue> {
+        public Class<TrackedEntityAttributeValue> getModelClass() {
+            return TrackedEntityAttributeValue.class;
+        }
 
-    public TrackedEntityAttributeValue() {
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
 
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `TrackedEntityAttributeValue` (`VALUE`, `TRACKEDENTITYATTRIBUTEID`, `TRACKEDENTITYINSTANCEID`, `LOCALTRACKEDENTITYINSTANCEID`) VALUES (?, ?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, TrackedEntityAttributeValue model) {
+            if (model.value != null) {
+                statement.bindString(1, model.value);
+            } else {
+                statement.bindNull(1);
+            }
+            if (model.trackedEntityAttributeId != null) {
+                statement.bindString(2, model.trackedEntityAttributeId);
+            } else {
+                statement.bindNull(2);
+            }
+            if (model.trackedEntityInstanceId != null) {
+                statement.bindString(3, model.trackedEntityInstanceId);
+            } else {
+                statement.bindNull(3);
+            }
+            statement.bindLong(4, model.localTrackedEntityInstanceId);
+        }
+
+        public void bindToContentValues(ContentValues contentValues, TrackedEntityAttributeValue model) {
+            if (model.value != null) {
+                contentValues.put("value", model.value);
+            } else {
+                contentValues.putNull("value");
+            }
+            if (model.trackedEntityAttributeId != null) {
+                contentValues.put(Table.TRACKEDENTITYATTRIBUTEID, model.trackedEntityAttributeId);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYATTRIBUTEID);
+            }
+            if (model.trackedEntityInstanceId != null) {
+                contentValues.put(Table.TRACKEDENTITYINSTANCEID, model.trackedEntityInstanceId);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYINSTANCEID);
+            }
+            contentValues.put("localTrackedEntityInstanceId", Long.valueOf(model.localTrackedEntityInstanceId));
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, TrackedEntityAttributeValue model) {
+            if (model.value != null) {
+                contentValues.put("value", model.value);
+            } else {
+                contentValues.putNull("value");
+            }
+            if (model.trackedEntityAttributeId != null) {
+                contentValues.put(Table.TRACKEDENTITYATTRIBUTEID, model.trackedEntityAttributeId);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYATTRIBUTEID);
+            }
+            if (model.trackedEntityInstanceId != null) {
+                contentValues.put(Table.TRACKEDENTITYINSTANCEID, model.trackedEntityInstanceId);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYINSTANCEID);
+            }
+            contentValues.put("localTrackedEntityInstanceId", Long.valueOf(model.localTrackedEntityInstanceId));
+        }
+
+        public boolean exists(TrackedEntityAttributeValue model) {
+            return new Select().from(TrackedEntityAttributeValue.class).where(getPrimaryModelWhere(model)).hasData();
+        }
+
+        public void loadFromCursor(Cursor cursor, TrackedEntityAttributeValue model) {
+            int indexvalue = cursor.getColumnIndex("value");
+            if (indexvalue != -1) {
+                if (cursor.isNull(indexvalue)) {
+                    model.value = null;
+                } else {
+                    model.value = cursor.getString(indexvalue);
+                }
+            }
+            int indextrackedEntityAttributeId = cursor.getColumnIndex(Table.TRACKEDENTITYATTRIBUTEID);
+            if (indextrackedEntityAttributeId != -1) {
+                if (cursor.isNull(indextrackedEntityAttributeId)) {
+                    model.trackedEntityAttributeId = null;
+                } else {
+                    model.trackedEntityAttributeId = cursor.getString(indextrackedEntityAttributeId);
+                }
+            }
+            int indextrackedEntityInstanceId = cursor.getColumnIndex(Table.TRACKEDENTITYINSTANCEID);
+            if (indextrackedEntityInstanceId != -1) {
+                if (cursor.isNull(indextrackedEntityInstanceId)) {
+                    model.trackedEntityInstanceId = null;
+                } else {
+                    model.trackedEntityInstanceId = cursor.getString(indextrackedEntityInstanceId);
+                }
+            }
+            int indexlocalTrackedEntityInstanceId = cursor.getColumnIndex("localTrackedEntityInstanceId");
+            if (indexlocalTrackedEntityInstanceId != -1) {
+                model.localTrackedEntityInstanceId = cursor.getLong(indexlocalTrackedEntityInstanceId);
+            }
+        }
+
+        public ConditionQueryBuilder<TrackedEntityAttributeValue> getPrimaryModelWhere(TrackedEntityAttributeValue model) {
+            return new ConditionQueryBuilder(TrackedEntityAttributeValue.class, Condition.column(Table.TRACKEDENTITYATTRIBUTEID).is(model.trackedEntityAttributeId), Condition.column(Table.TRACKEDENTITYINSTANCEID).is(model.trackedEntityInstanceId));
+        }
+
+        public ConditionQueryBuilder<TrackedEntityAttributeValue> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(TrackedEntityAttributeValue.class, Condition.column(Table.TRACKEDENTITYATTRIBUTEID).is(Operation.EMPTY_PARAM), Condition.column(Table.TRACKEDENTITYINSTANCEID).is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `TrackedEntityAttributeValue`(`value` TEXT, `trackedEntityAttributeId` TEXT, `trackedEntityInstanceId` TEXT, `localTrackedEntityInstanceId` INTEGER, PRIMARY KEY(`trackedEntityAttributeId`, `trackedEntityInstanceId`));";
+        }
+
+        public final TrackedEntityAttributeValue newInstance() {
+            return new TrackedEntityAttributeValue();
+        }
+    }
+
+    public final class Table {
+        public static final String LOCALTRACKEDENTITYINSTANCEID = "localTrackedEntityInstanceId";
+        public static final String TABLE_NAME = "TrackedEntityAttributeValue";
+        public static final String TRACKEDENTITYATTRIBUTEID = "trackedEntityAttributeId";
+        public static final String TRACKEDENTITYINSTANCEID = "trackedEntityInstanceId";
+        public static final String VALUE = "value";
     }
 
     public TrackedEntityAttributeValue(TrackedEntityAttributeValue trackedEntityAttributeValue) {
@@ -75,34 +161,24 @@ public class TrackedEntityAttributeValue extends BaseValue implements Serializab
         this.localTrackedEntityInstanceId = trackedEntityAttributeValue.getLocalTrackedEntityInstanceId();
     }
 
-    @Override
     public void save() {
-        if (Utils.isLocal(trackedEntityInstanceId) && TrackerController.
-                getTrackedEntityAttributeValue(trackedEntityAttributeId,
-                        localTrackedEntityInstanceId) != null) {
-            //to avoid overwriting UID from server due to race conditions with autosyncing with server
-            //we only update the value (ie and not the other fields) if the currently in-memory event UID is locally created
-            updateManually();
-        } else {
+        if (!Utils.isLocal(this.trackedEntityInstanceId) || TrackerController.getTrackedEntityAttributeValue(this.trackedEntityAttributeId, this.localTrackedEntityInstanceId) == null) {
             super.save();
+        } else {
+            updateManually();
         }
     }
 
-
     public void updateManually() {
-        new Update(TrackedEntityAttributeValue.class).set(
-                Condition.column(TrackedEntityAttributeValue$Table.VALUE).is(value))
-                .where(Condition.column(TrackedEntityAttributeValue$Table.LOCALTRACKEDENTITYINSTANCEID).is(localTrackedEntityInstanceId),
-                        Condition.column(TrackedEntityAttributeValue$Table.TRACKEDENTITYATTRIBUTEID).is(trackedEntityAttributeId)).queryClose();
+        new Update(TrackedEntityAttributeValue.class).set(Condition.column("value").is(this.value)).where(Condition.column("localTrackedEntityInstanceId").is(Long.valueOf(this.localTrackedEntityInstanceId)), Condition.column(Table.TRACKEDENTITYATTRIBUTEID).is(this.trackedEntityAttributeId)).queryClose();
     }
 
-    @Override
     public void update() {
         save();
     }
 
     public String getTrackedEntityAttributeId() {
-        return trackedEntityAttributeId;
+        return this.trackedEntityAttributeId;
     }
 
     public void setTrackedEntityAttributeId(String trackedEntityAttributeId) {
@@ -110,7 +186,7 @@ public class TrackedEntityAttributeValue extends BaseValue implements Serializab
     }
 
     public String getTrackedEntityInstanceId() {
-        return trackedEntityInstanceId;
+        return this.trackedEntityInstanceId;
     }
 
     public void setTrackedEntityInstanceId(String trackedEntityInstanceId) {
@@ -118,7 +194,7 @@ public class TrackedEntityAttributeValue extends BaseValue implements Serializab
     }
 
     public long getLocalTrackedEntityInstanceId() {
-        return localTrackedEntityInstanceId;
+        return this.localTrackedEntityInstanceId;
     }
 
     public void setLocalTrackedEntityInstanceId(long localTrackedEntityInstanceId) {

@@ -5,7 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -16,15 +16,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.raizlabs.android.dbflow.structure.Model;
 import com.squareup.otto.Subscribe;
-
+import java.util.ArrayList;
+import java.util.List;
+import org.icddrb.dhis.android.eregistry.C0773R;
+import org.icddrb.dhis.android.eregistry.activities.HolderActivity;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.job.JobExecutor;
@@ -36,6 +39,7 @@ import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValu
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.ui.adapters.DataValueAdapter;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.AbsTextWatcher;
+import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowTypes;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.EventCoordinatesRow;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
@@ -44,40 +48,51 @@ import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonC
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.icddrb.dhis.android.sdk.ui.views.FloatingActionButton;
 import org.icddrb.dhis.android.sdk.utils.UiUtils;
-import org.icddrb.dhis.android.eregistry.R;
-import org.icddrb.dhis.android.eregistry.activities.HolderActivity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.DataEntryRowFactory.updateFWADropdown;
-
-public class OnlineSearchFragment extends Fragment implements View.OnClickListener, LoaderManager.LoaderCallbacks<OnlineSearchFragmentForm> {
-    public static final String TAG = OnlineSearchFragment.class.getSimpleName();
-
-    private static final int LOADER_ID = 956401;
-
-    private OnlineSearchFragmentForm mForm;
-    private EditText mFilter;
-    private TextView mDialogLabel;
-    private DataValueAdapter mAdapter;
-    private ListView mListView;
-    private int mDialogId;
-    private View progressBar;
-    private boolean backNavigation;
-
-    public static final String EXTRA_PROGRAM = "extra:trackedEntityAttributes";
-    public static final String EXTRA_ORGUNIT = "extra:orgUnit";
-    public static final String EXTRA_DETAILED = "extra:detailed";
+public class OnlineSearchFragment extends Fragment implements OnClickListener, LoaderCallbacks<OnlineSearchFragmentForm> {
     public static final String EXTRA_ARGUMENTS = "extra:Arguments";
+    public static final String EXTRA_DETAILED = "extra:detailed";
     public static final String EXTRA_NAVIGATION = "extra:Navigation";
+    public static final String EXTRA_ORGUNIT = "extra:orgUnit";
+    public static final String EXTRA_PROGRAM = "extra:trackedEntityAttributes";
     public static final String EXTRA_SAVED_INSTANCE_STATE = "extra:savedInstanceState";
+    private static final int LOADER_ID = 956401;
+    public static final String TAG = OnlineSearchFragment.class.getSimpleName();
+    private boolean backNavigation;
+    private DataValueAdapter mAdapter;
+    private int mDialogId;
+    private TextView mDialogLabel;
+    private EditText mFilter;
+    private OnlineSearchFragmentForm mForm;
+    private ListView mListView;
+    private View progressBar;
+
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.search.OnlineSearchFragment$1 */
+    class C07951 extends AbsTextWatcher {
+        C07951() {
+        }
+
+        public void afterTextChanged(Editable s) {
+            if (OnlineSearchFragment.this.mForm != null) {
+                OnlineSearchFragment.this.mForm.setQueryString(s.toString());
+            }
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.search.OnlineSearchFragment$2 */
+    class C07962 implements DialogInterface.OnClickListener {
+        C07962() {
+        }
+
+        public void onClick(DialogInterface dialog, int i) {
+            dialog.dismiss();
+        }
+    }
 
     public static OnlineSearchFragment newInstance(String program, String orgUnit) {
         OnlineSearchFragment dialogFragment = new OnlineSearchFragment();
         Bundle args = new Bundle();
-
-        args.putString(EXTRA_ORGUNIT, orgUnit);
+        args.putString("extra:orgUnit", orgUnit);
         args.putString(EXTRA_PROGRAM, program);
         args.putBoolean(EXTRA_DETAILED, false);
         dialogFragment.setArguments(args);
@@ -85,324 +100,241 @@ public class OnlineSearchFragment extends Fragment implements View.OnClickListen
     }
 
     private String getOrgUnit() {
-        return getArguments().getString(EXTRA_ORGUNIT);
+        return getArguments().getString("extra:orgUnit");
     }
 
     private String getProgram() {
         return getArguments().getString(EXTRA_PROGRAM);
     }
 
-
     @Subscribe
-    public void onRowValueChanged(final RowValueChangedEvent event) {
+    public void onRowValueChanged(RowValueChangedEvent event) {
         if (event.getRowType() != null && event.getRowType().equals(DataEntryRowTypes.ORGANISATION_UNIT.toString())) {
-            updateFWADropdown(getActivity().getBaseContext(), event);
+            DataEntryRowFactory.updateFWADropdown(getActivity().getBaseContext(), event);
         }
     }
 
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
-
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_online_search, menu);
+        inflater.inflate(C0773R.menu.menu_online_search, menu);
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_load_to_device) {
-            progressBar.setVisibility(View.VISIBLE);
+        if (id == C0773R.id.action_load_to_device) {
+            this.progressBar.setVisibility(0);
             runQuery();
-        } else if (id == android.R.id.home) {
+        } else if (id == 16908332) {
             getActivity().finish();
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
     public void onPause() {
         super.onPause();
         Dhis2Application.getEventBus().unregister(this);
     }
 
-    @Override
     public void onResume() {
         super.onResume();
         Dhis2Application.getEventBus().register(this);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(org.icddrb.dhis.android.sdk.R.layout.dialog_fragment_teiqueryresult, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(C0773R.layout.dialog_fragment_teiqueryresult, container, false);
     }
 
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        mListView = (ListView) view
-                .findViewById(org.icddrb.dhis.android.sdk.R.id.simple_listview);
-
-        View header = getLayoutInflater(savedInstanceState).inflate(
-                org.icddrb.dhis.android.eregistry.R.layout.fragmentdialog_querytei_header, mListView, false
-        );
-
+        this.mListView = (ListView) view.findViewById(C0773R.id.simple_listview);
+        View header = getLayoutInflater(savedInstanceState).inflate(C0773R.layout.fragmentdialog_querytei_header, this.mListView, false);
         if (getActivity() instanceof AppCompatActivity) {
             getActionBar().setDisplayShowTitleEnabled(true);
             getActionBar().setDisplayHomeAsUpEnabled(true);
             getActionBar().setHomeButtonEnabled(true);
         }
-
-        FloatingActionButton detailedSearchButton = (FloatingActionButton) header.findViewById(org.icddrb.dhis.android.eregistry.R.id.detailed_search_button);
-        detailedSearchButton.setOnClickListener(this);
-        mListView.addHeaderView(header, TAG, false);
-
-
-        mFilter = (EditText) view
-                .findViewById(org.icddrb.dhis.android.sdk.R.id.filter_options);
-        mDialogLabel = (TextView) view
-                .findViewById(org.icddrb.dhis.android.sdk.R.id.dialog_label);
+        ((FloatingActionButton) header.findViewById(C0773R.id.detailed_search_button)).setOnClickListener(this);
+        this.mListView.addHeaderView(header, TAG, false);
+        this.mFilter = (EditText) view.findViewById(C0773R.id.filter_options);
+        this.mDialogLabel = (TextView) view.findViewById(C0773R.id.dialog_label);
         UiUtils.hideKeyboard(getActivity());
-
-        mAdapter = new DataValueAdapter(getChildFragmentManager(),
-                getActivity().getLayoutInflater(), mListView, getContext());
-        mListView.setAdapter(mAdapter);
-
-        mFilter.addTextChangedListener(new AbsTextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (mForm != null) {
-                    mForm.setQueryString(s.toString());
-                }
-            }
-        });
-
-        progressBar = view.findViewById(R.id.progress_bar);
+        this.mAdapter = new DataValueAdapter(getChildFragmentManager(), getActivity().getLayoutInflater(), this.mListView, getContext());
+        this.mListView.setAdapter(this.mAdapter);
+        this.mFilter.addTextChangedListener(new C07951());
+        this.progressBar = view.findViewById(C0773R.id.progress_bar);
     }
 
     private ActionBar getActionBar() {
-        if (getActivity() != null &&
-                getActivity() instanceof AppCompatActivity) {
+        if (getActivity() != null && (getActivity() instanceof AppCompatActivity)) {
             return ((AppCompatActivity) getActivity()).getSupportActionBar();
-        } else {
-            throw new IllegalArgumentException("Fragment should be attached to ActionBarActivity");
         }
+        throw new IllegalArgumentException("Fragment should be attached to ActionBarActivity");
     }
 
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Bundle argumentsBundle = new Bundle();
-        argumentsBundle.putBundle(EXTRA_ARGUMENTS, getArguments());
-        argumentsBundle.putBundle(EXTRA_SAVED_INSTANCE_STATE, savedInstanceState);
+        argumentsBundle.putBundle("extra:Arguments", getArguments());
+        argumentsBundle.putBundle("extra:savedInstanceState", savedInstanceState);
         getLoaderManager().initLoader(LOADER_ID, argumentsBundle, this);
-        getActionBar().setTitle(getString(R.string.download_entities_title));
-        getActionBar().setTitle("Global Search");
+        getActionBar().setTitle(getString(C0773R.string.download_entities_title));
+        getActionBar().setTitle((CharSequence) "Global Search");
     }
 
-    @Override
     public Loader<OnlineSearchFragmentForm> onCreateLoader(int id, Bundle args) {
-        if (LOADER_ID == id && isAdded()) {
-            // Adding Tables for tracking here is dangerous (since MetaData updates in background
-            // can trigger reload of values from db which will reset all fields).
-            // Hence, it would be more safe not to track any changes in any tables
-            List<Class<? extends Model>> modelsToTrack = new ArrayList<>();
-            Bundle fragmentArguments = args.getBundle(EXTRA_ARGUMENTS);
-            String programId = fragmentArguments.getString(EXTRA_PROGRAM);
-            String orgUnitId = fragmentArguments.getString(EXTRA_ORGUNIT);
-            backNavigation = fragmentArguments.getBoolean(EXTRA_NAVIGATION);
-
-            return new DbLoader<>(
-                    getActivity().getBaseContext(), modelsToTrack, new OnlineSearchFragmentQuery(
-                    orgUnitId, programId)
-            );
+        if (LOADER_ID != id || !isAdded()) {
+            return null;
         }
-        return null;
+        List<Class<? extends Model>> modelsToTrack = new ArrayList();
+        Bundle fragmentArguments = args.getBundle("extra:Arguments");
+        String programId = fragmentArguments.getString(EXTRA_PROGRAM);
+        String orgUnitId = fragmentArguments.getString("extra:orgUnit");
+        this.backNavigation = fragmentArguments.getBoolean("extra:Navigation");
+        return new DbLoader(getActivity().getBaseContext(), modelsToTrack, new OnlineSearchFragmentQuery(orgUnitId, programId));
     }
 
-    @Override
     public void onLoadFinished(Loader<OnlineSearchFragmentForm> loader, OnlineSearchFragmentForm data) {
-
         Log.d(TAG, "load finished");
         if (loader.getId() == LOADER_ID && isAdded()) {
-            mListView.setVisibility(View.VISIBLE);
-
-            mForm = data;
-
-            if (mForm.getDataEntryRows() != null) {
-                if (getArguments().getBoolean(EXTRA_DETAILED)) {
-                    mAdapter.swapData(mForm.getDataEntryRows());
-                }
+            this.mListView.setVisibility(0);
+            this.mForm = data;
+            if (this.mForm.getDataEntryRows() != null && getArguments().getBoolean(EXTRA_DETAILED)) {
+                this.mAdapter.swapData(this.mForm.getDataEntryRows());
             }
         }
     }
 
-    @Override
     public void onLoaderReset(Loader<OnlineSearchFragmentForm> loader) {
-
     }
 
     @Subscribe
-    public void onShowDetailedInfo(OnDetailedInfoButtonClick eventClick) // may re-use code from DataEntryFragment
-    {
+    public void onShowDetailedInfo(OnDetailedInfoButtonClick eventClick) {
         String message = "";
-
-        if (eventClick.getRow() instanceof EventCoordinatesRow)
-            message = getResources().getString(org.icddrb.dhis.android.sdk.R.string.detailed_info_coordinate_row);
-        else if (eventClick.getRow() instanceof StatusRow)
-            message = getResources().getString(org.icddrb.dhis.android.sdk.R.string.detailed_info_status_row);
-        else if (eventClick.getRow() instanceof IndicatorRow)
-            message = ""; // need to change ProgramIndicator to extend BaseValue for this to work
-        else         // rest of the rows can either be of data element or tracked entity instance attribute
+        if (eventClick.getRow() instanceof EventCoordinatesRow) {
+            message = getResources().getString(C0773R.string.detailed_info_coordinate_row);
+        } else if (eventClick.getRow() instanceof StatusRow) {
+            message = getResources().getString(C0773R.string.detailed_info_status_row);
+        } else if (eventClick.getRow() instanceof IndicatorRow) {
+            message = "";
+        } else {
             message = eventClick.getRow().getDescription();
-
-        UiUtils.showConfirmDialog(getActivity(),
-                getResources().getString(org.icddrb.dhis.android.sdk.R.string.detailed_info_dataelement),
-                message, getResources().getString(org.icddrb.dhis.android.sdk.R.string.ok_option),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                    }
-                });
+        }
+        UiUtils.showConfirmDialog(getActivity(), getResources().getString(C0773R.string.detailed_info_dataelement), message, getResources().getString(C0773R.string.ok_option), new C07962());
     }
 
     public void toggleDetailedSearch(View v) {
         FloatingActionButton button = (FloatingActionButton) v;
         boolean current = getArguments().getBoolean(EXTRA_DETAILED);
         if (current) {
-            button.setImageResource(org.icddrb.dhis.android.sdk.R.drawable.ic_new);
-            mAdapter.swapData(null);
+            button.setImageResource(C0773R.drawable.ic_new);
+            this.mAdapter.swapData(null);
         } else {
-            button.setImageResource(org.icddrb.dhis.android.eregistry.R.drawable.ic_close_dialog);
-
-            if (mForm != null && mForm.getDataEntryRows() != null) {
-                mAdapter.swapData(mForm.getDataEntryRows());
+            button.setImageResource(C0773R.drawable.ic_close_dialog);
+            if (!(this.mForm == null || this.mForm.getDataEntryRows() == null)) {
+                this.mAdapter.swapData(this.mForm.getDataEntryRows());
             }
-
         }
         getArguments().putBoolean(EXTRA_DETAILED, !current);
     }
 
-    /* This method must be called only after onViewCreated() */
     public void setDialogLabel(int resourceId) {
-        if (mDialogLabel != null) {
-            mDialogLabel.setText(resourceId);
+        if (this.mDialogLabel != null) {
+            this.mDialogLabel.setText(resourceId);
         }
     }
 
-    /* This method must be called only after onViewCreated() */
     public void setDialogLabel(CharSequence sequence) {
-        if (mDialogLabel != null) {
-            mDialogLabel.setText(sequence);
+        if (this.mDialogLabel != null) {
+            this.mDialogLabel.setText(sequence);
         }
     }
 
     public void setDialogId(int dialogId) {
-        mDialogId = dialogId;
+        this.mDialogId = dialogId;
     }
 
     public int getDialogId() {
-        return mDialogId;
+        return this.mDialogId;
     }
 
-    /* This method must be called only after onViewCreated() */
     public CharSequence getDialogLabel() {
-        if (mDialogLabel != null) {
-            return mDialogLabel.getText();
-        } else {
-            return null;
+        if (this.mDialogLabel != null) {
+            return this.mDialogLabel.getText();
         }
+        return null;
     }
 
     public DataValueAdapter getAdapter() {
-        return mAdapter;
+        return this.mAdapter;
     }
 
-    @Override
     public void onClick(View v) {
-
-        if (v.getId() == org.icddrb.dhis.android.eregistry.R.id.detailed_search_button) {
+        if (v.getId() == C0773R.id.detailed_search_button) {
             toggleDetailedSearch(v);
         }
     }
 
     public void runQuery() {
-        final List<TrackedEntityAttributeValue> searchValues = new ArrayList<>();
-        if (mForm != null && mForm.getTrackedEntityAttributeValues() != null &&
-                mForm.getOrganisationUnit() != null && mForm.getProgram() != null) {
-            for (TrackedEntityAttributeValue value : mForm.getTrackedEntityAttributeValues()) {
+        List<TrackedEntityAttributeValue> searchValues = new ArrayList();
+        if (!(this.mForm == null || this.mForm.getTrackedEntityAttributeValues() == null || this.mForm.getOrganisationUnit() == null || this.mForm.getProgram() == null)) {
+            for (TrackedEntityAttributeValue value : this.mForm.getTrackedEntityAttributeValues()) {
                 searchValues.add(value);
             }
         }
-        final boolean detailedSearch = true; //getArguments().getBoolean(EXTRA_DETAILED);
-
-        if (mForm != null) {
-
+        if (this.mForm != null) {
             try {
-                queryTrackedEntityInstances(getChildFragmentManager(),
-                        mForm.getOrganisationUnit(), mForm.getProgram(),
-                        mForm.getQueryString(), detailedSearch, searchValues.toArray(new TrackedEntityAttributeValue[]{}));
+                queryTrackedEntityInstances(getChildFragmentManager(), this.mForm.getOrganisationUnit(), this.mForm.getProgram(), this.mForm.getQueryString(), true, (TrackedEntityAttributeValue[]) searchValues.toArray(new TrackedEntityAttributeValue[0]));
+                return;
             } catch (Exception e) {
                 showQueryError();
+                return;
             }
-        } else {
-            showQueryError();
         }
-
+        showQueryError();
     }
 
     private void showQueryError() {
-        if (progressBar != null) {
-            progressBar.setVisibility(View.INVISIBLE);
-            Toast.makeText(getContext(), getContext().getString(R.string.search_error), Toast.LENGTH_SHORT).show();
+        if (this.progressBar != null) {
+            this.progressBar.setVisibility(4);
+            Toast.makeText(getContext(), getContext().getString(C0773R.string.search_error), 0).show();
         }
     }
 
-    /**
-     * Queries the server for TrackedEntityInstances and shows a Dialog containing the results
-     *
-     * @param orgUnit
-     * @param program can be null
-     * @param params  can be null
-     */
-    @SuppressLint("StaticFieldLeak")
-    public void queryTrackedEntityInstances(final FragmentManager fragmentManager, final String orgUnit, final String program, final String queryString, final boolean detailedSearch, final TrackedEntityAttributeValue... params)
-            throws APIException {
-
-        JobExecutor.enqueueJob(new NetworkJob<Object>(1,
-                null) {
-
-            @Override
+    @SuppressLint({"StaticFieldLeak"})
+    public void queryTrackedEntityInstances(FragmentManager fragmentManager, String orgUnit, String program, String queryString, boolean detailedSearch, TrackedEntityAttributeValue... params) throws APIException {
+        final boolean z = detailedSearch;
+        final String str = orgUnit;
+        final String str2 = program;
+        final String str3 = queryString;
+        final TrackedEntityAttributeValue[] trackedEntityAttributeValueArr = params;
+        JobExecutor.enqueueJob(new NetworkJob<Object>(1, null) {
             public Object execute() throws APIException {
-
-                List<TrackedEntityInstance> trackedEntityInstancesQueryResult = null;
-                if (detailedSearch) {
-                    trackedEntityInstancesQueryResult = TrackerController.queryTrackedEntityInstancesDataFromAllAccessibleOrgUnits(DhisController.getInstance().getDhisApi(), orgUnit, program, queryString, detailedSearch, params);
+                List<TrackedEntityInstance> trackedEntityInstancesQueryResult;
+                if (z) {
+                    trackedEntityInstancesQueryResult = TrackerController.queryTrackedEntityInstancesDataFromAllAccessibleOrgUnits(DhisController.getInstance().getDhisApi(), str, str2, str3, z, trackedEntityAttributeValueArr);
                 } else {
-                    trackedEntityInstancesQueryResult = TrackerController.queryTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), orgUnit, program, queryString, params);
+                    trackedEntityInstancesQueryResult = TrackerController.queryTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), str, str2, str3, trackedEntityAttributeValueArr);
                 }
-
-                // showTrackedEntityInstanceQueryResultDialog(fragmentManager, trackedEntityInstancesQueryResult, orgUnit);
-                showOnlineSearchResultFragment(trackedEntityInstancesQueryResult, orgUnit, program, backNavigation);
+                OnlineSearchFragment.this.showOnlineSearchResultFragment(trackedEntityInstancesQueryResult, str, str2, OnlineSearchFragment.this.backNavigation);
                 return new Object();
             }
         });
     }
 
-    public void showOnlineSearchResultFragment(final List<TrackedEntityInstance> trackedEntityInstances, final String orgUnit, final String programId, final boolean backNavigation) {
+    public void showOnlineSearchResultFragment(List<TrackedEntityInstance> trackedEntityInstances, String orgUnit, String programId, boolean backNavigation) {
         if (getActivity() != null && isAdded()) {
+            final List<TrackedEntityInstance> list = trackedEntityInstances;
+            final String str = orgUnit;
+            final String str2 = programId;
+            final boolean z = backNavigation;
             getActivity().runOnUiThread(new Runnable() {
-                @Override
                 public void run() {
-                    progressBar.setVisibility(View.INVISIBLE);
-                    HolderActivity.navigateToOnlineSearchResultFragment(getActivity(), trackedEntityInstances, orgUnit, programId, backNavigation);
+                    OnlineSearchFragment.this.progressBar.setVisibility(4);
+                    HolderActivity.navigateToOnlineSearchResultFragment(OnlineSearchFragment.this.getActivity(), list, str, str2, z);
                 }
             });
         }

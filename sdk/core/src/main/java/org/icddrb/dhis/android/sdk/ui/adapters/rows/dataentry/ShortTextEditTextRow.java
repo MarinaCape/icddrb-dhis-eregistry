@@ -1,119 +1,89 @@
 package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
-
 import android.support.v4.app.FragmentManager;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
 public class ShortTextEditTextRow extends TextRow {
     private static String rowTypeTemp;
 
-    public ShortTextEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
-        mLabel = label;
-        mMandatory = mandatory;
-        mWarning = warning;
-        mValue = baseValue;
-        mRowType = rowType;
-
-        if (!DataEntryRowTypes.TEXT.equals(rowType)) {
-            throw new IllegalArgumentException("Unsupported row type");
+    public ShortTextEditTextRow(String label, boolean mandatory, String warning, BaseValue baseValue, DataEntryRowTypes rowType) {
+        this.mLabel = label;
+        this.mMandatory = mandatory;
+        this.mWarning = warning;
+        this.mValue = baseValue;
+        this.mRowType = rowType;
+        if (DataEntryRowTypes.TEXT.equals(rowType)) {
+            checkNeedsForDescriptionButton();
+            return;
         }
-        checkNeedsForDescriptionButton();
+        throw new IllegalArgumentException("Unsupported row type");
     }
 
-    @Override
     public int getViewType() {
         return DataEntryRowTypes.TEXT.ordinal();
     }
 
-    @Override
-    public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
+    public View getView(FragmentManager fragmentManager, LayoutInflater inflater, View convertView, ViewGroup container) {
+        ValueEntryHolder holder;
         View view;
-        final ValueEntryHolder holder;
-
-        if (convertView != null && convertView.getTag() instanceof ValueEntryHolder) {
-            view = convertView;
-            holder = (ValueEntryHolder) view.getTag();
-            holder.listener.onRowReused();
-        } else {
-            View root = inflater.inflate(R.layout.listview_row_edit_text, container, false);
-            TextView label = (TextView) root.findViewById(R.id.text_label);
-            TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
-            TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
-            TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
-            EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
-//            detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
-
-            editText.setInputType(InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-            editText.setHint(R.string.enter_text);
+        if (convertView == null || !(convertView.getTag() instanceof ValueEntryHolder)) {
+            View root = inflater.inflate(C0845R.layout.listview_row_edit_text, container, false);
+            TextView label = (TextView) root.findViewById(C0845R.id.text_label);
+            TextView mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
+            TextView warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
+            TextView errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
+            EditText editText = (EditText) root.findViewById(C0845R.id.edit_text_row);
+            editText.setInputType(16384);
+            editText.setHint(C0845R.string.enter_text);
             editText.setSingleLine(true);
-
             OnTextChangeListener listener = new OnTextChangeListener();
             listener.setRow(this);
             listener.setRowType(rowTypeTemp);
             holder = new ValueEntryHolder(label, mandatoryIndicator, warningLabel, errorLabel, editText, listener);
-            holder.listener.setBaseValue(mValue);
+            holder.listener.setBaseValue(this.mValue);
             holder.editText.addTextChangedListener(listener);
-
-            rowTypeTemp = mRowType.toString();
+            rowTypeTemp = this.mRowType.toString();
             root.setTag(holder);
             view = root;
-        }
-
-        //when recycling views we don't want to keep the focus on the edittext
-        //holder.editText.clearFocus();
-
-        if (!isEditable()) {
-            holder.editText.setEnabled(false);
         } else {
+            view = convertView;
+            holder = (ValueEntryHolder) view.getTag();
+            holder.listener.onRowReused();
+        }
+        if (isEditable()) {
             holder.editText.setEnabled(true);
+        } else {
+            holder.editText.setEnabled(false);
         }
-
-        holder.textLabel.setText(mLabel);
-        holder.listener.setBaseValue(mValue);
-//        holder.detailedInfoButton.setOnClickListener(new OnDetailedInfoButtonClick(this));
-
-        holder.editText.setText(mValue.getValue());
+        holder.textLabel.setText(this.mLabel);
+        holder.listener.setBaseValue(this.mValue);
+        holder.editText.setText(this.mValue.getValue());
         holder.editText.setSelection(holder.editText.getText().length());
-
-//        if(isDetailedInfoButtonHidden()) {
-//            holder.detailedInfoButton.setVisibility(View.INVISIBLE);
-//        }
-//        else {
-//            holder.detailedInfoButton.setVisibility(View.VISIBLE);
-//        }
-
-        if (mWarning == null) {
-            holder.warningLabel.setVisibility(View.GONE);
+        if (this.mWarning == null) {
+            holder.warningLabel.setVisibility(8);
         } else {
-            holder.warningLabel.setVisibility(View.VISIBLE);
-            holder.warningLabel.setText(mWarning);
+            holder.warningLabel.setVisibility(0);
+            holder.warningLabel.setText(this.mWarning);
         }
-
-        if (mError == null) {
-            holder.errorLabel.setVisibility(View.GONE);
+        if (this.mError == null) {
+            holder.errorLabel.setVisibility(8);
         } else {
-            holder.errorLabel.setVisibility(View.VISIBLE);
-            holder.errorLabel.setText(mError);
+            holder.errorLabel.setVisibility(0);
+            holder.errorLabel.setText(this.mError);
         }
-
-        if (!mMandatory) {
-            holder.mandatoryIndicator.setVisibility(View.GONE);
+        if (this.mMandatory) {
+            holder.mandatoryIndicator.setVisibility(0);
         } else {
-            holder.mandatoryIndicator.setVisibility(View.VISIBLE);
+            holder.mandatoryIndicator.setVisibility(8);
         }
-        holder.editText.setOnEditorActionListener(mOnEditorActionListener);
+        holder.editText.setOnEditorActionListener(this.mOnEditorActionListener);
         return view;
     }
 }

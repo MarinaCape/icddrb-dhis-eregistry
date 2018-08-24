@@ -1,172 +1,42 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.internal.view.SupportMenu;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
-import org.icddrb.dhis.android.sdk.R;
+import java.util.ArrayList;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
-import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage;
-import org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry.EventDataEntryFragment;
-import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.ValidationErrorDialog;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
+import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.OnCompleteEventClick;
-
-import java.util.ArrayList;
+import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.ValidationErrorDialog;
+import org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry.EventDataEntryFragment;
 
 public final class StatusRow extends Row {
     public static final String CLASS_TAG = StatusRow.class.getSimpleName();
-
-    private final Event mEvent;
     private Context context;
-    private StatusViewHolder holder;
     private FragmentActivity fragmentActivity;
+    private StatusViewHolder holder;
+    private final Event mEvent;
     private ProgramStage programStage;
 
-    public StatusRow(Context context, Event event, ProgramStage programStage) {
-        this.context = context;
-        mEvent = event;
-        this.programStage = programStage;
-    }
-
-    public void setFragmentActivity(FragmentActivity fragmentActivity) {
-        this.fragmentActivity = fragmentActivity;
-    }
-
-    @Override
-    public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-                        View convertView, ViewGroup container) {
-        View view;
-
-        if (convertView != null && convertView.getTag() instanceof StatusViewHolder) {
-            view = convertView;
-            holder = (StatusViewHolder) view.getTag();
-        } else {
-            View root = inflater.inflate(
-                    R.layout.listview_row_status, container, false);
-            holder = new StatusViewHolder(context, root, mEvent, programStage);
-
-            root.setTag(holder);
-            view = root;
-        }
-        holder.onValidateButtonClickListener.setFragmentActivity(fragmentActivity);
-        holder.onCompleteButtonClickListener.setActivity(fragmentActivity);
-//        holder.detailedInfoButton.setOnClickListener(new OnDetailedInfoButtonClick(this));
-
-        if(!isEditable())
-        {
-            holder.complete.setEnabled(false);
-            holder.validate.setEnabled(false);
-        }
-        else
-        {
-            holder.complete.setEnabled(true);
-            holder.validate.setEnabled(true);
-        }
-
-        return view;
-    }
-
-    @Override
-    public int getViewType() {
-        return DataEntryRowTypes.EVENT_COORDINATES.ordinal();
-    }
-
-
-    private static class StatusViewHolder {
-        private final Button complete;
-        private final Button validate;
-        private final TextView tv;
-
-        private final OnCompleteClickListener onCompleteButtonClickListener;
-        private final OnValidateClickListener onValidateButtonClickListener;
-        private final Event event;
-//        private final View detailedInfoButton;
-        private final ProgramStage programStage;
-
-        public StatusViewHolder(Context context, View view, Event event, ProgramStage programStage) {
-
-            this.event = event;
-            this.programStage = programStage;
-
-            /* views */
-            complete = (Button) view.findViewById(R.id.complete);
-            validate = (Button) view.findViewById(R.id.validate);
-            tv = (TextView) view.findViewById(R.id.tv_complete);
-
-//            this.detailedInfoButton = detailedInfoButton;
-
-            /* text watchers and click listener */
-            onCompleteButtonClickListener = new OnCompleteClickListener(context, complete, tv, this.event, this.programStage);
-            onValidateButtonClickListener = new OnValidateClickListener(context, validate, this.event);
-            complete.setOnClickListener(onCompleteButtonClickListener);
-            validate.setOnClickListener(onValidateButtonClickListener);
-
-            updateViews(event, programStage, complete, tv, context);
-        }
-
-        public static void updateViews(Event event, ProgramStage programStage,Button button, TextView tv, Context context) {
-            if(event.getStatus().equals(Event.STATUS_COMPLETED)) {
-                if(context != null) {
-                    if (programStage.isBlockEntryForm()) {
-                        button.setText(context.getString(R.string.edit));
-                    } else {
-                        button.setText(context.getString(R.string.incomplete));
-                        button.setBackgroundColor(Color.RED);
-                        tv.setVisibility(View.VISIBLE);
-                    }
-                }
-            } else {
-                button.setText(R.string.complete);
-            }
-        }
-    }
-
-    private static class OnCompleteClickListener implements View.OnClickListener, DialogInterface.OnClickListener {
-        private final Button complete;
-        private final TextView tv;
-        private final Event event;
-        private final ProgramStage programStage;
-        private final Context context;
+    private static class OnCompleteClickListener implements OnClickListener, DialogInterface.OnClickListener {
         private Activity activity;
+        private final Button complete;
+        private final Context context;
+        private final Event event;
+        private final ProgramStage programStage;
+        private final TextView tv;
 
         public OnCompleteClickListener(Context context, Button complete, TextView tv, Event event, ProgramStage programStage) {
             this.context = context;
@@ -176,49 +46,32 @@ public final class StatusRow extends Row {
             this.tv = tv;
         }
 
-        @Override
         public void onClick(View v) {
-            if(activity==null) return;
-
-            String label;
-            String action;
-
-            if ("HaOwL7bIdrs".equals(this.programStage.getUid())) {
-                label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                        activity.getString(R.string.incomplete) : "Complete Pregnancy Record";
-                action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                        activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
-            } else {
-                label = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                        activity.getString(R.string.incomplete) : activity.getString(R.string.complete);
-                action = event.getStatus().equals(Event.STATUS_COMPLETED) ?
-                        activity.getString(R.string.incomplete_confirm) : activity.getString(R.string.complete_confirm);
-//            Dhis2.showConfirmDialog(activity, label, action, label, activity.getString(R.string.cancel), this);
+            if (this.activity != null) {
+                String label = "HaOwL7bIdrs".equals(this.programStage.getUid()) ? this.event.getStatus().equals("COMPLETED") ? this.activity.getString(C0845R.string.incomplete) : "Complete Pregnancy Record" : this.event.getStatus().equals("COMPLETED") ? this.activity.getString(C0845R.string.incomplete) : this.activity.getString(C0845R.string.complete);
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label, this.event.getStatus().equals("COMPLETED") ? this.activity.getString(C0845R.string.incomplete_confirm) : this.activity.getString(C0845R.string.complete_confirm), this.event, this.complete, this.tv));
             }
-
-            Dhis2Application.getEventBus().post(new OnCompleteEventClick(label,action,event,complete,tv));
         }
 
         private void setActivity(Activity activity) {
             this.activity = activity;
         }
 
-        @Override
         public void onClick(DialogInterface dialog, int which) {
-            if(event.getStatus().equals(Event.STATUS_COMPLETED)) {
-                event.setStatus(Event.STATUS_ACTIVE);
+            if (this.event.getStatus().equals("COMPLETED")) {
+                this.event.setStatus("ACTIVE");
             } else {
-                event.setStatus(Event.STATUS_COMPLETED);
+                this.event.setStatus("COMPLETED");
             }
-            StatusViewHolder.updateViews(event, programStage, complete, tv, context);
+            StatusViewHolder.updateViews(this.event, this.programStage, this.complete, this.tv, this.context);
         }
     }
 
-    private static class OnValidateClickListener implements View.OnClickListener {
-        private final Button validate;
-        private final Event event;
+    private static class OnValidateClickListener implements OnClickListener {
         private final Context context;
+        private final Event event;
         private FragmentActivity fragmentActivity;
+        private final Button validate;
 
         public OnValidateClickListener(Context context, Button validate, Event event) {
             this.validate = validate;
@@ -226,29 +79,95 @@ public final class StatusRow extends Row {
             this.context = context;
         }
 
-        @Override
         public void onClick(View v) {
-            ArrayList<String> errors = EventDataEntryFragment.getValidationErrors(event,
-                    MetaDataController.getProgramStage(event.getProgramStageId()), context);
-            if (!errors.isEmpty()) {
-                ValidationErrorDialog dialog = ValidationErrorDialog
-                        .newInstance(errors);
-                if(fragmentActivity!=null) {
-                    FragmentManager fm = fragmentActivity.getSupportFragmentManager();
-                    dialog.show(fm);
+            ArrayList<String> errors = EventDataEntryFragment.getValidationErrors(this.event, MetaDataController.getProgramStage(this.event.getProgramStageId()), this.context);
+            ValidationErrorDialog dialog;
+            if (errors.isEmpty()) {
+                dialog = ValidationErrorDialog.newInstance(this.context.getString(C0845R.string.validation_success), new ArrayList());
+                if (this.fragmentActivity != null) {
+                    dialog.show(this.fragmentActivity.getSupportFragmentManager());
+                    return;
                 }
-            } else {
-                ValidationErrorDialog dialog = ValidationErrorDialog
-                        .newInstance(context.getString(R.string.validation_success), new ArrayList<String>());
-                if(fragmentActivity!=null) {
-                    FragmentManager fm = fragmentActivity.getSupportFragmentManager();
-                    dialog.show(fm);
-                }
+                return;
+            }
+            dialog = ValidationErrorDialog.newInstance(errors);
+            if (this.fragmentActivity != null) {
+                dialog.show(this.fragmentActivity.getSupportFragmentManager());
             }
         }
 
         public void setFragmentActivity(FragmentActivity fragmentActivity) {
             this.fragmentActivity = fragmentActivity;
         }
+    }
+
+    private static class StatusViewHolder {
+        private final Button complete;
+        private final Event event;
+        private final OnCompleteClickListener onCompleteButtonClickListener;
+        private final OnValidateClickListener onValidateButtonClickListener;
+        private final ProgramStage programStage;
+        private final TextView tv;
+        private final Button validate;
+
+        public StatusViewHolder(Context context, View view, Event event, ProgramStage programStage) {
+            this.event = event;
+            this.programStage = programStage;
+            this.complete = (Button) view.findViewById(C0845R.id.complete);
+            this.validate = (Button) view.findViewById(C0845R.id.validate);
+            this.tv = (TextView) view.findViewById(C0845R.id.tv_complete);
+            this.onCompleteButtonClickListener = new OnCompleteClickListener(context, this.complete, this.tv, this.event, this.programStage);
+            this.onValidateButtonClickListener = new OnValidateClickListener(context, this.validate, this.event);
+            this.complete.setOnClickListener(this.onCompleteButtonClickListener);
+            this.validate.setOnClickListener(this.onValidateButtonClickListener);
+            updateViews(event, programStage, this.complete, this.tv, context);
+        }
+
+        public static void updateViews(Event event, ProgramStage programStage, Button button, TextView tv, Context context) {
+            if (!event.getStatus().equals("COMPLETED")) {
+                button.setText(C0845R.string.complete);
+            } else if (context != null) {
+                button.setText(context.getString(C0845R.string.incomplete));
+                button.setBackgroundColor(SupportMenu.CATEGORY_MASK);
+                tv.setVisibility(0);
+            }
+        }
+    }
+
+    public StatusRow(Context context, Event event, ProgramStage programStage) {
+        this.context = context;
+        this.mEvent = event;
+        this.programStage = programStage;
+    }
+
+    public void setFragmentActivity(FragmentActivity fragmentActivity) {
+        this.fragmentActivity = fragmentActivity;
+    }
+
+    public View getView(FragmentManager fragmentManager, LayoutInflater inflater, View convertView, ViewGroup container) {
+        View view;
+        if (convertView == null || !(convertView.getTag() instanceof StatusViewHolder)) {
+            View root = inflater.inflate(C0845R.layout.listview_row_status, container, false);
+            this.holder = new StatusViewHolder(this.context, root, this.mEvent, this.programStage);
+            root.setTag(this.holder);
+            view = root;
+        } else {
+            view = convertView;
+            this.holder = (StatusViewHolder) view.getTag();
+        }
+        this.holder.onValidateButtonClickListener.setFragmentActivity(this.fragmentActivity);
+        this.holder.onCompleteButtonClickListener.setActivity(this.fragmentActivity);
+        if (isEditable()) {
+            this.holder.complete.setEnabled(true);
+            this.holder.validate.setEnabled(true);
+        } else {
+            this.holder.complete.setEnabled(false);
+            this.holder.validate.setEnabled(false);
+        }
+        return view;
+    }
+
+    public int getViewType() {
+        return DataEntryRowTypes.EVENT_COORDINATES.ordinal();
     }
 }

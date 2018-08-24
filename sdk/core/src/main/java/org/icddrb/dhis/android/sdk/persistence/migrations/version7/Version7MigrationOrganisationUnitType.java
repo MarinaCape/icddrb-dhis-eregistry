@@ -1,16 +1,11 @@
 package org.icddrb.dhis.android.sdk.persistence.migrations.version7;
 
-import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 
-@Migration(version = 7, databaseName = Dhis2Database.NAME)
-public class Version7MigrationOrganisationUnitType  extends AlterTableMigration<OrganisationUnit> {
-
-    public Version7MigrationOrganisationUnitType(Class<OrganisationUnit> table) {
+public class Version7MigrationOrganisationUnitType extends AlterTableMigration<OrganisationUnit> {
+    public Version7MigrationOrganisationUnitType(Class<OrganisationUnit> cls) {
         super(OrganisationUnit.class);
     }
 
@@ -18,7 +13,6 @@ public class Version7MigrationOrganisationUnitType  extends AlterTableMigration<
         super(OrganisationUnit.class);
     }
 
-    @Override
     public void onPreMigrate() {
         super.onPreMigrate();
         if (!MigrationUtil.columnExists(OrganisationUnit.class, "type")) {

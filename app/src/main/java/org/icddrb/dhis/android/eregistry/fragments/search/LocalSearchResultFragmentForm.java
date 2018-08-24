@@ -1,21 +1,17 @@
 package org.icddrb.dhis.android.eregistry.fragments.search;
 
+import java.util.List;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.EventRow;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.TrackedEntityInstanceDynamicColumnRows;
 
-import java.util.List;
-
 public class LocalSearchResultFragmentForm {
-
-    private List<EventRow> eventRowList;
-    private String programId;
-    private String orgUnitId;
     private TrackedEntityInstanceDynamicColumnRows columnNames;
-
-    public LocalSearchResultFragmentForm(){}
+    private List<EventRow> eventRowList;
+    private String orgUnitId;
+    private String programId;
 
     public List<EventRow> getEventRowList() {
-        return eventRowList;
+        return this.eventRowList;
     }
 
     public void setEventRowList(List<EventRow> eventRowList) {
@@ -23,7 +19,7 @@ public class LocalSearchResultFragmentForm {
     }
 
     public String getOrgUnitId() {
-        return orgUnitId;
+        return this.orgUnitId;
     }
 
     public void setOrgUnitId(String orgUnitId) {
@@ -31,7 +27,7 @@ public class LocalSearchResultFragmentForm {
     }
 
     public String getProgramId() {
-        return programId;
+        return this.programId;
     }
 
     public void setProgramId(String programId) {
@@ -39,7 +35,7 @@ public class LocalSearchResultFragmentForm {
     }
 
     public TrackedEntityInstanceDynamicColumnRows getColumnNames() {
-        return columnNames;
+        return this.columnNames;
     }
 
     public void setColumnNames(TrackedEntityInstanceDynamicColumnRows columnNames) {

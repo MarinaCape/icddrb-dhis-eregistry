@@ -1,63 +1,36 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.dialogs;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.Parcelable.Creator;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.squareup.otto.Subscribe;
-
-import org.icddrb.dhis.android.sdk.R;
+import java.util.ArrayList;
+import java.util.List;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent;
 import org.icddrb.dhis.android.sdk.events.UiEvent;
+import org.icddrb.dhis.android.sdk.events.UiEvent.UiEventType;
 import org.icddrb.dhis.android.sdk.job.JobExecutor;
 import org.icddrb.dhis.android.sdk.job.NetworkJob;
 import org.icddrb.dhis.android.sdk.network.APIException;
@@ -67,275 +40,59 @@ import org.icddrb.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.AbsTextWatcher;
 import org.icddrb.dhis.android.sdk.ui.fragments.progressdialog.ProgressDialogFragment;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragment
-        implements AdapterView.OnItemClickListener, View.OnClickListener {
-    private static final String TAG = QueryTrackedEntityInstancesResultDialogFragment.class.getSimpleName();
-
-    private EditText mFilter;
-    private TextView mDialogLabel;
-    private QueryTrackedEntityInstancesResultDialogAdapter mAdapter;
-    private int mDialogId;
-    private ProgressDialogFragment progressDialogFragment;
-    private Button mSelectAllButton;
-    private ListView mListView;
-
-    private static final String EXTRA_TRACKEDENTITYINSTANCESLIST = "extra:trackedEntityInstances";
-    private static final String EXTRA_TRACKEDENTITYINSTANCESSELECTED = "extra:trackedEntityInstancesSelected";
+public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragment implements OnItemClickListener, OnClickListener {
     private static final String EXTRA_ORGUNIT = "extra:orgUnit";
     private static final String EXTRA_SELECTALL = "extra:selectAll";
+    private static final String EXTRA_TRACKEDENTITYINSTANCESLIST = "extra:trackedEntityInstances";
+    private static final String EXTRA_TRACKEDENTITYINSTANCESSELECTED = "extra:trackedEntityInstancesSelected";
+    private static final String TAG = QueryTrackedEntityInstancesResultDialogFragment.class.getSimpleName();
+    private QueryTrackedEntityInstancesResultDialogAdapter mAdapter;
+    private int mDialogId;
+    private TextView mDialogLabel;
+    private EditText mFilter;
+    private ListView mListView;
+    private Button mSelectAllButton;
+    private ProgressDialogFragment progressDialogFragment;
 
-    public static QueryTrackedEntityInstancesResultDialogFragment newInstance(List<TrackedEntityInstance> trackedEntityInstances, String orgUnit) {
-        QueryTrackedEntityInstancesResultDialogFragment dialogFragment = new QueryTrackedEntityInstancesResultDialogFragment();
-        Bundle args = new Bundle();
-        Parcel parcel1 = Parcel.obtain();
-        ParameterParcelable parcelable1 = new ParameterParcelable(trackedEntityInstances);
-        parcelable1.writeToParcel(parcel1, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
-        Parcel parcel2 = Parcel.obtain();
-        ParameterParcelable parcelable2 = new ParameterParcelable(new ArrayList<TrackedEntityInstance>());
-        parcelable2.writeToParcel(parcel2, Parcelable.PARCELABLE_WRITE_RETURN_VALUE);
-        args.putParcelable(EXTRA_TRACKEDENTITYINSTANCESSELECTED, parcelable2);
-        args.putParcelable(EXTRA_TRACKEDENTITYINSTANCESLIST, parcelable1);
-        args.putString(EXTRA_ORGUNIT, orgUnit);
-        args.putBoolean(EXTRA_SELECTALL, false);
-        dialogFragment.setArguments(args);
-        Dhis2Application.getEventBus().register(dialogFragment);
-        return dialogFragment;
-    }
-
-    private List<TrackedEntityInstance> getTrackedEntityInstances() {
-        ParameterParcelable parameterParcelable = getArguments().getParcelable(EXTRA_TRACKEDENTITYINSTANCESLIST);
-        List<TrackedEntityInstance> trackedEntityInstances = parameterParcelable.getTrackedEntityInstances();
-        return trackedEntityInstances;
-    }
-
-    private List<TrackedEntityInstance> getSelectedTrackedEntityInstances() {
-        ParameterParcelable parameterParcelable = getArguments().getParcelable(EXTRA_TRACKEDENTITYINSTANCESSELECTED);
-        List<TrackedEntityInstance> trackedEntityInstances = parameterParcelable.getTrackedEntityInstances();
-        return trackedEntityInstances;
-    }
-
-    private String getOrgUnit() {
-        return getArguments().getString(EXTRA_ORGUNIT);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NO_TITLE,
-                R.style.Theme_AppCompat_Light_Dialog);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-
-        return inflater.inflate(R.layout.dialog_fragment_teiqueryresult, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        mListView = (ListView) view
-                .findViewById(R.id.simple_listview);
-        //ImageView loadDialogButton = (ImageView) view
-          //      .findViewById(R.id.load_dialog_button);
-        // loadDialogButton.setImageResource(R.drawable.ic_download);
-        ImageView closeDialogButton = (ImageView) view
-                .findViewById(R.id.close_dialog_button);
-        mFilter = (EditText) view
-                .findViewById(R.id.filter_options);
-        mDialogLabel = (TextView) view
-                .findViewById(R.id.dialog_label);
-        InputMethodManager imm = (InputMethodManager)
-                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(mFilter.getWindowToken(), 0);
-
-        mAdapter = new QueryTrackedEntityInstancesResultDialogAdapter(
-                LayoutInflater.from(getActivity()), getSelectedTrackedEntityInstances(), null,
-                getContext());
-        mListView.setAdapter(mAdapter);
-        mListView.setOnItemClickListener(this);
-
-        mFilter.addTextChangedListener(new AbsTextWatcher() {
-            @Override public void afterTextChanged(Editable s) {
-                mAdapter.getFilter().filter(s.toString());
-            }
-        });
-
-        mSelectAllButton = (Button) view.findViewById(R.id.teiqueryresult_selectall);
-        mSelectAllButton.setOnClickListener(this);
-        mSelectAllButton.setVisibility(View.VISIBLE);
-        boolean selectall = getArguments().getBoolean(EXTRA_SELECTALL);
-        if(selectall) {
-            mSelectAllButton.setText(getString(R.string.deselect_all));
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.dialogs.QueryTrackedEntityInstancesResultDialogFragment$1 */
+    class C08961 extends AbsTextWatcher {
+        C08961() {
         }
 
-        closeDialogButton.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
-                dismiss();
-            }
-        });
-
-        //loadDialogButton.setOnClickListener(this);
-
-        setDialogLabel(R.string.select_to_load);
-        getAdapter().swapData(getTrackedEntityInstances());
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TrackedEntityInstance value = mAdapter.getItem(position);
-        List<TrackedEntityInstance> selected = getSelectedTrackedEntityInstances();
-        CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBoxTeiQuery);
-        if(checkBox.isChecked()) {
-            selected.remove(value);
-            checkBox.setChecked(false);
-        } else {
-            selected.add(value);
-            checkBox.setChecked(true);
+        public void afterTextChanged(Editable s) {
+            QueryTrackedEntityInstancesResultDialogFragment.this.mAdapter.getFilter().filter(s.toString());
         }
     }
 
-    /* This method must be called only after onViewCreated() */
-    public void setDialogLabel(int resourceId) {
-        if (mDialogLabel != null) {
-            mDialogLabel.setText(resourceId);
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.dialogs.QueryTrackedEntityInstancesResultDialogFragment$2 */
+    class C08972 implements OnClickListener {
+        C08972() {
         }
-    }
 
-    /* This method must be called only after onViewCreated() */
-    public void setDialogLabel(CharSequence sequence) {
-        if (mDialogLabel != null) {
-            mDialogLabel.setText(sequence);
-        }
-    }
-
-    public void setDialogId(int dialogId) {
-        mDialogId = dialogId;
-    }
-
-    public int getDialogId() {
-        return mDialogId;
-    }
-
-    /* This method must be called only after onViewCreated() */
-    public CharSequence getDialogLabel() {
-        if (mDialogLabel != null) {
-            return mDialogLabel.getText();
-        } else {
-            return null;
-        }
-    }
-
-    public QueryTrackedEntityInstancesResultDialogAdapter getAdapter() {
-        return mAdapter;
-    }
-
-    public void show(FragmentManager fragmentManager) {
-        if(fragmentManager != null) {
-            show(fragmentManager, TAG);
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        //if(v.getId() == R.id.load_dialog_button) {
-           // initiateLoading();
-           // dismiss();
-    //    }
-    //else
-        if(v.getId() == R.id.teiqueryresult_selectall) {
-            toggleSelectAll();
-        }
-    }
-
-    public void toggleSelectAll() {
-        Bundle arguments = getArguments();
-        boolean selectall = arguments.getBoolean(EXTRA_SELECTALL);
-        if(selectall) {
-            mSelectAllButton.setText(getText(R.string.select_all));
-            deselectAll();
-        } else {
-            mSelectAllButton.setText(getText(R.string.deselect_all));
-            selectAll();
-        }
-        arguments.putBoolean(EXTRA_SELECTALL, !selectall);
-    }
-
-    public void selectAll() {
-        List<TrackedEntityInstance> allTrackedEntityInstances = mAdapter.getData();
-        List<TrackedEntityInstance> selectedTrackedEntityInstances = getSelectedTrackedEntityInstances();
-        selectedTrackedEntityInstances.clear();
-        selectedTrackedEntityInstances.addAll(allTrackedEntityInstances);
-        View view = null;
-        for(int i = 0; i<allTrackedEntityInstances.size(); i++) {
-            view = mAdapter.getView(i, view, null);
-            CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBoxTeiQuery);
-            checkBox.setChecked(true);
-        }
-        refreshListView();
-    }
-
-    public void deselectAll() {
-        List<TrackedEntityInstance> allTrackedEntityInstances = mAdapter.getData();
-        List<TrackedEntityInstance> selectedTrackedEntityInstances = getSelectedTrackedEntityInstances();
-        selectedTrackedEntityInstances.clear();
-        View view = null;
-        for(int i = 0; i<allTrackedEntityInstances.size(); i++) {
-            view = mAdapter.getView(i, view, null);
-            CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBoxTeiQuery);
-            checkBox.setChecked(false);
-        }
-        refreshListView();
-    }
-
-    public void refreshListView() {
-        int start = mListView.getFirstVisiblePosition();
-        int end = mListView.getLastVisiblePosition();
-        for (int pos = 0; pos <= end - start; pos++) {
-            View view = mListView.getChildAt(pos);
-            if (view != null) {
-                int adapterPosition = view.getId();
-                if (adapterPosition < 0 || adapterPosition >= mAdapter.getCount())
-                    continue;
-                if (!view.hasFocus()) {
-                    mAdapter.getView(adapterPosition, view, mListView);
-                }
-            }
-        }
-    }
-
-    public void initiateLoading() {
-        Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_START));
-        Log.d(TAG, "loading: " + getSelectedTrackedEntityInstances().size());
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                ResourceType.TRACKEDENTITYINSTANCE) {
-
-            @Override
-            public Object execute() throws APIException {
-                TrackerController.getTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), getSelectedTrackedEntityInstances(), true, true);
-                Dhis2Application.getEventBus().post(new UiEvent(UiEvent.UiEventType.SYNCING_END));
-                return new Object();
-            }
-        });
-        dismiss();
-    }
-
-    @Subscribe
-    public void onLoadingMessageEvent(final LoadingMessageEvent event) {
-        Log.d(TAG, "Message received" + event.message);
-        if(progressDialogFragment!=null && progressDialogFragment.getDialog() != null &&
-                progressDialogFragment.getDialog().isShowing()) {
-            ((ProgressDialog) progressDialogFragment.getDialog()).setMessage(event.message);
+        public void onClick(View v) {
+            QueryTrackedEntityInstancesResultDialogFragment.this.dismiss();
         }
     }
 
     static class ParameterParcelable implements Parcelable {
+        public static final Creator<ParameterParcelable> CREATOR = new C08991();
         public static final String TAG = ParameterParcelable.class.getSimpleName();
         private List<TrackedEntityInstance> trackedEntityInstances;
+
+        /* renamed from: org.icddrb.dhis.android.sdk.ui.dialogs.QueryTrackedEntityInstancesResultDialogFragment$ParameterParcelable$1 */
+        static class C08991 implements Creator<ParameterParcelable> {
+            C08991() {
+            }
+
+            public ParameterParcelable createFromParcel(Parcel in) {
+                return new ParameterParcelable(in);
+            }
+
+            public ParameterParcelable[] newArray(int size) {
+                return new ParameterParcelable[size];
+            }
+        }
+
         public ParameterParcelable(List<TrackedEntityInstance> trackedEntityInstances) {
             Log.d(TAG, "parcelputting " + trackedEntityInstances.size());
             this.trackedEntityInstances = trackedEntityInstances;
@@ -344,30 +101,205 @@ public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragm
         protected ParameterParcelable(Parcel in) {
         }
 
-        public static final Creator<ParameterParcelable> CREATOR = new Creator<ParameterParcelable>() {
-            @Override
-            public ParameterParcelable createFromParcel(Parcel in) {
-                return new ParameterParcelable(in);
-            }
-
-            @Override
-            public ParameterParcelable[] newArray(int size) {
-                return new ParameterParcelable[size];
-            }
-        };
-
-        @Override
         public int describeContents() {
             return 0;
         }
 
-        @Override
         public void writeToParcel(Parcel dest, int flags) {
-            dest.writeList(trackedEntityInstances);
+            dest.writeList(this.trackedEntityInstances);
         }
 
         public List<TrackedEntityInstance> getTrackedEntityInstances() {
-            return trackedEntityInstances;
+            return this.trackedEntityInstances;
+        }
+    }
+
+    public static QueryTrackedEntityInstancesResultDialogFragment newInstance(List<TrackedEntityInstance> trackedEntityInstances, String orgUnit) {
+        QueryTrackedEntityInstancesResultDialogFragment dialogFragment = new QueryTrackedEntityInstancesResultDialogFragment();
+        Bundle args = new Bundle();
+        Parcel parcel1 = Parcel.obtain();
+        ParameterParcelable parcelable1 = new ParameterParcelable((List) trackedEntityInstances);
+        parcelable1.writeToParcel(parcel1, 1);
+        Parcel parcel2 = Parcel.obtain();
+        ParameterParcelable parcelable2 = new ParameterParcelable(new ArrayList());
+        parcelable2.writeToParcel(parcel2, 1);
+        args.putParcelable("extra:trackedEntityInstancesSelected", parcelable2);
+        args.putParcelable("extra:trackedEntityInstances", parcelable1);
+        args.putString("extra:orgUnit", orgUnit);
+        args.putBoolean("extra:selectAll", false);
+        dialogFragment.setArguments(args);
+        Dhis2Application.getEventBus().register(dialogFragment);
+        return dialogFragment;
+    }
+
+    private List<TrackedEntityInstance> getTrackedEntityInstances() {
+        return ((ParameterParcelable) getArguments().getParcelable("extra:trackedEntityInstances")).getTrackedEntityInstances();
+    }
+
+    private List<TrackedEntityInstance> getSelectedTrackedEntityInstances() {
+        return ((ParameterParcelable) getArguments().getParcelable("extra:trackedEntityInstancesSelected")).getTrackedEntityInstances();
+    }
+
+    private String getOrgUnit() {
+        return getArguments().getString("extra:orgUnit");
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(1, C0845R.style.Theme_AppCompat_Light_Dialog);
+    }
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        getDialog().getWindow().setSoftInputMode(2);
+        return inflater.inflate(C0845R.layout.dialog_fragment_teiqueryresult, container, false);
+    }
+
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        this.mListView = (ListView) view.findViewById(C0845R.id.simple_listview);
+        ImageView closeDialogButton = (ImageView) view.findViewById(C0845R.id.close_dialog_button);
+        this.mFilter = (EditText) view.findViewById(C0845R.id.filter_options);
+        this.mDialogLabel = (TextView) view.findViewById(C0845R.id.dialog_label);
+        ((InputMethodManager) getActivity().getSystemService("input_method")).hideSoftInputFromWindow(this.mFilter.getWindowToken(), 0);
+        this.mAdapter = new QueryTrackedEntityInstancesResultDialogAdapter(LayoutInflater.from(getActivity()), getSelectedTrackedEntityInstances(), null, getContext());
+        this.mListView.setAdapter(this.mAdapter);
+        this.mListView.setOnItemClickListener(this);
+        this.mFilter.addTextChangedListener(new C08961());
+        this.mSelectAllButton = (Button) view.findViewById(C0845R.id.teiqueryresult_selectall);
+        this.mSelectAllButton.setOnClickListener(this);
+        this.mSelectAllButton.setVisibility(0);
+        if (getArguments().getBoolean("extra:selectAll")) {
+            this.mSelectAllButton.setText(getString(C0845R.string.deselect_all));
+        }
+        closeDialogButton.setOnClickListener(new C08972());
+        setDialogLabel(C0845R.string.select_to_load);
+        getAdapter().swapData(getTrackedEntityInstances());
+    }
+
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        TrackedEntityInstance value = this.mAdapter.getItem(position);
+        List<TrackedEntityInstance> selected = getSelectedTrackedEntityInstances();
+        CheckBox checkBox = (CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery);
+        if (checkBox.isChecked()) {
+            selected.remove(value);
+            checkBox.setChecked(false);
+            return;
+        }
+        selected.add(value);
+        checkBox.setChecked(true);
+    }
+
+    public void setDialogLabel(int resourceId) {
+        if (this.mDialogLabel != null) {
+            this.mDialogLabel.setText(resourceId);
+        }
+    }
+
+    public void setDialogLabel(CharSequence sequence) {
+        if (this.mDialogLabel != null) {
+            this.mDialogLabel.setText(sequence);
+        }
+    }
+
+    public void setDialogId(int dialogId) {
+        this.mDialogId = dialogId;
+    }
+
+    public int getDialogId() {
+        return this.mDialogId;
+    }
+
+    public CharSequence getDialogLabel() {
+        if (this.mDialogLabel != null) {
+            return this.mDialogLabel.getText();
+        }
+        return null;
+    }
+
+    public QueryTrackedEntityInstancesResultDialogAdapter getAdapter() {
+        return this.mAdapter;
+    }
+
+    public void show(FragmentManager fragmentManager) {
+        if (fragmentManager != null) {
+            show(fragmentManager, TAG);
+        }
+    }
+
+    public void onClick(View v) {
+        if (v.getId() == C0845R.id.teiqueryresult_selectall) {
+            toggleSelectAll();
+        }
+    }
+
+    public void toggleSelectAll() {
+        Bundle arguments = getArguments();
+        boolean selectall = arguments.getBoolean("extra:selectAll");
+        if (selectall) {
+            this.mSelectAllButton.setText(getText(C0845R.string.select_all));
+            deselectAll();
+        } else {
+            this.mSelectAllButton.setText(getText(C0845R.string.deselect_all));
+            selectAll();
+        }
+        arguments.putBoolean("extra:selectAll", !selectall);
+    }
+
+    public void selectAll() {
+        List<TrackedEntityInstance> allTrackedEntityInstances = this.mAdapter.getData();
+        List<TrackedEntityInstance> selectedTrackedEntityInstances = getSelectedTrackedEntityInstances();
+        selectedTrackedEntityInstances.clear();
+        selectedTrackedEntityInstances.addAll(allTrackedEntityInstances);
+        View view = null;
+        for (int i = 0; i < allTrackedEntityInstances.size(); i++) {
+            view = this.mAdapter.getView(i, view, null);
+            ((CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery)).setChecked(true);
+        }
+        refreshListView();
+    }
+
+    public void deselectAll() {
+        List<TrackedEntityInstance> allTrackedEntityInstances = this.mAdapter.getData();
+        getSelectedTrackedEntityInstances().clear();
+        View view = null;
+        for (int i = 0; i < allTrackedEntityInstances.size(); i++) {
+            view = this.mAdapter.getView(i, view, null);
+            ((CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery)).setChecked(false);
+        }
+        refreshListView();
+    }
+
+    public void refreshListView() {
+        int start = this.mListView.getFirstVisiblePosition();
+        int end = this.mListView.getLastVisiblePosition();
+        for (int pos = 0; pos <= end - start; pos++) {
+            View view = this.mListView.getChildAt(pos);
+            if (view != null) {
+                int adapterPosition = view.getId();
+                if (adapterPosition >= 0 && adapterPosition < this.mAdapter.getCount() && !view.hasFocus()) {
+                    this.mAdapter.getView(adapterPosition, view, this.mListView);
+                }
+            }
+        }
+    }
+
+    public void initiateLoading() {
+        Dhis2Application.getEventBus().post(new UiEvent(UiEventType.SYNCING_START));
+        Log.d(TAG, "loading: " + getSelectedTrackedEntityInstances().size());
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, ResourceType.TRACKEDENTITYINSTANCE) {
+            public Object execute() throws APIException {
+                TrackerController.getTrackedEntityInstancesDataFromServer(DhisController.getInstance().getDhisApi(), QueryTrackedEntityInstancesResultDialogFragment.this.getSelectedTrackedEntityInstances(), true, true);
+                Dhis2Application.getEventBus().post(new UiEvent(UiEventType.SYNCING_END));
+                return new Object();
+            }
+        });
+        dismiss();
+    }
+
+    @Subscribe
+    public void onLoadingMessageEvent(LoadingMessageEvent event) {
+        Log.d(TAG, "Message received" + event.message);
+        if (this.progressDialogFragment != null && this.progressDialogFragment.getDialog() != null && this.progressDialogFragment.getDialog().isShowing()) {
+            ((ProgressDialog) this.progressDialogFragment.getDialog()).setMessage(event.message);
         }
     }
 }

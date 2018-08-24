@@ -1,27 +1,20 @@
 package org.icddrb.dhis.android.sdk.ui.dialogs;
 
 import android.content.Context;
-
-import org.icddrb.dhis.android.sdk.persistence.loaders.Query;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.icddrb.dhis.android.sdk.persistence.loaders.Query;
+import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogAdapter.OptionAdapterValue;
+import org.icddrb.dhis.android.sdk.ui.dialogs.UpcomingEventsDialogFilter.Type;
 
-public class UpcomingEventsDialogFilterQuery implements Query<List<AutoCompleteDialogAdapter.OptionAdapterValue>> {
-
-    public UpcomingEventsDialogFilterQuery() {
-    }
-
-    @Override
-    public List<AutoCompleteDialogAdapter.OptionAdapterValue> query(Context context) {
-        List<AutoCompleteDialogAdapter.OptionAdapterValue> optionAdapterValues = new ArrayList<>();
-
-        List<UpcomingEventsDialogFilter.Type> types = Arrays.asList(UpcomingEventsDialogFilter.Type.values());
+public class UpcomingEventsDialogFilterQuery implements Query<List<OptionAdapterValue>> {
+    public List<OptionAdapterValue> query(Context context) {
+        List<OptionAdapterValue> optionAdapterValues = new ArrayList();
+        List<Type> types = Arrays.asList(Type.values());
         for (int i = 0; i < types.size(); i++) {
-            optionAdapterValues.add(new AutoCompleteDialogAdapter.OptionAdapterValue(Integer.toString(i),types.get(i).name()));
+            optionAdapterValues.add(new OptionAdapterValue(Integer.toString(i), ((Type) types.get(i)).name()));
         }
-
         return optionAdapterValues;
     }
 }

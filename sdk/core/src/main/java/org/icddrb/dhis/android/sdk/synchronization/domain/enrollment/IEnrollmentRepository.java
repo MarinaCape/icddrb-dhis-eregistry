@@ -1,17 +1,15 @@
 package org.icddrb.dhis.android.sdk.synchronization.domain.enrollment;
 
-
+import java.util.List;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
 
-import java.util.List;
-
 public interface IEnrollmentRepository {
-    void save (Enrollment enrollment);
+    Enrollment getEnrollment(String str);
 
-    ImportSummary sync (Enrollment enrollment);
+    List<Enrollment> getEnrollmentsByTrackedEntityInstanceId(long j);
 
-    Enrollment getEnrollment(String enrollmentUid);
+    void save(Enrollment enrollment);
 
-    List<Enrollment> getEnrollmentsByTrackedEntityInstanceId(long trackedEntityInstanceLocalId);
+    ImportSummary sync(Enrollment enrollment);
 }

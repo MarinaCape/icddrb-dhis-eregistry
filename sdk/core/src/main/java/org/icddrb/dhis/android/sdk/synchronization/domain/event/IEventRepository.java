@@ -1,25 +1,23 @@
 package org.icddrb.dhis.android.sdk.synchronization.domain.event;
 
+import java.util.List;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
 
-import java.util.List;
-
 public interface IEventRepository {
-    List<Event> getEventsByEnrollment(long enrollmentId);
+    void delete(Event event);
 
-    List<Event> getEventsByEnrollmentToBeRemoved(long enrollmentId);
+    List<Event> getEventsByEnrollment(long j);
+
+    List<Event> getEventsByEnrollmentToBeRemoved(long j);
 
     void save(Event event);
 
-    void delete(Event event);
+    List<ImportSummary> sync(List<Event> list);
 
     ImportSummary sync(Event event);
 
-    List<ImportSummary> sync(List<Event> event);
+    List<ImportSummary> syncRemovedEvents(List<Event> list);
 
-    List<ImportSummary> syncRemovedEvents(List<Event> event);
-
-    void updateEventTimestampIfIsPushed(Event event,
-            ImportSummary importSummary);
+    void updateEventTimestampIfIsPushed(Event event, ImportSummary importSummary);
 }

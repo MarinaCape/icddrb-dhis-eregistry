@@ -1,38 +1,9 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.fragments.dataentry;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -42,17 +13,20 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.AbsListView;
+import android.widget.AbsListView.RecyclerListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.squareup.otto.Subscribe;
-
-import org.icddrb.dhis.android.sdk.R;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.controllers.ErrorType;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
@@ -69,144 +43,151 @@ import org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry.RulesEvaluatorThr
 import org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry.UpdateSectionsEvent;
 import org.icddrb.dhis.android.sdk.utils.UiUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
-        implements LoaderManager.LoaderCallbacks<D>, AdapterView.OnItemSelectedListener,
-        OnBackPressedListener {
-    public static final String TAG = DataEntryFragment.class.getSimpleName();
-
-    protected static final int LOADER_ID = 17;
-    protected static final int INITIAL_POSITION = 0;
+public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> implements LoaderCallbacks<D>, OnItemSelectedListener, OnBackPressedListener {
     protected static final String EXTRA_ARGUMENTS = "extra:Arguments";
     protected static final String EXTRA_SAVED_INSTANCE_STATE = "extra:savedInstanceState";
-    protected ListView listView;
-    protected ProgressBar progressBar;
-    protected DataValueAdapter listViewAdapter;
-    protected boolean refreshing = false;
-    protected ValidationErrorDialog validationErrorDialog;
+    protected static final int INITIAL_POSITION = 0;
+    protected static final int LOADER_ID = 17;
+    public static final String TAG = DataEntryFragment.class.getSimpleName();
     private boolean hasDataChanged = false;
-    protected RulesEvaluatorThread rulesEvaluatorThread;
-    private Parcelable listViewState;
+    protected ListView listView;
+    protected DataValueAdapter listViewAdapter;
     private Parcelable listViewAdapterState;
+    private Parcelable listViewState;
+    protected ProgressBar progressBar;
+    protected boolean refreshing = false;
+    protected RulesEvaluatorThread rulesEvaluatorThread;
+    protected ValidationErrorDialog validationErrorDialog;
 
-    @Override
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragment$1 */
+    class C09031 implements RecyclerListener {
+        C09031() {
+        }
+
+        public void onMovedToScrapHeap(View view) {
+            if (view.hasFocus()) {
+                view.clearFocus();
+                ViewParent parent = view.getParent();
+                if (parent != null) {
+                    parent.clearChildFocus(view);
+                }
+            }
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragment$2 */
+    class C09042 implements OnClickListener {
+        C09042() {
+        }
+
+        public void onClick(View v) {
+            DataEntryFragment.this.listView.smoothScrollToPosition(0);
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragment$3 */
+    class C09053 implements DialogInterface.OnClickListener {
+        C09053() {
+        }
+
+        public void onClick(DialogInterface dialog, int i) {
+            dialog.dismiss();
+        }
+    }
+
+    public abstract SectionAdapter getSpinnerAdapter();
+
+    protected abstract HashMap<ErrorType, ArrayList<String>> getValidationErrors();
+
+    protected abstract boolean isValid();
+
+    public abstract void onLoadFinished(Loader<D> loader, D d);
+
+    protected abstract void proceed();
+
+    protected abstract void save();
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        if (rulesEvaluatorThread == null || rulesEvaluatorThread.isKilled()) {
-            rulesEvaluatorThread = new RulesEvaluatorThread();
-            rulesEvaluatorThread.start();
+        if (this.rulesEvaluatorThread == null || this.rulesEvaluatorThread.isKilled()) {
+            this.rulesEvaluatorThread = new RulesEvaluatorThread();
+            this.rulesEvaluatorThread.start();
         }
-        rulesEvaluatorThread.init(this);
+        this.rulesEvaluatorThread.init(this);
     }
 
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        rulesEvaluatorThread.kill();
-        rulesEvaluatorThread = null;
+        this.rulesEvaluatorThread.kill();
+        this.rulesEvaluatorThread = null;
     }
 
-    @Override
     public void onResume() {
         super.onResume();
         Dhis2Application.getEventBus().register(this);
     }
 
-    @Override
     public void onPause() {
-        listViewState = listView.onSaveInstanceState();
+        this.listViewState = this.listView.onSaveInstanceState();
         super.onPause();
         Dhis2Application.getEventBus().unregister(this);
     }
 
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_data_entry, menu);
+        inflater.inflate(C0845R.menu.menu_data_entry, menu);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_data_entry, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(C0845R.layout.fragment_data_entry, container, false);
     }
 
     public ActionBar getActionBar() {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
     }
 
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
-        progressBar.setVisibility(View.GONE);
-
-        listView = (ListView) view.findViewById(R.id.datavalues_listview);
-        listView.setRecyclerListener(new AbsListView.RecyclerListener() {
-            @Override
-            public void onMovedToScrapHeap(View view) {
-                if (view.hasFocus()) {
-                    view.clearFocus();
-                    ViewParent parent = view.getParent();
-                    if (parent != null) {
-                        parent.clearChildFocus(view);
-                    }
-                }
-            }
-        });
-        View upButton = getLayoutInflater(savedInstanceState)
-                .inflate(R.layout.up_button_layout, listView, false);
-        listViewAdapter = new DataValueAdapter(getChildFragmentManager(),
-                getLayoutInflater(savedInstanceState), listView, getContext());
-
-        listView.addFooterView(upButton);
-        listView.setVisibility(View.VISIBLE);
-        listView.setAdapter(listViewAdapter);
-
-        if (listViewState != null) {
-            listView.onRestoreInstanceState(listViewState);
+        this.progressBar = (ProgressBar) view.findViewById(C0845R.id.progress_bar);
+        this.progressBar.setVisibility(8);
+        this.listView = (ListView) view.findViewById(C0845R.id.datavalues_listview);
+        this.listView.setRecyclerListener(new C09031());
+        View upButton = getLayoutInflater(savedInstanceState).inflate(C0845R.layout.up_button_layout, this.listView, false);
+        this.listViewAdapter = new DataValueAdapter(getChildFragmentManager(), getLayoutInflater(savedInstanceState), this.listView, getContext());
+        this.listView.addFooterView(upButton);
+        this.listView.setVisibility(0);
+        this.listView.setAdapter(this.listViewAdapter);
+        if (this.listViewState != null) {
+            this.listView.onRestoreInstanceState(this.listViewState);
         }
-
-        upButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listView.smoothScrollToPosition(INITIAL_POSITION);
-            }
-        });
+        upButton.setOnClickListener(new C09042());
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() == android.R.id.home) {
+        if (menuItem.getItemId() == 16908332) {
             getActivity().finish();
             return true;
-        } else if (menuItem.getItemId() == R.id.action_new_event) {
+        } else if (menuItem.getItemId() != C0845R.id.action_new_event) {
+            return super.onOptionsItemSelected(menuItem);
+        } else {
             proceed();
             return true;
         }
-        return super.onOptionsItemSelected(menuItem);
     }
 
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         Bundle argumentsBundle = new Bundle();
-        argumentsBundle.putBundle(EXTRA_ARGUMENTS, getArguments());
-        argumentsBundle.putBundle(EXTRA_SAVED_INSTANCE_STATE, savedInstanceState);
-        getLoaderManager().initLoader(LOADER_ID, argumentsBundle, this);
-
-        progressBar.setVisibility(View.VISIBLE);
-        listView.setVisibility(View.GONE);
+        argumentsBundle.putBundle("extra:Arguments", getArguments());
+        argumentsBundle.putBundle("extra:savedInstanceState", savedInstanceState);
+        getLoaderManager().initLoader(17, argumentsBundle, this);
+        this.progressBar.setVisibility(0);
+        this.listView.setVisibility(8);
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public void onNothingSelected(AdapterView<?> adapterView) {
     }
 
-    public static void resetHidingAndWarnings(DataValueAdapter dataValueAdapter,
-            SectionAdapter sectionAdapter) {
+    public static void resetHidingAndWarnings(DataValueAdapter dataValueAdapter, SectionAdapter sectionAdapter) {
         if (dataValueAdapter != null) {
             dataValueAdapter.resetHiding();
             dataValueAdapter.resetDisabled();
@@ -220,11 +201,10 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     public static boolean containsValue(BaseValue value) {
-        if (value != null && value.getValue() != null && !value.getValue().isEmpty()) {
-            return true;
-        } else {
+        if (value == null || value.getValue() == null || value.getValue().isEmpty()) {
             return false;
         }
+        return true;
     }
 
     public void updateSections() {
@@ -232,11 +212,11 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     public DataValueAdapter getListViewAdapter() {
-        return listViewAdapter;
+        return this.listViewAdapter;
     }
 
     protected void showLoadingDialog() {
-        UiUtils.showLoadingDialog(getChildFragmentManager(), R.string.please_wait);
+        UiUtils.showLoadingDialog(getChildFragmentManager(), C0845R.string.please_wait);
     }
 
     public void hideLoadingDialog() {
@@ -248,8 +228,8 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     public void flagDataChanged(boolean changed) {
-        if (hasDataChanged != changed) {
-            hasDataChanged = changed;
+        if (this.hasDataChanged != changed) {
+            this.hasDataChanged = changed;
             if (isAdded()) {
                 getActivity().invalidateOptionsMenu();
             }
@@ -257,55 +237,45 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     private void showErrorsDialog(ArrayList<String> errors) {
-        if (!errors.isEmpty()) {
-            validationErrorDialog = ValidationErrorDialog
-                    .newInstance(
-                            getActivity().getString(R.string.unable_to_complete_registration) + " "
-                                    + getActivity().getString(R.string.review_errors), errors);
-            validationErrorDialog.show(getChildFragmentManager());
-        } else {
-            Toast.makeText(getContext(), R.string.unable_to_complete_registration,
-                    Toast.LENGTH_LONG).show();
-
+        if (errors.isEmpty()) {
+            Toast.makeText(getContext(), C0845R.string.unable_to_complete_registration, 1).show();
+            return;
         }
+        this.validationErrorDialog = ValidationErrorDialog.newInstance(getActivity().getString(C0845R.string.unable_to_complete_registration) + " " + getActivity().getString(C0845R.string.review_errors), errors);
+        this.validationErrorDialog.show(getChildFragmentManager());
     }
 
     protected void showValidationErrorDialog(HashMap<ErrorType, ArrayList<String>> errorsMap) {
-        ArrayList<String> errors = new ArrayList<>();
-        addErrors(errorsMap.get(ErrorType.MANDATORY), errors,
-                getActivity().getString(R.string.missing_mandatory_field));
-        addErrors(errorsMap.get(ErrorType.UNIQUE), errors,
-                getActivity().getString(R.string.unique_value_form_empty));
-        addErrors(errorsMap.get(ErrorType.PROGRAM_RULE), errors,
-                getActivity().getString(R.string.error_message));
-        addErrors(errorsMap.get(ErrorType.INVALID_FIELD), errors,
-                getActivity().getString(R.string.error_message));
+        ArrayList<String> errors = new ArrayList();
+        addErrors((ArrayList) errorsMap.get(ErrorType.MANDATORY), errors, getActivity().getString(C0845R.string.missing_mandatory_field));
+        addErrors((ArrayList) errorsMap.get(ErrorType.UNIQUE), errors, getActivity().getString(C0845R.string.unique_value_form_empty));
+        addErrors((ArrayList) errorsMap.get(ErrorType.PROGRAM_RULE), errors, getActivity().getString(C0845R.string.error_message));
+        addErrors((ArrayList) errorsMap.get(ErrorType.INVALID_FIELD), errors, getActivity().getString(C0845R.string.error_message));
         showErrorsDialog(errors);
     }
 
-    private void addErrors(ArrayList<String> programRulesErrors,
-            ArrayList<String> errors, String errorMessage) {
+    private void addErrors(ArrayList<String> programRulesErrors, ArrayList<String> errors, String errorMessage) {
         if (programRulesErrors != null) {
-            for (String programRulesError : programRulesErrors) {
-                errors.add(errorMessage + ": " + programRulesError);
+            Iterator it = programRulesErrors.iterator();
+            while (it.hasNext()) {
+                errors.add(errorMessage + ": " + ((String) it.next()));
             }
         }
     }
 
     protected boolean haveValuesChanged() {
-        return hasDataChanged;
+        return this.hasDataChanged;
     }
 
     protected Toolbar getActionBarToolbar() {
         if (isAdded() && getActivity() != null) {
-            return (Toolbar) getActivity().findViewById(R.id.toolbar);
-        } else {
-            throw new IllegalArgumentException("Fragment should be attached to MainActivity");
+            return (Toolbar) getActivity().findViewById(C0845R.id.toolbar);
         }
+        throw new IllegalArgumentException("Fragment should be attached to MainActivity");
     }
 
     public ValidationErrorDialog getValidationErrorDialog() {
-        return validationErrorDialog;
+        return this.validationErrorDialog;
     }
 
     public void setValidationErrorDialog(ValidationErrorDialog validationErrorDialog) {
@@ -313,55 +283,39 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
     }
 
     @Subscribe
-    public void onRowValueChanged(final RowValueChangedEvent event) {
+    public void onRowValueChanged(RowValueChangedEvent event) {
         flagDataChanged(true);
     }
 
     @Subscribe
     public void onRefreshListView(RefreshListViewEvent event) {
-        int start = listView.getFirstVisiblePosition();
-        int end = listView.getLastVisiblePosition();
+        int start = this.listView.getFirstVisiblePosition();
+        int end = this.listView.getLastVisiblePosition();
         for (int pos = 0; pos <= end - start; pos++) {
-            View view = listView.getChildAt(pos);
+            View view = this.listView.getChildAt(pos);
             if (view != null) {
                 int adapterPosition = view.getId();
-                if (adapterPosition < 0 || adapterPosition >= listViewAdapter.getCount()) {
-                    continue;
+                if (adapterPosition >= 0 && adapterPosition < this.listViewAdapter.getCount()) {
+                    this.listViewAdapter.getView(adapterPosition, view, this.listView);
                 }
-                listViewAdapter.getView(adapterPosition, view, listView);
             }
         }
-        refreshing = false;
+        this.refreshing = false;
     }
 
     @Subscribe
-    public void onShowDetailedInfo(
-            OnDetailedInfoButtonClick eventClick) // may inherit code from DataEntryFragment
-    {
+    public void onShowDetailedInfo(OnDetailedInfoButtonClick eventClick) {
         String message = "";
-
-        if (eventClick.getRow() instanceof EventCoordinatesRow
-                || eventClick.getRow() instanceof QuestionCoordinatesRow) {
-            message = getResources().getString(R.string.detailed_info_coordinate_row);
+        if ((eventClick.getRow() instanceof EventCoordinatesRow) || (eventClick.getRow() instanceof QuestionCoordinatesRow)) {
+            message = getResources().getString(C0845R.string.detailed_info_coordinate_row);
         } else if (eventClick.getRow() instanceof StatusRow) {
-            message = getResources().getString(R.string.detailed_info_status_row);
+            message = getResources().getString(C0845R.string.detailed_info_status_row);
         } else if (eventClick.getRow() instanceof IndicatorRow) {
-            message = ""; // need to change ProgramIndicator to extend BaseValue for this to work
-        } else         // rest of the rows can either be of data element or tracked entity instance
-        // attribute
-        {
+            message = "";
+        } else {
             message = eventClick.getRow().getDescription();
         }
-
-        UiUtils.showConfirmDialog(getActivity(),
-                getResources().getString(R.string.detailed_info_dataelement),
-                message, getResources().getString(R.string.ok_option),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        dialog.dismiss();
-                    }
-                });
+        UiUtils.showConfirmDialog(getActivity(), getResources().getString(C0845R.string.detailed_info_dataelement), message, getResources().getString(C0845R.string.ok_option), new C09053());
     }
 
     @Subscribe
@@ -369,20 +323,6 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D>
         hideLoadingDialog();
     }
 
-    public abstract SectionAdapter getSpinnerAdapter();
-
-    protected abstract HashMap<ErrorType, ArrayList<String>> getValidationErrors();
-
-    protected abstract boolean isValid();
-
-    protected abstract void save();
-
-    protected abstract void proceed();
-
-    @Override
-    public abstract void onLoadFinished(Loader<D> loader, D data);
-
-    @Override
     public boolean doBack() {
         if (getActivity() != null) {
             getActivity().finish();

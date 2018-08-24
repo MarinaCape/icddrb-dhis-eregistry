@@ -1,61 +1,34 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry;
-
-import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
-import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
-import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
-import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
-import org.icddrb.dhis.android.sdk.persistence.models.Event;
-import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage;
-import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.StatusRow;
-import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragmentSection;
 
 import java.util.List;
 import java.util.Map;
+import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
+import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
+import org.icddrb.dhis.android.sdk.persistence.models.Event;
+import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
+import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
+import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.StatusRow;
+import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragmentSection;
 
 class EventDataEntryFragmentForm {
+    private DataEntryFragmentSection currentSection;
+    private Map<String, String> dataElementNames;
+    private Map<String, DataValue> dataValues;
     private Enrollment enrollment;
     private Event event;
-    private ProgramStage stage;
-    private List<DataEntryFragmentSection> sections;
-    private DataEntryFragmentSection currentSection;
-    private Map<String, DataValue> dataValues;
-    private Map<String, TrackedEntityAttributeValue> trackedEntityAttributeValues;
-    private Map<String, String> dataElementNames;
     private List<IndicatorRow> indicatorRows;
-    private StatusRow statusRow;
     private Map<String, IndicatorRow> indicatorToIndicatorRowMap;
+    private List<DataEntryFragmentSection> sections;
+    private ProgramStage stage;
+    private StatusRow statusRow;
+    private Map<String, TrackedEntityAttributeValue> trackedEntityAttributeValues;
+
+    EventDataEntryFragmentForm() {
+    }
 
     public Enrollment getEnrollment() {
-        return enrollment;
+        return this.enrollment;
     }
 
     public void setEnrollment(Enrollment enrollment) {
@@ -67,7 +40,7 @@ class EventDataEntryFragmentForm {
     }
 
     public Event getEvent() {
-        return event;
+        return this.event;
     }
 
     public void setSections(List<DataEntryFragmentSection> sections) {
@@ -75,7 +48,7 @@ class EventDataEntryFragmentForm {
     }
 
     public List<DataEntryFragmentSection> getSections() {
-        return sections;
+        return this.sections;
     }
 
     public void setStage(ProgramStage stage) {
@@ -83,11 +56,11 @@ class EventDataEntryFragmentForm {
     }
 
     public ProgramStage getStage() {
-        return stage;
+        return this.stage;
     }
 
     public Map<String, DataValue> getDataValues() {
-        return dataValues;
+        return this.dataValues;
     }
 
     public void setDataValues(Map<String, DataValue> dataValues) {
@@ -95,7 +68,7 @@ class EventDataEntryFragmentForm {
     }
 
     public Map<String, String> getDataElementNames() {
-        return dataElementNames;
+        return this.dataElementNames;
     }
 
     public void setDataElementNames(Map<String, String> dataElementNames) {
@@ -103,7 +76,7 @@ class EventDataEntryFragmentForm {
     }
 
     public List<IndicatorRow> getIndicatorRows() {
-        return indicatorRows;
+        return this.indicatorRows;
     }
 
     public void setIndicatorRows(List<IndicatorRow> indicatorRows) {
@@ -111,7 +84,7 @@ class EventDataEntryFragmentForm {
     }
 
     public DataEntryFragmentSection getCurrentSection() {
-        return currentSection;
+        return this.currentSection;
     }
 
     public void setCurrentSection(DataEntryFragmentSection currentSection) {
@@ -119,7 +92,7 @@ class EventDataEntryFragmentForm {
     }
 
     public StatusRow getStatusRow() {
-        return statusRow;
+        return this.statusRow;
     }
 
     public void setStatusRow(StatusRow statusRow) {
@@ -127,7 +100,7 @@ class EventDataEntryFragmentForm {
     }
 
     public Map<String, IndicatorRow> getIndicatorToIndicatorRowMap() {
-        return indicatorToIndicatorRowMap;
+        return this.indicatorToIndicatorRowMap;
     }
 
     public void setIndicatorToIndicatorRowMap(Map<String, IndicatorRow> indicatorToIndicatorRowMap) {
@@ -135,7 +108,7 @@ class EventDataEntryFragmentForm {
     }
 
     public Map<String, TrackedEntityAttributeValue> getTrackedEntityAttributeValues() {
-        return trackedEntityAttributeValues;
+        return this.trackedEntityAttributeValues;
     }
 
     public void setTrackedEntityAttributeValues(Map<String, TrackedEntityAttributeValue> trackedEntityAttributeValues) {

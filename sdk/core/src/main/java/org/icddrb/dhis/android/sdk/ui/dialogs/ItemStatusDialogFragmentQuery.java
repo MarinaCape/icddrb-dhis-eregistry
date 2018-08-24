@@ -1,95 +1,71 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.dialogs;
 
 import android.content.Context;
-
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
-import org.icddrb.dhis.android.sdk.events.OnRowClick;
+import org.icddrb.dhis.android.sdk.events.OnRowClick.ITEM_STATUS;
 import org.icddrb.dhis.android.sdk.persistence.loaders.Query;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseSerializableModel;
-import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
 
-/**
- * Created by Simen S. Russnes on 7/9/15.
- */
-public class ItemStatusDialogFragmentQuery implements Query<ItemStatusDialogFragmentForm>
-{
+public class ItemStatusDialogFragmentQuery implements Query<ItemStatusDialogFragmentForm> {
     public static final String TAG = ItemStatusDialogFragmentQuery.class.getSimpleName();
     private long id;
     private String type;
 
-
-    public ItemStatusDialogFragmentQuery(long id, String type)
-    {
+    public ItemStatusDialogFragmentQuery(long id, String type) {
         this.id = id;
         this.type = type;
     }
 
-    @Override
-    public ItemStatusDialogFragmentForm query(Context context)
-    {
+    public ItemStatusDialogFragmentForm query(Context context) {
         BaseSerializableModel item = null;
-        switch (type) {
-            case FailedItem.TRACKEDENTITYINSTANCE: {
-                item = TrackerController.getTrackedEntityInstance(id);
+        String str = this.type;
+        Object obj = -1;
+        switch (str.hashCode()) {
+            case -546411710:
+                if (str.equals("TrackedEntityInstance")) {
+                    obj = null;
+                    break;
+                }
                 break;
-            }
-            case FailedItem.ENROLLMENT: {
-                item = TrackerController.getEnrollment(id);
+            case 67338874:
+                if (str.equals("Event")) {
+                    obj = 2;
+                    break;
+                }
                 break;
-            }
-            case FailedItem.EVENT: {
-                item = TrackerController.getEvent(id);
+            case 2109554468:
+                if (str.equals("Enrollment")) {
+                    obj = 1;
+                    break;
+                }
                 break;
-            }
+        }
+        switch (obj) {
+            case null:
+                item = TrackerController.getTrackedEntityInstance(this.id);
+                break;
+            case 1:
+                item = TrackerController.getEnrollment(this.id);
+                break;
+            case 2:
+                item = TrackerController.getEvent(this.id);
+                break;
         }
         ItemStatusDialogFragmentForm form = new ItemStatusDialogFragmentForm();
         form.setItem(item);
-        form.setType(type);
-
-        if(item == null) {
-            return form;
-        }
-
-        boolean failed = false;
-        if(TrackerController.getFailedItem(type, id) != null) {
-            failed = true;
-        }
-
-        if (failed) {
-            form.setStatus(OnRowClick.ITEM_STATUS.ERROR);
-        } else if (item.isFromServer()) {
-            form.setStatus(OnRowClick.ITEM_STATUS.SENT);
-        } else {
-            form.setStatus(OnRowClick.ITEM_STATUS.OFFLINE);
+        form.setType(this.type);
+        if (item != null) {
+            boolean failed = false;
+            if (TrackerController.getFailedItem(this.type, this.id) != null) {
+                failed = true;
+            }
+            if (failed) {
+                form.setStatus(ITEM_STATUS.ERROR);
+            } else if (item.isFromServer()) {
+                form.setStatus(ITEM_STATUS.SENT);
+            } else {
+                form.setStatus(ITEM_STATUS.OFFLINE);
+            }
         }
         return form;
     }

@@ -1,59 +1,270 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Select;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
-
-/**
- * @author Simen Skogly Russnes on 17.02.15.
- */
-@Table(databaseName = Dhis2Database.NAME)
 public class RelationshipType extends BaseMetaDataObject {
-
     @JsonProperty
-    @Column(name = "aIsToB")
     String aIsToB;
-
     @JsonProperty
-    @Column(name = "bIsToA")
     String bIsToA;
 
-    public RelationshipType() {
+    public final class Adapter extends ModelAdapter<RelationshipType> {
+        public Class<RelationshipType> getModelClass() {
+            return RelationshipType.class;
+        }
+
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `RelationshipType` (`NAME`, `DISPLAYNAME`, `CREATED`, `LASTUPDATED`, `ACCESS`, `ID`, `AISTOB`, `BISTOA`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, RelationshipType model) {
+            if (model.name != null) {
+                statement.bindString(1, model.name);
+            } else {
+                statement.bindNull(1);
+            }
+            if (model.displayName != null) {
+                statement.bindString(2, model.displayName);
+            } else {
+                statement.bindNull(2);
+            }
+            if (model.created != null) {
+                statement.bindString(3, model.created);
+            } else {
+                statement.bindNull(3);
+            }
+            if (model.lastUpdated != null) {
+                statement.bindString(4, model.lastUpdated);
+            } else {
+                statement.bindNull(4);
+            }
+            Object modelaccess = FlowManager.getTypeConverterForClass(Access.class).getDBValue(model.access);
+            if (modelaccess != null) {
+                statement.bindString(5, (String) modelaccess);
+            } else {
+                statement.bindNull(5);
+            }
+            if (model.id != null) {
+                statement.bindString(6, model.id);
+            } else {
+                statement.bindNull(6);
+            }
+            if (model.aIsToB != null) {
+                statement.bindString(7, model.aIsToB);
+            } else {
+                statement.bindNull(7);
+            }
+            if (model.bIsToA != null) {
+                statement.bindString(8, model.bIsToA);
+            } else {
+                statement.bindNull(8);
+            }
+        }
+
+        public void bindToContentValues(ContentValues contentValues, RelationshipType model) {
+            if (model.name != null) {
+                contentValues.put("name", model.name);
+            } else {
+                contentValues.putNull("name");
+            }
+            if (model.displayName != null) {
+                contentValues.put("displayName", model.displayName);
+            } else {
+                contentValues.putNull("displayName");
+            }
+            if (model.created != null) {
+                contentValues.put("created", model.created);
+            } else {
+                contentValues.putNull("created");
+            }
+            if (model.lastUpdated != null) {
+                contentValues.put("lastUpdated", model.lastUpdated);
+            } else {
+                contentValues.putNull("lastUpdated");
+            }
+            Object modelaccess = FlowManager.getTypeConverterForClass(Access.class).getDBValue(model.access);
+            if (modelaccess != null) {
+                contentValues.put("access", (String) modelaccess);
+            } else {
+                contentValues.putNull("access");
+            }
+            if (model.id != null) {
+                contentValues.put("id", model.id);
+            } else {
+                contentValues.putNull("id");
+            }
+            if (model.aIsToB != null) {
+                contentValues.put(Table.AISTOB, model.aIsToB);
+            } else {
+                contentValues.putNull(Table.AISTOB);
+            }
+            if (model.bIsToA != null) {
+                contentValues.put(Table.BISTOA, model.bIsToA);
+            } else {
+                contentValues.putNull(Table.BISTOA);
+            }
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, RelationshipType model) {
+            if (model.name != null) {
+                contentValues.put("name", model.name);
+            } else {
+                contentValues.putNull("name");
+            }
+            if (model.displayName != null) {
+                contentValues.put("displayName", model.displayName);
+            } else {
+                contentValues.putNull("displayName");
+            }
+            if (model.created != null) {
+                contentValues.put("created", model.created);
+            } else {
+                contentValues.putNull("created");
+            }
+            if (model.lastUpdated != null) {
+                contentValues.put("lastUpdated", model.lastUpdated);
+            } else {
+                contentValues.putNull("lastUpdated");
+            }
+            Object modelaccess = FlowManager.getTypeConverterForClass(Access.class).getDBValue(model.access);
+            if (modelaccess != null) {
+                contentValues.put("access", (String) modelaccess);
+            } else {
+                contentValues.putNull("access");
+            }
+            if (model.id != null) {
+                contentValues.put("id", model.id);
+            } else {
+                contentValues.putNull("id");
+            }
+            if (model.aIsToB != null) {
+                contentValues.put(Table.AISTOB, model.aIsToB);
+            } else {
+                contentValues.putNull(Table.AISTOB);
+            }
+            if (model.bIsToA != null) {
+                contentValues.put(Table.BISTOA, model.bIsToA);
+            } else {
+                contentValues.putNull(Table.BISTOA);
+            }
+        }
+
+        public boolean exists(RelationshipType model) {
+            return new Select().from(RelationshipType.class).where(getPrimaryModelWhere(model)).hasData();
+        }
+
+        public void loadFromCursor(Cursor cursor, RelationshipType model) {
+            int indexname = cursor.getColumnIndex("name");
+            if (indexname != -1) {
+                if (cursor.isNull(indexname)) {
+                    model.name = null;
+                } else {
+                    model.name = cursor.getString(indexname);
+                }
+            }
+            int indexdisplayName = cursor.getColumnIndex("displayName");
+            if (indexdisplayName != -1) {
+                if (cursor.isNull(indexdisplayName)) {
+                    model.displayName = null;
+                } else {
+                    model.displayName = cursor.getString(indexdisplayName);
+                }
+            }
+            int indexcreated = cursor.getColumnIndex("created");
+            if (indexcreated != -1) {
+                if (cursor.isNull(indexcreated)) {
+                    model.created = null;
+                } else {
+                    model.created = cursor.getString(indexcreated);
+                }
+            }
+            int indexlastUpdated = cursor.getColumnIndex("lastUpdated");
+            if (indexlastUpdated != -1) {
+                if (cursor.isNull(indexlastUpdated)) {
+                    model.lastUpdated = null;
+                } else {
+                    model.lastUpdated = cursor.getString(indexlastUpdated);
+                }
+            }
+            int indexaccess = cursor.getColumnIndex("access");
+            if (indexaccess != -1) {
+                if (cursor.isNull(indexaccess)) {
+                    model.access = null;
+                } else {
+                    model.access = (Access) FlowManager.getTypeConverterForClass(Access.class).getModelValue(cursor.getString(indexaccess));
+                }
+            }
+            int indexid = cursor.getColumnIndex("id");
+            if (indexid != -1) {
+                if (cursor.isNull(indexid)) {
+                    model.id = null;
+                } else {
+                    model.id = cursor.getString(indexid);
+                }
+            }
+            int indexaIsToB = cursor.getColumnIndex(Table.AISTOB);
+            if (indexaIsToB != -1) {
+                if (cursor.isNull(indexaIsToB)) {
+                    model.aIsToB = null;
+                } else {
+                    model.aIsToB = cursor.getString(indexaIsToB);
+                }
+            }
+            int indexbIsToA = cursor.getColumnIndex(Table.BISTOA);
+            if (indexbIsToA == -1) {
+                return;
+            }
+            if (cursor.isNull(indexbIsToA)) {
+                model.bIsToA = null;
+            } else {
+                model.bIsToA = cursor.getString(indexbIsToA);
+            }
+        }
+
+        public ConditionQueryBuilder<RelationshipType> getPrimaryModelWhere(RelationshipType model) {
+            return new ConditionQueryBuilder(RelationshipType.class, Condition.column("id").is(model.id));
+        }
+
+        public ConditionQueryBuilder<RelationshipType> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(RelationshipType.class, Condition.column("id").is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `RelationshipType`(`name` TEXT, `displayName` TEXT, `created` TEXT, `lastUpdated` TEXT, `access` TEXT, `id` TEXT, `aIsToB` TEXT, `bIsToA` TEXT, PRIMARY KEY(`id`));";
+        }
+
+        public final RelationshipType newInstance() {
+            return new RelationshipType();
+        }
+    }
+
+    public final class Table {
+        public static final String ACCESS = "access";
+        public static final String AISTOB = "aIsToB";
+        public static final String BISTOA = "bIsToA";
+        public static final String CREATED = "created";
+        public static final String DISPLAYNAME = "displayName";
+        public static final String ID = "id";
+        public static final String LASTUPDATED = "lastUpdated";
+        public static final String NAME = "name";
+        public static final String TABLE_NAME = "RelationshipType";
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {
@@ -61,7 +272,7 @@ public class RelationshipType extends BaseMetaDataObject {
     }
 
     public String getaIsToB() {
-        return aIsToB;
+        return this.aIsToB;
     }
 
     public void setaIsToB(String aIsToB) {
@@ -69,7 +280,7 @@ public class RelationshipType extends BaseMetaDataObject {
     }
 
     public String getbIsToA() {
-        return bIsToA;
+        return this.bIsToA;
     }
 
     public void setbIsToA(String bIsToA) {

@@ -1,43 +1,12 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.views;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
 import android.widget.RadioGroup;
-
-import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.utils.TypefaceManager;
 
 public class FontRadioButton extends AppCompatRadioButton {
@@ -57,30 +26,27 @@ public class FontRadioButton extends AppCompatRadioButton {
 
     private void init(Context context, AttributeSet attributeSet) {
         if (!isInEditMode()) {
-            TypedArray attrs = context.obtainStyledAttributes(attributeSet, R.styleable.ViewFont);
-            setFont(attrs.getString(R.styleable.ViewFont_font));
+            TypedArray attrs = context.obtainStyledAttributes(attributeSet, C0845R.styleable.ViewFont);
+            setFont(attrs.getString(C0845R.styleable.ViewFont_font));
             attrs.recycle();
         }
     }
 
-    public void setFont(final String fontName) {
+    public void setFont(String fontName) {
         if (getContext() != null && getContext().getAssets() != null && fontName != null) {
             Typeface typeface = TypefaceManager.getTypeface(getContext().getAssets(), fontName);
             if (typeface != null) {
-                setPaintFlags(getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
+                setPaintFlags(getPaintFlags() | 128);
                 setTypeface(typeface);
             }
         }
     }
 
-    @Override
     public void toggle() {
-        if (isChecked()) {
-            if (getParent() instanceof RadioGroup) {
-                ((RadioGroup) getParent()).clearCheck();
-            }
-        } else {
+        if (!isChecked()) {
             setChecked(true);
+        } else if (getParent() instanceof RadioGroup) {
+            ((RadioGroup) getParent()).clearCheck();
         }
     }
 }

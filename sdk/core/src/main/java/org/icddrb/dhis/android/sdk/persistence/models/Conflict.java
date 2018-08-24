@@ -1,71 +1,155 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
+public class Conflict extends BaseModel {
+    protected int id;
+    int importSummary;
+    @JsonProperty("object")
+    String object;
+    @JsonProperty("value")
+    String value;
 
-/**
- * @author Simen Skogly Russnes on 21.07.15.
- */
-@Table(databaseName = Dhis2Database.NAME)
-public class Conflict extends BaseModel{
+    public final class Adapter extends ModelAdapter<Conflict> {
+        public Class<Conflict> getModelClass() {
+            return Conflict.class;
+        }
+
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `Conflict` (`IMPORTSUMMARY`, `OBJECT`, `VALUE`) VALUES (?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, Conflict model) {
+            statement.bindLong(1, (long) model.importSummary);
+            if (model.object != null) {
+                statement.bindString(2, model.object);
+            } else {
+                statement.bindNull(2);
+            }
+            if (model.value != null) {
+                statement.bindString(3, model.value);
+            } else {
+                statement.bindNull(3);
+            }
+        }
+
+        public void bindToContentValues(ContentValues contentValues, Conflict model) {
+            contentValues.put("id", Integer.valueOf(model.id));
+            contentValues.put("importSummary", Integer.valueOf(model.importSummary));
+            if (model.object != null) {
+                contentValues.put(Table.OBJECT, model.object);
+            } else {
+                contentValues.putNull(Table.OBJECT);
+            }
+            if (model.value != null) {
+                contentValues.put("value", model.value);
+            } else {
+                contentValues.putNull("value");
+            }
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, Conflict model) {
+            contentValues.put("importSummary", Integer.valueOf(model.importSummary));
+            if (model.object != null) {
+                contentValues.put(Table.OBJECT, model.object);
+            } else {
+                contentValues.putNull(Table.OBJECT);
+            }
+            if (model.value != null) {
+                contentValues.put("value", model.value);
+            } else {
+                contentValues.putNull("value");
+            }
+        }
+
+        public boolean exists(Conflict model) {
+            return model.id > 0;
+        }
+
+        public void loadFromCursor(Cursor cursor, Conflict model) {
+            int indexid = cursor.getColumnIndex("id");
+            if (indexid != -1) {
+                model.id = cursor.getInt(indexid);
+            }
+            int indeximportSummary = cursor.getColumnIndex("importSummary");
+            if (indeximportSummary != -1) {
+                model.importSummary = cursor.getInt(indeximportSummary);
+            }
+            int indexobject = cursor.getColumnIndex(Table.OBJECT);
+            if (indexobject != -1) {
+                if (cursor.isNull(indexobject)) {
+                    model.object = null;
+                } else {
+                    model.object = cursor.getString(indexobject);
+                }
+            }
+            int indexvalue = cursor.getColumnIndex("value");
+            if (indexvalue == -1) {
+                return;
+            }
+            if (cursor.isNull(indexvalue)) {
+                model.value = null;
+            } else {
+                model.value = cursor.getString(indexvalue);
+            }
+        }
+
+        public void updateAutoIncrement(Conflict model, long id) {
+            model.id = (int) id;
+        }
+
+        public long getAutoIncrementingId(Conflict model) {
+            return (long) model.id;
+        }
+
+        public String getAutoIncrementingColumnName() {
+            return "id";
+        }
+
+        public ConditionQueryBuilder<Conflict> getPrimaryModelWhere(Conflict model) {
+            return new ConditionQueryBuilder(Conflict.class, Condition.column("id").is(Integer.valueOf(model.id)));
+        }
+
+        public ConditionQueryBuilder<Conflict> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(Conflict.class, Condition.column("id").is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `Conflict`(`id` INTEGER PRIMARY KEY AUTOINCREMENT, `importSummary` INTEGER, `object` TEXT, `value` TEXT);";
+        }
+
+        public final Conflict newInstance() {
+            return new Conflict();
+        }
+    }
+
+    public final class Table {
+        public static final String ID = "id";
+        public static final String IMPORTSUMMARY = "importSummary";
+        public static final String OBJECT = "object";
+        public static final String TABLE_NAME = "Conflict";
+        public static final String VALUE = "value";
+    }
 
     @JsonAnySetter
     public void handleUnknown(String key, Object value) {
-        // do something: put to a Map; log a warning, whatever
     }
 
-    @Column(name = "id")
-    @PrimaryKey(autoincrement = true)
-    protected int id;
-
-    @Column(name = "importSummary")
-    int importSummary;
-
-    @JsonProperty("object")
-    @Column(name = "object")
-    String object;
-
-    @JsonProperty("value")
-    @Column(name = "value")
-    String value;
-
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(int id) {
@@ -73,7 +157,7 @@ public class Conflict extends BaseModel{
     }
 
     public int getImportSummary() {
-        return importSummary;
+        return this.importSummary;
     }
 
     public void setImportSummary(int importSummary) {
@@ -81,7 +165,7 @@ public class Conflict extends BaseModel{
     }
 
     public String getObject() {
-        return object;
+        return this.object;
     }
 
     public void setObject(String object) {
@@ -89,7 +173,7 @@ public class Conflict extends BaseModel{
     }
 
     public String getValue() {
-        return value;
+        return this.value;
     }
 
     public void setValue(String value) {

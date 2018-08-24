@@ -1,68 +1,144 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
-
-/**
- * @author Simen Skogly Russnes on 17.02.15.
- */
-@Table(databaseName = Dhis2Database.NAME)
 public class TrackedEntityType extends BaseModel {
-
     @JsonProperty("id")
-    @Column(name = "id")
-    @PrimaryKey
     String id;
-
     @JsonProperty("name")
-    @Column(name = "name")
     String name;
 
-    public TrackedEntityType() {
+    public final class Adapter extends ModelAdapter<TrackedEntityType> {
+        public Class<TrackedEntityType> getModelClass() {
+            return TrackedEntityType.class;
+        }
+
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `TrackedEntityType` (`ID`, `NAME`) VALUES (?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, TrackedEntityType model) {
+            if (model.id != null) {
+                statement.bindString(1, model.id);
+            } else {
+                statement.bindNull(1);
+            }
+            if (model.name != null) {
+                statement.bindString(2, model.name);
+            } else {
+                statement.bindNull(2);
+            }
+        }
+
+        public void bindToContentValues(ContentValues contentValues, TrackedEntityType model) {
+            if (model.id != null) {
+                contentValues.put("id", model.id);
+            } else {
+                contentValues.putNull("id");
+            }
+            if (model.name != null) {
+                contentValues.put("name", model.name);
+            } else {
+                contentValues.putNull("name");
+            }
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, TrackedEntityType model) {
+            if (model.id != null) {
+                contentValues.put("id", model.id);
+            } else {
+                contentValues.putNull("id");
+            }
+            if (model.name != null) {
+                contentValues.put("name", model.name);
+            } else {
+                contentValues.putNull("name");
+            }
+        }
+
+        public boolean exists(TrackedEntityType model) {
+            return new Select().from(TrackedEntityType.class).where(getPrimaryModelWhere(model)).hasData();
+        }
+
+        public void loadFromCursor(Cursor cursor, TrackedEntityType model) {
+            int indexid = cursor.getColumnIndex("id");
+            if (indexid != -1) {
+                if (cursor.isNull(indexid)) {
+                    model.id = null;
+                } else {
+                    model.id = cursor.getString(indexid);
+                }
+            }
+            int indexname = cursor.getColumnIndex("name");
+            if (indexname == -1) {
+                return;
+            }
+            if (cursor.isNull(indexname)) {
+                model.name = null;
+            } else {
+                model.name = cursor.getString(indexname);
+            }
+        }
+
+        public boolean hasCachingId() {
+            return true;
+        }
+
+        public Object getCachingId(TrackedEntityType model) {
+            return model.id;
+        }
+
+        public String getCachingColumnName() {
+            return "id";
+        }
+
+        public Object getCachingIdFromCursorIndex(Cursor cursor, int indexid) {
+            return cursor.getString(indexid);
+        }
+
+        public ConditionQueryBuilder<TrackedEntityType> getPrimaryModelWhere(TrackedEntityType model) {
+            return new ConditionQueryBuilder(TrackedEntityType.class, Condition.column("id").is(model.id));
+        }
+
+        public ConditionQueryBuilder<TrackedEntityType> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(TrackedEntityType.class, Condition.column("id").is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `TrackedEntityType`(`id` TEXT, `name` TEXT, PRIMARY KEY(`id`));";
+        }
+
+        public final TrackedEntityType newInstance() {
+            return new TrackedEntityType();
+        }
+    }
+
+    public final class Table {
+        public static final String ID = "id";
+        public static final String NAME = "name";
+        public static final String TABLE_NAME = "TrackedEntityType";
     }
 
     @JsonAnySetter
     public void handleUnknown(String key, Object value) {
-        // do something: put to a Map; log a warning, whatever
     }
 
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(String id) {
@@ -70,7 +146,7 @@ public class TrackedEntityType extends BaseModel {
     }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
     public void setName(String name) {

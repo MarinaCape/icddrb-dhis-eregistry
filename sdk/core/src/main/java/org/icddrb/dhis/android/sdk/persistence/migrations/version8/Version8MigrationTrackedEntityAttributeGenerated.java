@@ -1,16 +1,12 @@
 package org.icddrb.dhis.android.sdk.persistence.migrations.version8;
 
-import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute.Table;
 
-@Migration(version = 8, databaseName = Dhis2Database.NAME)
 public class Version8MigrationTrackedEntityAttributeGenerated extends AlterTableMigration<TrackedEntityAttribute> {
-
-    public Version8MigrationTrackedEntityAttributeGenerated(Class<TrackedEntityAttribute> table) {
+    public Version8MigrationTrackedEntityAttributeGenerated(Class<TrackedEntityAttribute> cls) {
         super(TrackedEntityAttribute.class);
     }
 
@@ -18,16 +14,13 @@ public class Version8MigrationTrackedEntityAttributeGenerated extends AlterTable
         super(TrackedEntityAttribute.class);
     }
 
-
-
-    @Override
     public void onPreMigrate() {
         super.onPreMigrate();
-        if (!MigrationUtil.columnExists(TrackedEntityAttribute.class, "generated")) {
-            addColumn(Boolean.class, "generated");
+        if (!MigrationUtil.columnExists(TrackedEntityAttribute.class, Table.GENERATED)) {
+            addColumn(Boolean.class, Table.GENERATED);
         }
-        if (!MigrationUtil.columnExists(TrackedEntityAttribute.class, "pattern")) {
-            addColumn(String.class, "pattern");
+        if (!MigrationUtil.columnExists(TrackedEntityAttribute.class, Table.PATTERN)) {
+            addColumn(String.class, Table.PATTERN);
         }
     }
 }

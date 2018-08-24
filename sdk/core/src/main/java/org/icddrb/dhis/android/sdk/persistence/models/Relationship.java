@@ -1,79 +1,183 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
-
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import java.io.Serializable;
 
-/**
- * @author Simen Skogly Russnes on 07.07.15.
- */
-
-@Table(databaseName = Dhis2Database.NAME)
-@JsonIgnoreProperties("modelAdapter")
+@JsonIgnoreProperties({"modelAdapter"})
 public class Relationship extends BaseModel implements Serializable {
-
     @JsonProperty
-    @Column(name = "relationship")
-    @PrimaryKey
+    String displayName;
+    @JsonProperty
     String relationship;
-
     @JsonProperty
-    @Column(name = "trackedEntityInstanceA")
-    @PrimaryKey
     String trackedEntityInstanceA;
-
     @JsonProperty
-    @Column(name = "trackedEntityInstanceB")
-    @PrimaryKey
     String trackedEntityInstanceB;
 
-    @JsonProperty
-    @Column(name = "displayName")
-    String displayName;
+    public final class Adapter extends ModelAdapter<Relationship> {
+        public Class<Relationship> getModelClass() {
+            return Relationship.class;
+        }
+
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `Relationship` (`RELATIONSHIP`, `TRACKEDENTITYINSTANCEA`, `TRACKEDENTITYINSTANCEB`, `DISPLAYNAME`) VALUES (?, ?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, Relationship model) {
+            if (model.relationship != null) {
+                statement.bindString(1, model.relationship);
+            } else {
+                statement.bindNull(1);
+            }
+            if (model.trackedEntityInstanceA != null) {
+                statement.bindString(2, model.trackedEntityInstanceA);
+            } else {
+                statement.bindNull(2);
+            }
+            if (model.trackedEntityInstanceB != null) {
+                statement.bindString(3, model.trackedEntityInstanceB);
+            } else {
+                statement.bindNull(3);
+            }
+            if (model.displayName != null) {
+                statement.bindString(4, model.displayName);
+            } else {
+                statement.bindNull(4);
+            }
+        }
+
+        public void bindToContentValues(ContentValues contentValues, Relationship model) {
+            if (model.relationship != null) {
+                contentValues.put(Table.RELATIONSHIP, model.relationship);
+            } else {
+                contentValues.putNull(Table.RELATIONSHIP);
+            }
+            if (model.trackedEntityInstanceA != null) {
+                contentValues.put(Table.TRACKEDENTITYINSTANCEA, model.trackedEntityInstanceA);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYINSTANCEA);
+            }
+            if (model.trackedEntityInstanceB != null) {
+                contentValues.put(Table.TRACKEDENTITYINSTANCEB, model.trackedEntityInstanceB);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYINSTANCEB);
+            }
+            if (model.displayName != null) {
+                contentValues.put("displayName", model.displayName);
+            } else {
+                contentValues.putNull("displayName");
+            }
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, Relationship model) {
+            if (model.relationship != null) {
+                contentValues.put(Table.RELATIONSHIP, model.relationship);
+            } else {
+                contentValues.putNull(Table.RELATIONSHIP);
+            }
+            if (model.trackedEntityInstanceA != null) {
+                contentValues.put(Table.TRACKEDENTITYINSTANCEA, model.trackedEntityInstanceA);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYINSTANCEA);
+            }
+            if (model.trackedEntityInstanceB != null) {
+                contentValues.put(Table.TRACKEDENTITYINSTANCEB, model.trackedEntityInstanceB);
+            } else {
+                contentValues.putNull(Table.TRACKEDENTITYINSTANCEB);
+            }
+            if (model.displayName != null) {
+                contentValues.put("displayName", model.displayName);
+            } else {
+                contentValues.putNull("displayName");
+            }
+        }
+
+        public boolean exists(Relationship model) {
+            return new Select().from(Relationship.class).where(getPrimaryModelWhere(model)).hasData();
+        }
+
+        public void loadFromCursor(Cursor cursor, Relationship model) {
+            int indexrelationship = cursor.getColumnIndex(Table.RELATIONSHIP);
+            if (indexrelationship != -1) {
+                if (cursor.isNull(indexrelationship)) {
+                    model.relationship = null;
+                } else {
+                    model.relationship = cursor.getString(indexrelationship);
+                }
+            }
+            int indextrackedEntityInstanceA = cursor.getColumnIndex(Table.TRACKEDENTITYINSTANCEA);
+            if (indextrackedEntityInstanceA != -1) {
+                if (cursor.isNull(indextrackedEntityInstanceA)) {
+                    model.trackedEntityInstanceA = null;
+                } else {
+                    model.trackedEntityInstanceA = cursor.getString(indextrackedEntityInstanceA);
+                }
+            }
+            int indextrackedEntityInstanceB = cursor.getColumnIndex(Table.TRACKEDENTITYINSTANCEB);
+            if (indextrackedEntityInstanceB != -1) {
+                if (cursor.isNull(indextrackedEntityInstanceB)) {
+                    model.trackedEntityInstanceB = null;
+                } else {
+                    model.trackedEntityInstanceB = cursor.getString(indextrackedEntityInstanceB);
+                }
+            }
+            int indexdisplayName = cursor.getColumnIndex("displayName");
+            if (indexdisplayName == -1) {
+                return;
+            }
+            if (cursor.isNull(indexdisplayName)) {
+                model.displayName = null;
+            } else {
+                model.displayName = cursor.getString(indexdisplayName);
+            }
+        }
+
+        public ConditionQueryBuilder<Relationship> getPrimaryModelWhere(Relationship model) {
+            return new ConditionQueryBuilder(Relationship.class, Condition.column(Table.RELATIONSHIP).is(model.relationship), Condition.column(Table.TRACKEDENTITYINSTANCEA).is(model.trackedEntityInstanceA), Condition.column(Table.TRACKEDENTITYINSTANCEB).is(model.trackedEntityInstanceB));
+        }
+
+        public ConditionQueryBuilder<Relationship> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(Relationship.class, Condition.column(Table.RELATIONSHIP).is(Operation.EMPTY_PARAM), Condition.column(Table.TRACKEDENTITYINSTANCEA).is(Operation.EMPTY_PARAM), Condition.column(Table.TRACKEDENTITYINSTANCEB).is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `Relationship`(`relationship` TEXT, `trackedEntityInstanceA` TEXT, `trackedEntityInstanceB` TEXT, `displayName` TEXT, PRIMARY KEY(`relationship`, `trackedEntityInstanceA`, `trackedEntityInstanceB`));";
+        }
+
+        public final Relationship newInstance() {
+            return new Relationship();
+        }
+    }
+
+    public final class Table {
+        public static final String DISPLAYNAME = "displayName";
+        public static final String RELATIONSHIP = "relationship";
+        public static final String TABLE_NAME = "Relationship";
+        public static final String TRACKEDENTITYINSTANCEA = "trackedEntityInstanceA";
+        public static final String TRACKEDENTITYINSTANCEB = "trackedEntityInstanceB";
+    }
 
     @JsonAnySetter
     public void handleUnknown(String key, Object value) {
     }
 
     public String getRelationship() {
-        return relationship;
+        return this.relationship;
     }
 
     public void setRelationship(String relationship) {
@@ -81,7 +185,7 @@ public class Relationship extends BaseModel implements Serializable {
     }
 
     public String getTrackedEntityInstanceA() {
-        return trackedEntityInstanceA;
+        return this.trackedEntityInstanceA;
     }
 
     public void setTrackedEntityInstanceA(String trackedEntityInstanceA) {
@@ -89,7 +193,7 @@ public class Relationship extends BaseModel implements Serializable {
     }
 
     public String getTrackedEntityInstanceB() {
-        return trackedEntityInstanceB;
+        return this.trackedEntityInstanceB;
     }
 
     public void setTrackedEntityInstanceB(String trackedEntityInstanceB) {
@@ -97,7 +201,7 @@ public class Relationship extends BaseModel implements Serializable {
     }
 
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     public void setDisplayName(String displayName) {

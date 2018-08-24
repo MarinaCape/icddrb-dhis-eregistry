@@ -1,197 +1,79 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.utils.support.expression;
-
-import org.apache.commons.lang3.Validate;
-import org.icddrb.dhis.android.sdk.persistence.models.DataElement;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.lang3.Validate;
+import org.icddrb.dhis.android.sdk.persistence.models.DataElement;
 
-/**
- * An Expression is the expression of e.g. a validation rule. It consist of a
- * String representation of the rule as well as references to the data elements
- * and category option combos included in the expression.
- * <p/>
- * The expression can contain numbers and mathematical operators and contain references
- * to data elements and category option combos on the form:
- * <p/>
- * i) [1.2] where 1 refers to the data element identifier and 2 refers to the
- * category option combo identifier.
- * <p/>
- * ii) [1] where 1 refers to the data element identifier, in this case the formula
- * represents the total value for all category option combos for that data element.
- *
- * @author Margrethe Store
- */
 public class Expression implements Serializable {
-    public static final String SEPARATOR = ".";
-    public static final String EXP_OPEN = "#{";
     public static final String EXP_CLOSE = "}";
-    public static final String PAR_OPEN = "(";
+    public static final String EXP_OPEN = "#{";
     public static final String PAR_CLOSE = ")";
-
-    /**
-     * The unique identifier for this Expression.
-     */
-    private int id;
-
-    /**
-     * The Expression.
-     */
-    private String expression;
-
-    /**
-     * A description of the Expression.
-     */
+    public static final String PAR_OPEN = "(";
+    public static final String SEPARATOR = ".";
+    private Set<DataElement> dataElementsInExpression = new HashSet();
     private String description;
-
-    /**
-     * Indicates whether the expression should evaluate to null if all or any
-     * data values are missing in the expression.
-     */
+    private transient String explodedExpression;
+    private String expression;
+    private int id;
     private MissingValueStrategy missingValueStrategy = MissingValueStrategy.SKIP_IF_ALL_VALUES_MISSING;
 
-    /**
-     * A reference to the DataElements in the Expression.
-     */
-    //@Scanned
-    private Set<DataElement> dataElementsInExpression = new HashSet<>();
-
-    // -------------------------------------------------------------------------
-    // Transient properties
-    // -------------------------------------------------------------------------
-
-    private transient String explodedExpression;
-
-    // -------------------------------------------------------------------------
-    // Constructors
-    // -------------------------------------------------------------------------
-
-    /**
-     * Default empty Expression
-     */
-    public Expression() {
-    }
-
-    /**
-     * Constructor with all the parameters.
-     *
-     * @param expression               The expression as a String
-     * @param description              A description of the Expression.
-     * @param dataElementsInExpression A reference to the DataElements in the Expression.
-     */
     public Expression(String expression, String description, Set<DataElement> dataElementsInExpression) {
         this.expression = expression;
         this.description = description;
         this.dataElementsInExpression = dataElementsInExpression;
     }
 
-    // -------------------------------------------------------------------------
-    // Logic
-    // -------------------------------------------------------------------------
-
-    /**
-     * Returns exploded expression, if null returns expression.
-     */
     public String getExplodedExpressionFallback() {
-        return explodedExpression != null ? explodedExpression : expression;
+        return this.explodedExpression != null ? this.explodedExpression : this.expression;
     }
 
-    // -------------------------------------------------------------------------
-    // Equals and hashCode
-    // -------------------------------------------------------------------------
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
         }
-
         if (obj == null) {
             return false;
         }
-
         if (getClass() != obj.getClass()) {
             return false;
         }
-
-        final Expression other = (Expression) obj;
-
-        if (description == null) {
+        Expression other = (Expression) obj;
+        if (this.description == null) {
             if (other.description != null) {
                 return false;
             }
-        } else if (!description.equals(other.description)) {
+        } else if (!this.description.equals(other.description)) {
             return false;
         }
-
-        if (expression == null) {
+        if (this.expression == null) {
             if (other.expression != null) {
                 return false;
             }
-        } else if (!expression.equals(other.expression)) {
+            return true;
+        } else if (this.expression.equals(other.expression)) {
+            return true;
+        } else {
             return false;
         }
-
-        return true;
     }
 
-    @Override
     public int hashCode() {
-        final int PRIME = 31;
-        int result = 1;
-        result = PRIME * result + ((description == null) ? 0 : description.hashCode());
-        result = PRIME * result + ((expression == null) ? 0 : expression.hashCode());
-
-        return result;
+        int i = 0;
+        int hashCode = ((this.description == null ? 0 : this.description.hashCode()) + 31) * 31;
+        if (this.expression != null) {
+            i = this.expression.hashCode();
+        }
+        return hashCode + i;
     }
 
-    @Override
     public String toString() {
-        return "Expression{" +
-                "id=" + id +
-                ", expression='" + expression + '\'' +
-                ", explodedExpression='" + explodedExpression + '\'' +
-                ", description='" + description + '\'' +
-                ", dataElementsInExpression=" + dataElementsInExpression.size() +
-                '}';
+        return "Expression{id=" + this.id + ", expression='" + this.expression + '\'' + ", explodedExpression='" + this.explodedExpression + '\'' + ", description='" + this.description + '\'' + ", dataElementsInExpression=" + this.dataElementsInExpression.size() + '}';
     }
-
-    // -------------------------------------------------------------------------
-    // Getters and setters
-    // -------------------------------------------------------------------------
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(int id) {
@@ -199,7 +81,7 @@ public class Expression implements Serializable {
     }
 
     public String getExpression() {
-        return expression;
+        return this.expression;
     }
 
     public void setExpression(String expression) {
@@ -207,7 +89,7 @@ public class Expression implements Serializable {
     }
 
     public Set<DataElement> getDataElementsInExpression() {
-        return dataElementsInExpression;
+        return this.dataElementsInExpression;
     }
 
     public void setDataElementsInExpression(Set<DataElement> dataElementsInExpression) {
@@ -215,7 +97,7 @@ public class Expression implements Serializable {
     }
 
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
     public void setDescription(String description) {
@@ -223,7 +105,7 @@ public class Expression implements Serializable {
     }
 
     public MissingValueStrategy getMissingValueStrategy() {
-        return missingValueStrategy;
+        return this.missingValueStrategy;
     }
 
     public void setMissingValueStrategy(MissingValueStrategy missingValueStrategy) {
@@ -231,7 +113,7 @@ public class Expression implements Serializable {
     }
 
     public String getExplodedExpression() {
-        return explodedExpression;
+        return this.explodedExpression;
     }
 
     public void setExplodedExpression(String explodedExpression) {
@@ -239,13 +121,16 @@ public class Expression implements Serializable {
     }
 
     public void mergeWith(Expression other) {
+        Set set;
         Validate.notNull(other);
-
-        expression = other.getExpression() == null ? expression : other.getExpression();
-        description = other.getDescription() == null ? description : other.getDescription();
-        missingValueStrategy = other.getMissingValueStrategy() == null ? missingValueStrategy : other.getMissingValueStrategy();
-
-        dataElementsInExpression = other.getDataElementsInExpression() == null ?
-                dataElementsInExpression : new HashSet<>(other.getDataElementsInExpression());
+        this.expression = other.getExpression() == null ? this.expression : other.getExpression();
+        this.description = other.getDescription() == null ? this.description : other.getDescription();
+        this.missingValueStrategy = other.getMissingValueStrategy() == null ? this.missingValueStrategy : other.getMissingValueStrategy();
+        if (other.getDataElementsInExpression() == null) {
+            set = this.dataElementsInExpression;
+        } else {
+            set = new HashSet(other.getDataElementsInExpression());
+        }
+        this.dataElementsInExpression = set;
     }
 }

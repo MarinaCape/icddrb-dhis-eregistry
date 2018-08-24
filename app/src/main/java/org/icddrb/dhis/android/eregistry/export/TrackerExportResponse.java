@@ -1,19 +1,15 @@
 package org.icddrb.dhis.android.eregistry.export;
 
+import java.util.List;
 import org.icddrb.dhis.android.sdk.export.ExportResponse;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 
-import java.util.List;
-
-/**
- * Created by thomaslindsjorn on 08/09/16.
- */
 public class TrackerExportResponse extends ExportResponse {
-    List<TrackedEntityInstance> trackedEntityInstances;
     List<Enrollment> enrollments;
     List<Event> events;
+    List<TrackedEntityInstance> trackedEntityInstances;
 
     private TrackerExportResponse(List<TrackedEntityInstance> trackedEntityInstances, List<Enrollment> enrollments, List<Event> events) {
         this.trackedEntityInstances = trackedEntityInstances;
@@ -22,7 +18,7 @@ public class TrackerExportResponse extends ExportResponse {
     }
 
     public List<TrackedEntityInstance> getTrackedEntityInstances() {
-        return trackedEntityInstances;
+        return this.trackedEntityInstances;
     }
 
     public void setTrackedEntityInstances(List<TrackedEntityInstance> trackedEntityInstances) {
@@ -30,7 +26,7 @@ public class TrackerExportResponse extends ExportResponse {
     }
 
     public List<Enrollment> getEnrollments() {
-        return enrollments;
+        return this.enrollments;
     }
 
     public void setEnrollments(List<Enrollment> enrollments) {
@@ -38,7 +34,7 @@ public class TrackerExportResponse extends ExportResponse {
     }
 
     public List<Event> getEvents() {
-        return events;
+        return this.events;
     }
 
     public void setEvents(List<Event> events) {

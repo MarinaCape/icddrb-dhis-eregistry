@@ -1,37 +1,11 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry;
 
 import android.support.v4.app.Fragment;
-
-import org.icddrb.dhis.android.sdk.R;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.DataElement;
@@ -43,83 +17,69 @@ import org.icddrb.dhis.android.sdk.persistence.models.ProgramRule;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramRuleAction;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.common.IProgramRuleFragmentHelper;
+import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragment;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.ValidationErrorDialog;
 import org.icddrb.dhis.android.sdk.utils.api.ProgramRuleActionType;
 import org.icddrb.dhis.android.sdk.utils.services.ProgramIndicatorService;
 import org.icddrb.dhis.android.sdk.utils.services.ProgramRuleService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class EventDataEntryRuleHelper implements IProgramRuleFragmentHelper {
-
     private EventDataEntryFragment eventDataEntryFragment;
-    private ArrayList<String> programRuleValidationErrors;
-    private ArrayList<String> showOnCompleteErrors;
-    private ArrayList<String> showOnCompleteWarnings;
+    private ArrayList<String> programRuleValidationErrors = new ArrayList();
+    private ArrayList<String> showOnCompleteErrors = new ArrayList();
+    private ArrayList<String> showOnCompleteWarnings = new ArrayList();
 
     public EventDataEntryRuleHelper(EventDataEntryFragment eventDataEntryFragment) {
         this.eventDataEntryFragment = eventDataEntryFragment;
-        this.programRuleValidationErrors = new ArrayList<>();
-        this.showOnCompleteErrors = new ArrayList<>();
-        this.showOnCompleteWarnings = new ArrayList<>();
     }
 
-    @Override
     public ArrayList<String> getProgramRuleValidationErrors() {
-        return programRuleValidationErrors;
+        return this.programRuleValidationErrors;
     }
 
-    @Override
     public ArrayList<String> getShowOnCompleteErrors() {
-        return showOnCompleteErrors;
+        return this.showOnCompleteErrors;
     }
 
-    @Override
     public ArrayList<String> getShowOnCompleteWarningErrors() {
-        return showOnCompleteWarnings;
+        return this.showOnCompleteWarnings;
     }
 
-    @Override
     public ArrayList<String> getHideProgramStages() {
         return null;
     }
 
-    @Override
     public void recycle() {
-        eventDataEntryFragment = null;
+        this.eventDataEntryFragment = null;
     }
 
-    @Override
     public void initiateEvaluateProgramRules() {
-        eventDataEntryFragment.initiateEvaluateProgramRules();
+        this.eventDataEntryFragment.initiateEvaluateProgramRules();
     }
 
-    @Override
     public void mapFieldsToRulesAndIndicators() {
-        eventDataEntryFragment.setProgramRulesForDataElements(new HashMap<String, List<ProgramRule>>());
-        eventDataEntryFragment.setProgramIndicatorsForDataElements(new HashMap<String, List<ProgramIndicator>>());
-        for (ProgramRule programRule : eventDataEntryFragment.getForm().getStage().getProgram().getProgramRules()) {
+        this.eventDataEntryFragment.setProgramRulesForDataElements(new HashMap());
+        this.eventDataEntryFragment.setProgramIndicatorsForDataElements(new HashMap());
+        for (ProgramRule programRule : this.eventDataEntryFragment.getForm().getStage().getProgram().getProgramRules()) {
             for (String dataElement : ProgramRuleService.getDataElementsInRule(programRule)) {
-                List<ProgramRule> rulesForDataElement = eventDataEntryFragment.getProgramRulesForDataElements().get(dataElement);
+                List<ProgramRule> rulesForDataElement = (List) this.eventDataEntryFragment.getProgramRulesForDataElements().get(dataElement);
                 if (rulesForDataElement == null) {
-                    rulesForDataElement = new ArrayList<>();
+                    rulesForDataElement = new ArrayList();
                     rulesForDataElement.add(programRule);
-                    eventDataEntryFragment.getProgramRulesForDataElements().put(dataElement, rulesForDataElement);
+                    this.eventDataEntryFragment.getProgramRulesForDataElements().put(dataElement, rulesForDataElement);
                 } else {
                     rulesForDataElement.add(programRule);
                 }
             }
         }
-        for (ProgramIndicator programIndicator : eventDataEntryFragment.getForm().getStage().getProgramIndicators()) {
-            for (String dataElement : ProgramIndicatorService.getDataElementsInExpression(programIndicator)) {
-                List<ProgramIndicator> programIndicatorsForDataElement = eventDataEntryFragment.getProgramIndicatorsForDataElements().get(dataElement);
+        for (ProgramIndicator programIndicator : this.eventDataEntryFragment.getForm().getStage().getProgramIndicators()) {
+            for (String dataElement2 : ProgramIndicatorService.getDataElementsInExpression(programIndicator)) {
+                List<ProgramIndicator> programIndicatorsForDataElement = (List) this.eventDataEntryFragment.getProgramIndicatorsForDataElements().get(dataElement2);
                 if (programIndicatorsForDataElement == null) {
-                    programIndicatorsForDataElement = new ArrayList<>();
+                    programIndicatorsForDataElement = new ArrayList();
                     programIndicatorsForDataElement.add(programIndicator);
-                    eventDataEntryFragment.getProgramIndicatorsForDataElements().put(dataElement, programIndicatorsForDataElement);
+                    this.eventDataEntryFragment.getProgramIndicatorsForDataElements().put(dataElement2, programIndicatorsForDataElement);
                 } else {
                     programIndicatorsForDataElement.add(programIndicator);
                 }
@@ -127,82 +87,59 @@ public class EventDataEntryRuleHelper implements IProgramRuleFragmentHelper {
         }
     }
 
-    @Override
     public Fragment getFragment() {
-        return eventDataEntryFragment;
+        return this.eventDataEntryFragment;
     }
 
-    @Override
     public List<ProgramRule> getProgramRules() {
-
-        ArrayList<ProgramRule> programRules = new ArrayList<>();
-
-        if (eventDataEntryFragment.getForm() == null) {
-            return new ArrayList<>();
+        List<ProgramRule> programRules = new ArrayList();
+        if (this.eventDataEntryFragment.getForm() == null) {
+            return new ArrayList();
         }
-
-        List<ProgramRule> allRules = eventDataEntryFragment.getForm().getStage().getProgram().getProgramRules();
-        for (ProgramRule programRule : allRules) {
+        for (ProgramRule programRule : this.eventDataEntryFragment.getForm().getStage().getProgram().getProgramRules()) {
             if (programRule.getProgramStage() == null || programRule.getProgramStage().isEmpty()) {
                 programRules.add(programRule);
-            } else if (getEvent() != null &&
-                    programRule.getProgramStage().equals(getEvent().getProgramStageId())) {
+            } else if (getEvent() != null && programRule.getProgramStage().equals(getEvent().getProgramStageId())) {
                 programRules.add(programRule);
             }
         }
         return programRules;
-
     }
 
-    @Override
     public Event getEvent() {
-        return eventDataEntryFragment.getForm().getEvent();
+        return this.eventDataEntryFragment.getForm().getEvent();
     }
 
-    @Override
     public void applyCreateEventRuleAction(ProgramRuleAction programRuleAction) {
-        //do nothing
     }
 
-    @Override
     public void applyDisplayKeyValuePairRuleAction(ProgramRuleAction programRuleAction) {
-        //do nothing
     }
 
-    @Override
     public void applyDisplayTextRuleAction(ProgramRuleAction programRuleAction) {
-        //do nothing
     }
 
-    @Override
     public void applySendMessageRuleAction(ProgramRuleAction programRuleAction) {
-        //do nothing
     }
 
-    @Override
     public Enrollment getEnrollment() {
-        return eventDataEntryFragment.getForm().getEnrollment();
+        return this.eventDataEntryFragment.getForm().getEnrollment();
     }
 
-    @Override
     public DataValue getDataElementValue(String dataElementId) {
-        return eventDataEntryFragment.getForm().getDataValues().get(dataElementId);
+        return (DataValue) this.eventDataEntryFragment.getForm().getDataValues().get(dataElementId);
     }
 
-    @Override
     public TrackedEntityAttributeValue getTrackedEntityAttributeValue(String uid) {
-        return eventDataEntryFragment.getForm().getTrackedEntityAttributeValues().get(uid);
+        return (TrackedEntityAttributeValue) this.eventDataEntryFragment.getForm().getTrackedEntityAttributeValues().get(uid);
     }
 
-    @Override
     public void saveDataElement(String id) {
-        if (eventDataEntryFragment != null &&
-                eventDataEntryFragment.getSaveThread() != null) {
-            eventDataEntryFragment.getSaveThread().scheduleSaveDataValue(id);
+        if (this.eventDataEntryFragment != null && this.eventDataEntryFragment.getSaveThread() != null) {
+            this.eventDataEntryFragment.getSaveThread().scheduleSaveDataValue(id);
         }
     }
 
-    @Override
     public void saveTrackedEntityAttribute(String uid) {
         TrackedEntityAttributeValue trackedEntityAttributeValue = getTrackedEntityAttributeValue(uid);
         if (trackedEntityAttributeValue != null) {
@@ -210,131 +147,108 @@ public class EventDataEntryRuleHelper implements IProgramRuleFragmentHelper {
         }
     }
 
-    @Override
     public void applyHideSectionRuleAction(ProgramRuleAction programRuleAction) {
-        eventDataEntryFragment.hideSection(programRuleAction.getProgramStageSection());
+        this.eventDataEntryFragment.hideSection(programRuleAction.getProgramStageSection());
     }
 
-    @Override
     public void updateUi() {
-        if (eventDataEntryFragment.getForm().getEvent() != null
-                && eventDataEntryFragment.getForm().getEvent().getEventDate() == null) {
-            eventDataEntryFragment.getListViewAdapter().hideAll();
-            if (eventDataEntryFragment.getSpinnerAdapter() != null) {
-                eventDataEntryFragment.getSpinnerAdapter().hideAll();
+        if (this.eventDataEntryFragment.getForm().getEvent() != null && this.eventDataEntryFragment.getForm().getEvent().getEventDate() == null) {
+            this.eventDataEntryFragment.getListViewAdapter().hideAll();
+            if (this.eventDataEntryFragment.getSpinnerAdapter() != null) {
+                this.eventDataEntryFragment.getSpinnerAdapter().hideAll();
             }
         }
-        eventDataEntryFragment.updateSections();
-        eventDataEntryFragment.refreshListView();
+        this.eventDataEntryFragment.updateSections();
+        EventDataEntryFragment eventDataEntryFragment = this.eventDataEntryFragment;
+        DataEntryFragment.refreshListView();
     }
 
-    @Override
     public void applyShowWarningRuleAction(ProgramRuleAction programRuleAction) {
         String uid = programRuleAction.getDataElement();
         if (uid == null) {
             uid = programRuleAction.getTrackedEntityAttribute();
         }
-        eventDataEntryFragment.getListViewAdapter().showWarningOnIndex(uid, programRuleAction.getContent());
+        this.eventDataEntryFragment.getListViewAdapter().showWarningOnIndex(uid, programRuleAction.getContent());
     }
 
-    @Override
     public void applyShowErrorRuleAction(ProgramRuleAction programRuleAction) {
         String uid = programRuleAction.getDataElement();
         if (uid == null) {
             uid = programRuleAction.getTrackedEntityAttribute();
         }
-        eventDataEntryFragment.getListViewAdapter().showErrorOnIndex(uid, programRuleAction.getContent());
-        if (!programRuleValidationErrors.contains(programRuleAction.getContent())) {
-            programRuleValidationErrors.add(programRuleAction.getContent() + " " + programRuleAction.getData());
+        this.eventDataEntryFragment.getListViewAdapter().showErrorOnIndex(uid, programRuleAction.getContent());
+        if (!this.programRuleValidationErrors.contains(programRuleAction.getContent())) {
+            this.programRuleValidationErrors.add(programRuleAction.getContent() + " " + programRuleAction.getData());
         }
     }
 
-    @Override
     public void applyHideFieldRuleAction(ProgramRuleAction programRuleAction, List<String> affectedFieldsWithValue) {
-        eventDataEntryFragment.getListViewAdapter().hideIndex(programRuleAction.getDataElement());
+        this.eventDataEntryFragment.getListViewAdapter().hideIndex(programRuleAction.getDataElement());
         DataValue dataValue = getDataElementValue(programRuleAction.getDataElement());
-        if (dataValue != null && eventDataEntryFragment.containsValue(dataValue)) {// form.getDataValues().get(programRuleAction.getDataElement()))) {
-            affectedFieldsWithValue.add(programRuleAction.getDataElement());
-            dataValue.setValue(""); // After it is hidden, remove value
-            // Post changes. Using an empty string as rowtype ensures effective persistence
-            Dhis2Application.getEventBus().post(new RowValueChangedEvent(dataValue, ""));
+        if (dataValue != null) {
+            EventDataEntryFragment eventDataEntryFragment = this.eventDataEntryFragment;
+            if (DataEntryFragment.containsValue(dataValue)) {
+                affectedFieldsWithValue.add(programRuleAction.getDataElement());
+                dataValue.setValue("");
+                Dhis2Application.getEventBus().post(new RowValueChangedEvent(dataValue, ""));
+            }
         }
     }
 
-    @Override
     public void disableCalculatedFields(ProgramRuleAction programRuleAction) {
-        eventDataEntryFragment.getListViewAdapter().disableIndex(programRuleAction.getDataElement());
+        this.eventDataEntryFragment.getListViewAdapter().disableIndex(programRuleAction.getDataElement());
     }
 
-    /**
-     * Displays a warning dialog to the user, indicating the data entry rows with values in them
-     * are being hidden due to program rules.
-     *
-     * @param fragment
-     * @param affectedValues
-     */
     public void showWarningHiddenValuesDialog(Fragment fragment, ArrayList<String> affectedValues) {
-        ArrayList<String> dataElementNames = new ArrayList<>();
-        for (String s : affectedValues) {
-            DataElement de = MetaDataController.getDataElement(s);
+        ArrayList<String> dataElementNames = new ArrayList();
+        Iterator it = affectedValues.iterator();
+        while (it.hasNext()) {
+            DataElement de = MetaDataController.getDataElement((String) it.next());
             if (de != null) {
                 dataElementNames.add(de.getDisplayName());
             }
         }
-        if (dataElementNames.isEmpty()) {
-            return;
-        }
-        if (eventDataEntryFragment.getValidationErrorDialog() == null || !eventDataEntryFragment.getValidationErrorDialog().isVisible()) {
-            ValidationErrorDialog validationErrorDialog = ValidationErrorDialog
-                    .newInstance(fragment.getString(R.string.warning_hidefieldwithvalue), dataElementNames
-                    );
-            eventDataEntryFragment.setValidationErrorDialog(validationErrorDialog);
-            if (fragment.isAdded()) {
-                eventDataEntryFragment.getValidationErrorDialog().show(fragment.getChildFragmentManager());
+        if (!dataElementNames.isEmpty()) {
+            if (this.eventDataEntryFragment.getValidationErrorDialog() == null || !this.eventDataEntryFragment.getValidationErrorDialog().isVisible()) {
+                this.eventDataEntryFragment.setValidationErrorDialog(ValidationErrorDialog.newInstance(fragment.getString(C0845R.string.warning_hidefieldwithvalue), dataElementNames));
+                if (fragment.isAdded()) {
+                    this.eventDataEntryFragment.getValidationErrorDialog().show(fragment.getChildFragmentManager());
+                }
             }
         }
     }
 
-
-    @Override
     public void applySetMandatoryFieldRuleAction(ProgramRuleAction programRuleAction) {
-        eventDataEntryFragment.getListViewAdapter().addMandatoryOnIndex(programRuleAction.getDataElement());
+        this.eventDataEntryFragment.getListViewAdapter().addMandatoryOnIndex(programRuleAction.getDataElement());
     }
 
-    @Override
     public void applyHideProgramStageRuleAction(ProgramRuleAction programRuleAction) {
-
     }
 
-    @Override
     public void applyWarningOnCompleteRuleAction(ProgramRuleAction programRuleAction) {
-        if (!showOnCompleteWarnings.contains(programRuleAction.getContent())) {
-            showOnCompleteWarnings.add(programRuleAction.getContent());
+        if (!this.showOnCompleteWarnings.contains(programRuleAction.getContent())) {
+            this.showOnCompleteWarnings.add(programRuleAction.getContent());
         }
     }
 
-    @Override
     public void applyErrorOnCompleteRuleAction(ProgramRuleAction programRuleAction) {
-        if (!showOnCompleteErrors.contains(programRuleAction.getContent())) {
-            showOnCompleteErrors.add(programRuleAction.getContent());
+        if (!this.showOnCompleteErrors.contains(programRuleAction.getContent())) {
+            this.showOnCompleteErrors.add(programRuleAction.getContent());
         }
     }
 
     public void flagDataChanged(boolean hasChanged) {
-        eventDataEntryFragment.flagDataChanged(hasChanged);
+        this.eventDataEntryFragment.flagDataChanged(hasChanged);
     }
 
-    @Override
     public boolean blockingSpinnerNeeded() {
-        List<ProgramRule> programRules = getProgramRules();
-        for (ProgramRule programRule : programRules) {
+        for (ProgramRule programRule : getProgramRules()) {
             for (ProgramRuleAction programRuleAction : programRule.getProgramRuleActions()) {
                 if (programRuleAction.getProgramRuleActionType().equals(ProgramRuleActionType.HIDEFIELD)) {
                     return true;
                 }
             }
         }
-        // we have no hidefield rules in this screen so no need to show a progress spinner
         return false;
     }
 }

@@ -1,43 +1,11 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.utils.support.math;
 
-import static android.text.TextUtils.isEmpty;
-import static org.icddrb.dhis.android.sdk.utils.support.DateUtils.getMediumDateString;
-
+import android.text.TextUtils;
+import java.text.ParseException;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.time.DateUtils;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
-import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
-import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramRuleVariable;
-import org.icddrb.dhis.android.sdk.persistence.models.User;
-import org.icddrb.dhis.android.sdk.persistence.models.UserAccount;
 import org.icddrb.dhis.android.sdk.persistence.models.UserCredentials;
 import org.icddrb.dhis.android.sdk.utils.services.VariableService;
 import org.icddrb.dhis.android.sdk.utils.support.ExpressionUtils;
@@ -45,375 +13,253 @@ import org.joda.time.DateTime;
 import org.joda.time.Months;
 import org.joda.time.Years;
 
-import java.text.ParseException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-/**
- * Defines a set of functions that can be used in expressions in {@link org.icddrb.dhis.android.sdk.persistence.models.ProgramRule}s
- * and {@link org.icddrb.dhis.android.sdk.persistence.models.ProgramIndicator}s
- * Please note that {@link VariableService#initialize(Enrollment, Event)} needs to be called before
- * the functions in this class are called.
- */
 public class ExpressionFunctions {
     public static final String CLASS_TAG = ExpressionFunctions.class.getSimpleName();
     public static final String NAMESPACE = "d2";
 
-    /**
-     * Function which will return zero if the argument is a negative number.
-     *
-     * @param value the value, must be a number.
-     * @return a Double.
-     */
     public static Double zing(Number value) {
         if (value == null) {
             return null;
         }
-
-        return Math.max(0d, value.doubleValue());
+        return Double.valueOf(Math.max(0.0d, value.doubleValue()));
     }
 
-    /**
-     * Function which will return one if the argument is zero or a positive
-     * number, and zero if not.
-     *
-     * @param value the value, must be a number.
-     * @return a Double.
-     */
     public static Double oizp(Number value) {
+        double d = 0.0d;
         if (value == null) {
             return null;
         }
+        if (value.doubleValue() >= 0.0d) {
+            d = 1.0d;
+        }
+        return Double.valueOf(d);
+    }
 
-        return (value.doubleValue() >= 0d) ? 1d : 0d;
-    }    
-    
-    /**
-     * Function which will return the count of zero or positive values among the
-     * given argument values.
-     * 
-     * @param values the arguments.
-     * @return an Integer.
-     */
     public static Integer zpvc(Number... values) {
         if (values == null || values.length == 0) {
             throw new IllegalArgumentException("Argument is null or empty: " + values);
         }
-        
         int count = 0;
-        
         for (Number value : values) {
-            if (value != null && value.doubleValue() >= 0d) {
+            if (value != null && value.doubleValue() >= 0.0d) {
                 count++;
             }
         }
-        
-        return count;        
+        return Integer.valueOf(count);
     }
 
-    /**
-     * Functions which will return the true value if the condition is true, false
-     * value if not.
-     * 
-     * @param condititon the condition.
-     * @param trueValue the true value.
-     * @param falseValue the false value.
-     * @return an Object.
-     */
     public static Object condition(String condititon, Object trueValue, Object falseValue) {
-        return ExpressionUtils.isTrue(condititon, null) ? trueValue : falseValue;        
+        return ExpressionUtils.isTrue(condititon, null) ? trueValue : falseValue;
     }
-    
-    /**
-     * Function which will return the number of days between the two given dates.
-     * 
-     * @param start the start date. 
-     * @param end the end date.
-     * @return number of days between dates.
-     */
+
     public static Integer daysBetween(String start, String end) throws ParseException {
-        if(isEmpty(start) || isEmpty(end)) {
-            return 0;
+        if (TextUtils.isEmpty(start) || TextUtils.isEmpty(end)) {
+            return Integer.valueOf(0);
         }
-        DateTime startDate = new DateTime(start);
-        DateTime endDate = new DateTime(end);
-        return new Long((endDate.getMillis() - startDate.getMillis()) / 86400000).intValue();
+        return Integer.valueOf(new Long((new DateTime((Object) end).getMillis() - new DateTime((Object) start).getMillis()) / DateUtils.MILLIS_PER_DAY).intValue());
     }
 
     public static Integer weeksBetween(String start, String end) throws ParseException {
-        if(isEmpty(start) || isEmpty(end)) {
-            return 0;
+        if (TextUtils.isEmpty(start) || TextUtils.isEmpty(end)) {
+            return Integer.valueOf(0);
         }
-        DateTime startDate = new DateTime(start);
-        DateTime endDate = new DateTime(end);
-        int weeks = new Long((endDate.getMillis() - startDate.getMillis()) / (86400000 * 7)).intValue();
-        return weeks;
+        return Integer.valueOf(new Long((new DateTime((Object) end).getMillis() - new DateTime((Object) start).getMillis()) / 604800000).intValue());
     }
 
-    public static Integer monthsBetween(String start, String end)  throws ParseException {
-        if(isEmpty(start) || isEmpty(end)) {
-            return 0;
+    public static Integer monthsBetween(String start, String end) throws ParseException {
+        if (TextUtils.isEmpty(start) || TextUtils.isEmpty(end)) {
+            return Integer.valueOf(0);
         }
-        DateTime startDate = new DateTime(start);
-        DateTime endDate = new DateTime(end);
-        int months = Months.monthsBetween(startDate.withDayOfMonth(1), endDate.withDayOfMonth(1)).getMonths();
-        return months;
+        return Integer.valueOf(Months.monthsBetween(new DateTime((Object) start).withDayOfMonth(1), new DateTime((Object) end).withDayOfMonth(1)).getMonths());
     }
 
     public static Integer yearsBetween(String start, String end) {
-        if(isEmpty(start) || isEmpty(end)) {
-            return 0;
+        if (TextUtils.isEmpty(start) || TextUtils.isEmpty(end)) {
+            return Integer.valueOf(0);
         }
-        DateTime startDate = new DateTime(start);
-        DateTime endDate = new DateTime(end);
-        int years = Years.yearsBetween(startDate.withDayOfMonth(1).withMonthOfYear(1), endDate.withDayOfMonth(1).withMonthOfYear(1)).getYears();
-        // System.out.println("Norway - checking years between " + startDate.toString() + " to " + endDate.toString() + " years: " + years);
-        return years;
+        return Integer.valueOf(Years.yearsBetween(new DateTime((Object) start).withDayOfMonth(1).withMonthOfYear(1), new DateTime((Object) end).withDayOfMonth(1).withMonthOfYear(1)).getYears());
     }
 
     public static Integer floor(Number value) {
-        if (value == null) {
-            throw new IllegalArgumentException();
+        if (value != null) {
+            return Integer.valueOf(new Double(Math.floor(value.doubleValue())).intValue());
         }
-        return new Double(Math.floor(value.doubleValue())).intValue();
+        throw new IllegalArgumentException();
     }
 
     public static Integer modulus(Number dividend, Number divisor) {
-        if (dividend == null || divisor == null) {
-            throw new IllegalArgumentException();
+        if (dividend != null && divisor != null) {
+            return Integer.valueOf(dividend.intValue() % divisor.intValue());
         }
-        int rest = dividend.intValue() % divisor.intValue();
-        return rest;
+        throw new IllegalArgumentException();
     }
 
     public static String concatenate(Object... values) {
         String returnString = "";
-        for(Object value : values) {
-            returnString += String.valueOf(value);;
+        for (Object value : values) {
+            returnString = returnString + String.valueOf(value);
         }
         return returnString;
     }
 
     public static String addDays(String date, Number daysToAdd) {
-        if (date == null || daysToAdd == null) {
-            throw new IllegalArgumentException();
+        if (date != null && daysToAdd != null) {
+            return org.icddrb.dhis.android.sdk.utils.support.DateUtils.getMediumDateString(new DateTime((Object) date).plusDays(daysToAdd.intValue()).toDate());
         }
-        DateTime dateTime = new DateTime(date);
-        DateTime newDateTime = dateTime.plusDays(daysToAdd.intValue());
-        return getMediumDateString(newDateTime.toDate());
+        throw new IllegalArgumentException();
+    }
+
+    public static String addDays(String date, String daysToAdd) {
+        Number n = (daysToAdd == null || daysToAdd.isEmpty()) ? null : Integer.valueOf(daysToAdd);
+        return addDays(date, n);
     }
 
     public static Integer count(String variableName) {
-        ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
-        Integer count = 0;
-        if(programRuleVariable != null) {
-            if(programRuleVariable.isHasValue()) {
-                if(programRuleVariable.getAllValues() != null) {
-                    count = programRuleVariable.getAllValues().size();
-                } else {
-                    //If there is a value found for the variable, the count is 1 even if there is no list of alternate values
-                    //This happens for variables of "DATAELEMENT_CURRENT_STAGE" and "TEI_ATTRIBUTE"
-                    count = 1;
-                }
-            }
+        ProgramRuleVariable programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
+        Integer count = Integer.valueOf(0);
+        if (programRuleVariable == null || !programRuleVariable.isHasValue()) {
+            return count;
         }
-        return count;
+        if (programRuleVariable.getAllValues() != null) {
+            return Integer.valueOf(programRuleVariable.getAllValues().size());
+        }
+        return Integer.valueOf(1);
     }
 
     public static Integer countIfZeroPos(String variableName) {
-        ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
-
-        Integer count = 0;
-
-        if(programRuleVariable != null) {
-            if( programRuleVariable.isHasValue() ) {
-                if(programRuleVariable.getAllValues() != null && programRuleVariable.getAllValues().size() > 0) {
-                    for(int i = 0; i < programRuleVariable.getAllValues().size(); i++) {
-                        Double value = getVariableValue(programRuleVariable, programRuleVariable.getAllValues().get(i));
-                        if(value != null && value >= 0.0) {
-                            count++;
-                        }
-                    }
-                } else {
-                    //The variable has a value, but no list of alternates. This means we only compare the elements real value
-                    Double value = getVariableValue(programRuleVariable, programRuleVariable.getVariableValue());
-                    if(value != null && value >= 0.0) {
-                        count = 1;
-                    }
-                }
+        ProgramRuleVariable programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
+        Integer count = Integer.valueOf(0);
+        if (programRuleVariable == null || !programRuleVariable.isHasValue()) {
+            return count;
+        }
+        Double value;
+        if (programRuleVariable.getAllValues() == null || programRuleVariable.getAllValues().size() <= 0) {
+            value = getVariableValue(programRuleVariable, programRuleVariable.getVariableValue());
+            if (value == null || value.doubleValue() < 0.0d) {
+                return count;
+            }
+            return Integer.valueOf(1);
+        }
+        for (int i = 0; i < programRuleVariable.getAllValues().size(); i++) {
+            value = getVariableValue(programRuleVariable, (String) programRuleVariable.getAllValues().get(i));
+            if (value != null && value.doubleValue() >= 0.0d) {
+                count = Integer.valueOf(count.intValue() + 1);
             }
         }
-
         return count;
     }
 
     public static Integer countIfValue(String variableName, String textToCompare) {
-        ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
-
-        Integer count = 0;
-        if(programRuleVariable != null) {
-
-            if( programRuleVariable.isHasValue() ) {
-                if( programRuleVariable.getAllValues() != null ) {
-                    for(int i = 0; i < programRuleVariable.getAllValues().size(); i++) {
-                        if(textToCompare.equals(programRuleVariable.getAllValues().get(i))) {
-                            count++;
-                        }
-                    }
-                } else {
-                    //The variable has a value, but no list of alternates. This means we compare the standard variablevalue
-                    if(textToCompare.equals(programRuleVariable.getVariableValue())) {
-                        count = 1;
-                    }
+        ProgramRuleVariable programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
+        Integer count = Integer.valueOf(0);
+        if (programRuleVariable == null || !programRuleVariable.isHasValue()) {
+            return count;
+        }
+        if (programRuleVariable.getAllValues() != null) {
+            for (int i = 0; i < programRuleVariable.getAllValues().size(); i++) {
+                if (textToCompare.equals(programRuleVariable.getAllValues().get(i))) {
+                    count = Integer.valueOf(count.intValue() + 1);
                 }
             }
+            return count;
+        } else if (textToCompare.equals(programRuleVariable.getVariableValue())) {
+            return Integer.valueOf(1);
+        } else {
+            return count;
         }
-
-        return count;
     }
 
     public static Double ceil(double value) {
-        Double ceiled = Math.ceil(value);
-        return ceiled;
+        return Double.valueOf(Math.ceil(value));
     }
 
     public static Long round(double value) {
-        Long rounded = Math.round(value);
-        return rounded;
+        return Long.valueOf(Math.round(value));
     }
 
     public static Boolean hasValue(String variableName) {
-        ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
+        ProgramRuleVariable programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
         boolean valueFound = false;
-        if(programRuleVariable != null) {
-            if(programRuleVariable.isHasValue()){
-                valueFound = true;
-            }
+        if (programRuleVariable != null && programRuleVariable.isHasValue()) {
+            valueFound = true;
         }
-        return valueFound;
+        return Boolean.valueOf(valueFound);
     }
 
     public static String lastEventDate(String variableName) {
-        ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
+        ProgramRuleVariable programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(variableName);
         String valueFound = "";
-        if(programRuleVariable != null) {
-            if(programRuleVariable.getVariableEventDate() != null) {
-                valueFound = programRuleVariable.getVariableEventDate();
-            }
+        if (programRuleVariable == null || programRuleVariable.getVariableEventDate() == null) {
+            return valueFound;
         }
-        return valueFound;
+        return programRuleVariable.getVariableEventDate();
     }
 
     public static Boolean validatePattern(String inputToValidate, String patternString) {
-        Pattern pattern = Pattern.compile(patternString);
-        Matcher matcher = pattern.matcher(inputToValidate);
-        boolean matchFound = matcher.matches();
-        return matchFound;
+        return Boolean.valueOf(Pattern.compile(patternString).matcher(inputToValidate).matches());
     }
 
     public static Boolean validatePattern(long inputToValidate, String patternString) {
-        String inputString = Long.toString(inputToValidate);
-        return validatePattern(inputString, patternString);
+        return validatePattern(Long.toString(inputToValidate), patternString);
     }
 
-    /**
-     * Return a substring from the beginning of a string up to a given length.
-     *
-     * @param inputString input value.
-     * @param length of the substring.
-     * @return the left substring.
-     */
     public static String left(String inputString, int length) {
-        if (inputString == null)
+        if (inputString == null) {
             return "";
-        int safeLength = Math.min(Math.max(0, length), inputString.length());
-        return inputString.substring(0, safeLength);
+        }
+        return inputString.substring(0, Math.min(Math.max(0, length), inputString.length()));
     }
 
-    /**
-     * Return a substring of the end of a string up to a given length.
-     *
-     * @param inputString input value.
-     * @param length of the substring.
-     * @return the right substring.
-     */
     public static String right(String inputString, int length) {
-        if (inputString == null)
+        if (inputString == null) {
             return "";
-        int safeLength = Math.min(Math.max(0, length), inputString.length());
-        return inputString.substring(inputString.length() - safeLength);
+        }
+        return inputString.substring(inputString.length() - Math.min(Math.max(0, length), inputString.length()));
     }
 
-    /**
-     * Return the length of a given string.
-     *
-     * @param inputString input value.
-     * @return the length of the string
-     */
     public static Integer length(String inputString) {
-        return inputString == null ? 0 : inputString.length();
+        return Integer.valueOf(inputString == null ? 0 : inputString.length());
     }
 
-    /**
-     * Return the length of a given string.
-     *
-     * @param input input value.
-     * @return the length of the string
-     */
     public static Integer length(Integer input) {
-        return input == null ? 0 : String.valueOf(input).length();
+        return Integer.valueOf(input == null ? 0 : String.valueOf(input).length());
     }
 
-    /**
-     * Split a string given a separator and get the nth item.
-     *
-     * @param inputString input value.
-     * @param splitString separator value.
-     * @param fieldIndex item index to get from the split.
-     * @return the field after split.
-     */
     public static String split(String inputString, String splitString, int fieldIndex) {
-        if (inputString == null || splitString == null)
+        if (inputString == null || splitString == null) {
             return "";
+        }
         String[] fields = inputString == null ? new String[0] : inputString.split(Pattern.quote(splitString));
-        return fieldIndex >= 0 && fieldIndex < fields.length ? fields[fieldIndex] : "";
+        return (fieldIndex < 0 || fieldIndex >= fields.length) ? "" : fields[fieldIndex];
     }
 
-    /**
-     * Return a substring from a start index up to an end index (not included).
-     *
-     * @param inputString input value.
-     * @param startIndex start index.
-     * @param endIndex end index (not included)
-     * @return the substring.
-     */
     public static String substring(String inputString, int startIndex, int endIndex) {
-        if (inputString == null)
+        if (inputString == null) {
             return "";
-        int safeStartIndex = Math.min(Math.max(0, startIndex), inputString.length());
-        int safeEndIndex = Math.min(Math.max(0, endIndex), inputString.length());
-        return inputString.substring(safeStartIndex, safeEndIndex);
+        }
+        return inputString.substring(Math.min(Math.max(0, startIndex), inputString.length()), Math.min(Math.max(0, endIndex), inputString.length()));
     }
 
     private static Double getVariableValue(ProgramRuleVariable programRuleVariable, String evaluated) {
-        if (evaluated == null)
-            return null;
-        try {
-            String value = VariableService.processSingleValue(evaluated, programRuleVariable.getVariableType());
-            return Double.parseDouble(value);
-        } catch (NumberFormatException ex) {
-            return null;
+        Double d = null;
+        if (evaluated != null) {
+            try {
+                d = Double.valueOf(Double.parseDouble(VariableService.processSingleValue(evaluated, programRuleVariable.getVariableType())));
+            } catch (NumberFormatException e) {
+            }
         }
+        return d;
     }
 
-    // Norway
     public static Boolean hasUserRole(String roleId) {
-        Boolean hasRole = false;
+        boolean z = false;
+        Boolean hasRole = Boolean.valueOf(false);
         try {
-            UserAccount ua = MetaDataController.getUserAccount();
-            UserCredentials uc = ua.getUserCredentials();
-            hasRole = uc != null && uc.hasRoleId(roleId);
-            // System.out.println("Norway - checking role " + roleId + " result: " + hasRole.toString());
+            UserCredentials uc = MetaDataController.getUserAccount().getUserCredentials();
+            if (uc != null && uc.hasRoleId(roleId)) {
+                z = true;
+            }
+            hasRole = Boolean.valueOf(z);
         } catch (Exception e) {
             System.out.println("Norway - checking role " + roleId + " failed.");
             e.printStackTrace();

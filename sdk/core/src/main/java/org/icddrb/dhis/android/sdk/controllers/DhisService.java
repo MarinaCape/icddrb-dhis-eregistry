@@ -1,32 +1,3 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.controllers;
 
 import android.app.Service;
@@ -34,48 +5,26 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-
 import com.squareup.okhttp.HttpUrl;
-
 import org.icddrb.dhis.android.sdk.events.UiEvent;
+import org.icddrb.dhis.android.sdk.events.UiEvent.UiEventType;
 import org.icddrb.dhis.android.sdk.job.Job;
 import org.icddrb.dhis.android.sdk.job.JobExecutor;
 import org.icddrb.dhis.android.sdk.job.NetworkJob;
 import org.icddrb.dhis.android.sdk.network.APIException;
+import org.icddrb.dhis.android.sdk.network.Credentials;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.UserAccount;
-import org.icddrb.dhis.android.sdk.network.Credentials;
 import org.icddrb.dhis.android.sdk.persistence.preferences.ResourceType;
 
-/**
- * @author Araz Abishov <araz.abishov.gsoc@gmail.com>.
- */
 public final class DhisService extends Service {
-    public static final int LOG_IN = 1;
     public static final int CONFIRM_USER = 2;
+    public static final int LOG_IN = 1;
     public static final int LOG_OUT = 3;
     public static final int SYNC_DASHBOARDS = 5;
     public static final int SYNC_DASHBOARD_CONTENT = 6;
     public static final int SYNC_INTERPRETATIONS = 7;
-
     private final IBinder mBinder = new ServiceBinder();
-    //private DhisController mDhisController;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        //mDhisController = DhisController.getInstance();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return Service.START_STICKY;
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
 
     public class ServiceBinder extends Binder {
         public DhisService getService() {
@@ -83,11 +32,20 @@ public final class DhisService extends Service {
         }
     }
 
-    public static void logInUser(final HttpUrl serverUrl, final Credentials credentials) {
-        JobExecutor.enqueueJob(new NetworkJob<UserAccount>(LOG_IN,
-                ResourceType.USERS) {
+    public void onCreate() {
+        super.onCreate();
+    }
 
-            @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return 1;
+    }
+
+    public IBinder onBind(Intent intent) {
+        return this.mBinder;
+    }
+
+    public static void logInUser(final HttpUrl serverUrl, final Credentials credentials) {
+        JobExecutor.enqueueJob(new NetworkJob<UserAccount>(1, ResourceType.USERS) {
             public UserAccount execute() throws APIException {
                 return DhisController.logInUser(serverUrl, credentials);
             }
@@ -95,14 +53,12 @@ public final class DhisService extends Service {
     }
 
     public static void logOutUser(final Context context, final boolean hardLogout) {
-        JobExecutor.enqueueJob(new Job<UiEvent>(LOG_OUT) {
-            @Override
+        JobExecutor.enqueueJob(new Job<UiEvent>(3) {
             public UiEvent inBackground() {
                 DhisController.logOutUser(context, hardLogout);
-                return new UiEvent(UiEvent.UiEventType.USER_LOG_OUT);
+                return new UiEvent(UiEventType.USER_LOG_OUT);
             }
 
-            @Override
             public void onFinish(UiEvent result) {
                 Dhis2Application.getEventBus().post(result);
             }
@@ -110,10 +66,7 @@ public final class DhisService extends Service {
     }
 
     public static void confirmUser(final Credentials credentials) {
-        JobExecutor.enqueueJob(new NetworkJob<UserAccount>(CONFIRM_USER,
-                ResourceType.USERS) {
-
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<UserAccount>(2, ResourceType.USERS) {
             public UserAccount execute() throws APIException {
                 return DhisController.confirmUser(credentials);
             }
@@ -121,46 +74,31 @@ public final class DhisService extends Service {
     }
 
     public static void syncDashboardContents() {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(SYNC_DASHBOARD_CONTENT,
-                ResourceType.DASHBOARDS_CONTENT) {
-
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(6, ResourceType.DASHBOARDS_CONTENT) {
             public Object execute() throws APIException {
-                //Dhis2.syncDashboardContent();
                 return new Object();
             }
         });
     }
 
     public static void syncDashboardsAndContent() {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(SYNC_DASHBOARDS,
-                ResourceType.DASHBOARDS) {
-
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(5, ResourceType.DASHBOARDS) {
             public Object execute() throws APIException {
-                //Dhis2.syncDashboardContent();
-                //Dhis2.syncDashboards();
                 return new Object();
             }
         });
     }
 
     public static void syncDashboards() {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(SYNC_DASHBOARDS,
-                ResourceType.DASHBOARDS) {
-
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(5, ResourceType.DASHBOARDS) {
             public Object execute() throws APIException {
-                //Dhis2.syncDashboards();
                 return new Object();
             }
         });
     }
 
     public static void forceSynchronize(final Context context) {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                null) {
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, null) {
             public Object execute() throws APIException {
                 DhisController.forceSynchronize(context);
                 return new Object();
@@ -169,9 +107,7 @@ public final class DhisService extends Service {
     }
 
     public static void synchronize(final Context context, final SyncStrategy syncStrategy) {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                null) {
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, null) {
             public Object execute() throws APIException {
                 DhisController.synchronize(context, syncStrategy);
                 return new Object();
@@ -180,9 +116,7 @@ public final class DhisService extends Service {
     }
 
     public static void synchronizeRemotelyDeletedData(final Context context) {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                null) {
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, null) {
             public Object execute() throws APIException {
                 DhisController.syncRemotelyDeletedData(context);
                 return new Object();
@@ -191,21 +125,16 @@ public final class DhisService extends Service {
     }
 
     public static Job loadData(final Context context) {
-        Job job=JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                null) {
-            @Override
+        return JobExecutor.enqueueJob(new NetworkJob<Object>(0, null) {
             public Object execute() throws APIException {
                 DhisController.loadData(context, SyncStrategy.DOWNLOAD_ONLY_NEW);
                 return new Object();
             }
         });
-        return job;
     }
 
     public static void sendData() {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                null) {
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, null) {
             public Object execute() throws APIException {
                 DhisController.sendData();
                 return new Object();
@@ -214,9 +143,7 @@ public final class DhisService extends Service {
     }
 
     public static void loadInitialData(final Context context) {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
-                null) {
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(0, null) {
             public Object execute() throws APIException {
                 LoadingController.loadInitialData(context, DhisController.getInstance().getDhisApi());
                 return new Object();
@@ -225,11 +152,8 @@ public final class DhisService extends Service {
     }
 
     public static void syncInterpretations() {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(SYNC_INTERPRETATIONS,
-                ResourceType.INTERPRETATIONS) {
-            @Override
+        JobExecutor.enqueueJob(new NetworkJob<Object>(7, ResourceType.INTERPRETATIONS) {
             public Object execute() throws APIException {
-                //Dhis2.syncInterpretations();
                 return new Object();
             }
         });

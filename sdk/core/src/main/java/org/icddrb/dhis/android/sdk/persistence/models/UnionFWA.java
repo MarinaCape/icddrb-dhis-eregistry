@@ -1,123 +1,74 @@
 package org.icddrb.dhis.android.sdk.persistence.models;
-/*
- * Copyright (c) 2016, University of Oslo
- *
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
- * Neither the name of the HISP project nor the names of its contributors may
- * be used to endorse or promote products derived from this software without
- * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * Norway
- */
-
-
 
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.Select;
-
-import org.icddrb.dhis.android.sdk.controllers.wrappers.OptionSetWrapper;
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
-import org.icddrb.dhis.android.sdk.persistence.models.meta.DbOperation;
-import org.icddrb.dhis.android.sdk.utils.DbUtils;
-import org.icddrb.dhis.android.sdk.utils.api.ValueType;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+import org.icddrb.dhis.android.sdk.controllers.wrappers.OptionSetWrapper;
+import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
+import org.icddrb.dhis.android.sdk.persistence.models.ImportCount.Table;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit.TYPE;
+import org.icddrb.dhis.android.sdk.utils.DbUtils;
+import org.icddrb.dhis.android.sdk.utils.api.ValueType;
 
 public class UnionFWA implements Serializable {
-
-    private List<UnionFWADropDownItem> mOrgUnits;
-
-    private HashMap<String, List<UnionFWADropDownItem>> mUsers;
-
-    public UnionFWA() {
-        mOrgUnits = new ArrayList<>();
-        mUsers = new HashMap<>();
-    }
+    private List<UnionFWADropDownItem> mOrgUnits = new ArrayList();
+    private HashMap<String, List<UnionFWADropDownItem>> mUsers = new HashMap();
 
     public void init(List<OrganisationUnitUser> orgOptionSets) {
         System.out.println("Norway - Org unit size: " + orgOptionSets.size());
         String defaultOrg = "";
-
         if (orgOptionSets.size() > 0) {
-            HashMap<String, List<OrganisationUnitUser>> unionUsers = this.getUnionUsers(orgOptionSets);
-
+            HashMap<String, List<OrganisationUnitUser>> unionUsers = getUnionUsers(orgOptionSets);
             System.out.println("Norway - users org size: " + unionUsers.size());
-
             for (OrganisationUnitUser org : orgOptionSets) {
-                if (unionUsers.containsKey(org.getId())) {
-                    if (!unionUsers.get(org.getId()).isEmpty()) {
-                        for (OrganisationUnitUser o : unionUsers.get(org.getId())) {
-                            List<User> userOptionSets = o.getUsers();
-                            //System.out.println("Norway - Getting users for " + o.getLabel() + "(" + o.getId() + ") found " + userOptionSets.size() + " users");
-                            if (userOptionSets.size() > 0) {
-                                List<UnionFWADropDownItem> users = new ArrayList<>();
-                                for (User user : userOptionSets) {
-                                    UserCredentials uc = user.getUserCredential();
-                                    if (uc != null && (uc.hasRole("FWA: Family Welfare Assistant") ||
-                                            uc.hasRole("Field Worker Program Access (no authorities)") ||
-                                            uc.hasRole("FWV Test"))) {
-                                        if ("".equals(defaultOrg)) { defaultOrg = org.getId(); }
-                                        //System.out.println("Norway - Adding user " + user.getDisplayName() + " for " + o.getLabel());
-                                        users.add(new UnionFWADropDownItem(user.getUid(), user.getDisplayName(), uc.getUsername()));
+                if (unionUsers.containsKey(org.getId()) && !((List) unionUsers.get(org.getId())).isEmpty()) {
+                    for (OrganisationUnitUser o : (List) unionUsers.get(org.getId())) {
+                        List<User> userOptionSets = o.getUsers();
+                        if (userOptionSets.size() > 0) {
+                            List<UnionFWADropDownItem> users = new ArrayList();
+                            for (User user : userOptionSets) {
+                                UserCredentials uc = user.getUserCredential();
+                                if (uc != null && (uc.hasRole("FWA: Family Welfare Assistant") || uc.hasRole("Field Worker Program Access (no authorities)") || uc.hasRole("FWV Test"))) {
+                                    if ("".equals(defaultOrg)) {
+                                        defaultOrg = org.getId();
                                     }
+                                    users.add(new UnionFWADropDownItem(user.getUid(), user.getDisplayName(), uc.getUsername()));
                                 }
-                                if (users.size() > 0) {
-                                    this.addUsers(org.getId(), users);
-                                }
+                            }
+                            if (users.size() > 0) {
+                                addUsers(org.getId(), users);
                             }
                         }
                     }
                 }
                 if (org.getLevel() == 5) {
-                    this.addOrg(org.getId(), org.getLabel());
+                    addOrg(org.getId(), org.getLabel());
                 }
             }
-
             simulateLoad(defaultOrg);
         }
     }
 
     public void addOrg(String id, String name) {
-        mOrgUnits.add(new UnionFWADropDownItem(id, name, null));
+        this.mOrgUnits.add(new UnionFWADropDownItem(id, name, null));
     }
 
     public void addUsers(String orgId, List<UnionFWADropDownItem> users) {
-        mUsers.put(orgId, users);
+        this.mUsers.put(orgId, users);
     }
 
     public String getFullName(String userId) {
         if (userId == null || userId.isEmpty()) {
             return null;
         }
-
-        for (Map.Entry<String, List<UnionFWADropDownItem>> users : mUsers.entrySet()) {
-            for (UnionFWADropDownItem user : users.getValue()) {
+        for (Entry<String, List<UnionFWADropDownItem>> users : this.mUsers.entrySet()) {
+            for (UnionFWADropDownItem user : (List) users.getValue()) {
                 if (user.getAlternateId().equals(userId)) {
-                   return user.getLabel();
+                    return user.getLabel();
                 }
             }
         }
@@ -125,53 +76,54 @@ public class UnionFWA implements Serializable {
     }
 
     public String getRootUnion(String orgId, List<OrganisationUnitUser> orgOptionSets) {
-        HashMap<String, List<OrganisationUnitUser>> mOrgUsers = this.getUnionUsers(orgOptionSets);
-        for (Map.Entry<String, List<OrganisationUnitUser>> entry : mOrgUsers.entrySet()) {
-            for (OrganisationUnitUser ou : entry.getValue()) {
-                //System.out.println("Norway - comparing " + orgId + " to " + ou.getId());
+        for (Entry<String, List<OrganisationUnitUser>> entry : getUnionUsers(orgOptionSets).entrySet()) {
+            for (OrganisationUnitUser ou : (List) entry.getValue()) {
                 if (ou.getId().equals(orgId)) {
-                    return entry.getKey();
+                    return (String) entry.getKey();
                 }
             }
         }
         return null;
     }
 
-    public List<UnionFWADropDownItem> getOrgUnits() { return this.mOrgUnits; }
+    public List<UnionFWADropDownItem> getOrgUnits() {
+        return this.mOrgUnits;
+    }
 
     public List<UnionFWADropDownItem> getUsers(String orgId) {
-        List<UnionFWADropDownItem> users = new ArrayList<>();
-        for(Map.Entry<String, List<UnionFWADropDownItem>> entry : mUsers.entrySet()) {
-            try {
-                if (orgId != null && orgId.equals(entry.getKey())) {
-                    for (UnionFWADropDownItem u : entry.getValue()) {
-                       // System.out.println("Norway - Adding " + u.getLabel() + " for " + orgId);
-                        users.add(u);
+        List<UnionFWADropDownItem> users = new ArrayList();
+        for (Entry<String, List<UnionFWADropDownItem>> entry : this.mUsers.entrySet()) {
+            if (orgId != null) {
+                try {
+                    if (orgId.equals(entry.getKey())) {
+                        for (UnionFWADropDownItem u : (List) entry.getValue()) {
+                            users.add(u);
+                        }
                     }
-                }
-            } catch (Exception e) {
-                System.out.println("Norway - FWA load exception: " + e.getMessage());
-                for (UnionFWADropDownItem u : entry.getValue()) {
-                    users.add(u);
+                } catch (Exception e) {
+                    System.out.println("Norway - FWA load exception: " + e.getMessage());
+                    for (UnionFWADropDownItem u2 : (List) entry.getValue()) {
+                        users.add(u2);
+                    }
                 }
             }
         }
-
         return users;
     }
 
     public String size() {
-        return "Organisations: " + mOrgUnits.size() + " Users: " + mUsers.size();
+        return "Organisations: " + this.mOrgUnits.size() + " Users: " + this.mUsers.size();
     }
 
     public OptionSet getOrganizationOptionSet() {
         OptionSet os = new OptionSet();
         String osString = null;
-
         int i = 0;
-        List<Option> opList = new ArrayList<>();
+        List<Option> opList = new ArrayList();
         List<UnionFWADropDownItem> optionSets = getOrgUnits();
-        if (optionSets!=null && optionSets.size() > 0) {
+        if (optionSets == null || optionSets.size() <= 0) {
+            System.out.println("Norway - no new organisations found");
+        } else {
             for (UnionFWADropDownItem ou : optionSets) {
                 Option o = new Option();
                 o.setSortIndex(i);
@@ -182,32 +134,26 @@ public class UnionFWA implements Serializable {
                 opList.add(o);
                 osString = o.getOptionSet();
                 i++;
-                //System.out.println("Norway - Organization to dropdown " + ou.getLabel() + ": " + ou.getId());
             }
-        } else {
-            System.out.println("Norway - no new organisations found");
         }
-
         os.setVersion(2);
         os.setOptions(opList);
         os.setValueType(ValueType.ORGANISATION_UNIT);
         os.setUid(osString);
-
-        List<OptionSet> osList = new ArrayList<>();
+        List<OptionSet> osList = new ArrayList();
         osList.add(os);
-        List<DbOperation> operations = OptionSetWrapper.getOperations(osList);
-        DbUtils.applyBatch(operations);
-
+        DbUtils.applyBatch(OptionSetWrapper.getOperations(osList));
         return os;
     }
 
     public OptionSet getAllUsersOptionSet(String chosenOrg, String guid) {
         List<UnionFWADropDownItem> optionSets = getUsers(chosenOrg);
-
         OptionSet os = new OptionSet();
         int i = 0;
-        if (optionSets != null && optionSets.size() > 0) {
-            List<Option> options = new ArrayList<>();
+        if (optionSets == null || optionSets.size() <= 0) {
+            System.out.println("Norway - no new users found for " + chosenOrg);
+        } else {
+            List<Option> options = new ArrayList();
             String osString = "";
             for (UnionFWADropDownItem user : optionSets) {
                 Option o = new Option();
@@ -217,77 +163,67 @@ public class UnionFWA implements Serializable {
                 o.setCode(user.getAlternateId());
                 o.setUid(o.getOptionSet() + user.getLabel().toLowerCase().replace(" ", "-").replace(",", ""));
                 options.add(o);
-                osString += o.getOptionSet();
-                // System.out.println("Norway - Adding User to dropdown " + user.getLabel() + ": " + user.getId() + " username: "+user.getAlternateId());
+                osString = osString + o.getOptionSet();
                 i++;
             }
-
             os.setVersion(2);
-            os.setUid((guid==null) ? osString : guid);
+            if (guid != null) {
+                osString = guid;
+            }
+            os.setUid(osString);
             os.setOptions(options);
             os.setValueType(ValueType.USERNAME);
-
-            List<OptionSet> osList = new ArrayList<>(); osList.add(os);
-            List<DbOperation> operations = OptionSetWrapper.getOperations(osList);
-            DbUtils.applyBatch(operations);
-
-        } else {
-            System.out.println("Norway - no new users found for "+chosenOrg);
+            List<OptionSet> osList = new ArrayList();
+            osList.add(os);
+            DbUtils.applyBatch(OptionSetWrapper.getOperations(osList));
         }
-
         return os;
     }
 
     public void updateFWADropdown(String orgId, String userId) {
-        // Norway: update FWA name based on chosen union
-        printOptionStatus("before",orgId, userId);
-
-        // Delete that list
-        new Delete()
-                .from(Option.class)
-                .where((Condition.column(Option$Table.OPTIONSET).is(userId))).query();
-        printOptionStatus("deleted", orgId, userId);
-
-        // create and save new list with existing guid
+        printOptionStatus("before", orgId, userId);
+        new Delete().from(Option.class).where(Condition.column("optionSet").is(userId)).query();
+        printOptionStatus(Table.DELETED, orgId, userId);
         getAllUsersOptionSet(orgId, userId);
         printOptionStatus("now", orgId, userId);
     }
 
-
     private void simulateLoad(String defaultOrg) {
-        // Simulate union selection
         Dhis2Application.dhisController.getAppPreferences().putChosenOrg(defaultOrg);
-        OptionSet os = getAllUsersOptionSet(defaultOrg, null);
-        Dhis2Application.dhisController.getAppPreferences().putUserOptionId(os.getUid());
+        Dhis2Application.dhisController.getAppPreferences().putUserOptionId(getAllUsersOptionSet(defaultOrg, null).getUid());
     }
 
     private HashMap<String, List<OrganisationUnitUser>> getUnionUsers(List<OrganisationUnitUser> orgOptionSets) {
-        List<String> ids = new ArrayList<>();
-        HashMap<String, String> levels = new HashMap<>();
-        HashMap<String, List<OrganisationUnitUser>> idMap = new HashMap<>();
-
+        List<String> ids = new ArrayList();
+        HashMap<String, String> levels = new HashMap();
+        HashMap<String, List<OrganisationUnitUser>> idMap = new HashMap();
         if (orgOptionSets.size() > 0) {
-            // First do Unions
             for (OrganisationUnitUser org : orgOptionSets) {
-                if (org.getLevel() == 5) {
-                    ids.add(org.getId());
-                    List<OrganisationUnitUser> n = new ArrayList<>();
-                    n.add(org);
-                    idMap.put(org.getId(), n);
+                OrganisationUnit o = new OrganisationUnit();
+                o.setId(org.getId());
+                o.setLevel(org.getLevel());
+                o.setLabel(org.getLabel());
+                o.setParent(org.getParent());
+                o.setType(TYPE.ASSIGNED);
+                o.save();
+            }
+            for (OrganisationUnitUser org2 : orgOptionSets) {
+                if (org2.getLevel() == 5) {
+                    ids.add(org2.getId());
+                    List<OrganisationUnitUser> n = new ArrayList();
+                    n.add(org2);
+                    idMap.put(org2.getId(), n);
                 }
             }
-
-            // Do next level
-            for (OrganisationUnitUser org : orgOptionSets) {
-                if (org.getLevel() == 6 && inArray(ids,org.getParent()) ) {
-                    idMap.get(org.getParent()).add(org);
-                    levels.put(org.getId(), org.getParent());
+            for (OrganisationUnitUser org22 : orgOptionSets) {
+                if (org22.getLevel() == 6 && inArray(ids, org22.getParent())) {
+                    ((List) idMap.get(org22.getParent())).add(org22);
+                    levels.put(org22.getId(), org22.getParent());
                 }
             }
-            // Do last level
-            for (OrganisationUnitUser org : orgOptionSets) {
-                if (org.getLevel() == 7 && levels.containsKey(org.getParent())) {
-                    idMap.get(levels.get(org.getParent())).add(org);
+            for (OrganisationUnitUser org222 : orgOptionSets) {
+                if (org222.getLevel() == 7 && levels.containsKey(org222.getParent())) {
+                    ((List) idMap.get(levels.get(org222.getParent()))).add(org222);
                 }
             }
         }
@@ -295,20 +231,13 @@ public class UnionFWA implements Serializable {
     }
 
     private static void printOptionStatus(String state, String org, String uid) {
-        /*List<Option> options = new Select()
-                .from(Option.class)
-                .where((Condition.column(Option$Table.OPTIONSET).is(uid)))
-                .queryList();
-
-        System.out.println("Norway - row change ("+state+"): " + org
-                + " uid: " + uid
-                + " size: "+ options.size());
-         */
     }
 
     private boolean inArray(List<String> a, String i) {
         for (String s : a) {
-            if (s.trim().equalsIgnoreCase(i.trim())) return true;
+            if (s.trim().equalsIgnoreCase(i.trim())) {
+                return true;
+            }
         }
         return false;
     }

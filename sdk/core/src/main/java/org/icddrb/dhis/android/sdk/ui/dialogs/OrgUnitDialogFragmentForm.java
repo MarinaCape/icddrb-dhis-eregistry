@@ -1,48 +1,15 @@
 package org.icddrb.dhis.android.sdk.ui.dialogs;
 
+import java.util.List;
 import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
+import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogAdapter.OptionAdapterValue;
 import org.icddrb.dhis.android.sdk.utils.api.ProgramType;
 
-import java.util.List;
-
 public class OrgUnitDialogFragmentForm {
-    private ProgramType[] programTypes;
-    private List<AutoCompleteDialogAdapter.OptionAdapterValue> optionAdapterValueList;
+    private List<OptionAdapterValue> optionAdapterValueList;
     private List<OrganisationUnit> organisationUnits;
+    private ProgramType[] programTypes;
     private Error type;
-
-
-    public ProgramType[] getProgramTypes() {
-        return programTypes;
-    }
-
-    public void setProgramTypes(ProgramType[] programTypes) {
-        this.programTypes = programTypes;
-    }
-
-    public List<AutoCompleteDialogAdapter.OptionAdapterValue> getOptionAdapterValueList() {
-        return optionAdapterValueList;
-    }
-
-    public void setOptionAdapterValueList(List<AutoCompleteDialogAdapter.OptionAdapterValue> optionAdapterValueList) {
-        this.optionAdapterValueList = optionAdapterValueList;
-    }
-
-    public List<OrganisationUnit> getOrganisationUnits() {
-        return organisationUnits;
-    }
-
-    public void setOrganisationUnits(List<OrganisationUnit> organisationUnits) {
-        this.organisationUnits = organisationUnits;
-    }
-
-    public Error getType() {
-        return type;
-    }
-
-    public void setType(Error type) {
-        this.type = type;
-    }
 
     public enum Error {
         NONE,
@@ -50,4 +17,35 @@ public class OrgUnitDialogFragmentForm {
         NO_PROGRAMS_TO_ORGANSATION_UNIT
     }
 
+    public ProgramType[] getProgramTypes() {
+        return this.programTypes;
+    }
+
+    public void setProgramTypes(ProgramType[] programTypes) {
+        this.programTypes = programTypes;
+    }
+
+    public List<OptionAdapterValue> getOptionAdapterValueList() {
+        return this.optionAdapterValueList;
+    }
+
+    public void setOptionAdapterValueList(List<OptionAdapterValue> optionAdapterValueList) {
+        this.optionAdapterValueList = optionAdapterValueList;
+    }
+
+    public List<OrganisationUnit> getOrganisationUnits() {
+        return this.organisationUnits;
+    }
+
+    public void setOrganisationUnits(List<OrganisationUnit> organisationUnits) {
+        this.organisationUnits = organisationUnits;
+    }
+
+    public Error getType() {
+        return this.type;
+    }
+
+    public void setType(Error type) {
+        this.type = type;
+    }
 }

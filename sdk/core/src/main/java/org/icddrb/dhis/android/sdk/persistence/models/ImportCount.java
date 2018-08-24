@@ -1,92 +1,149 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
-
-/**
- * @author Simen Skogly Russnes on 24.02.15.
- */
-@Table(databaseName = Dhis2Database.NAME)
-public class ImportCount extends BaseModel{
-
-    @Column
-    @PrimaryKey(autoincrement = true)
+public class ImportCount extends BaseModel {
+    @JsonProperty("deleted")
+    private int deleted;
     protected int id;
-
+    @JsonProperty("ignored")
+    private int ignored;
     @JsonProperty("imported")
-    @Column
     private int imported;
-
     @JsonProperty("updated")
-    @Column
     private int updated;
 
-    @JsonProperty("ignored")
-    @Column
-    private int ignored;
+    public final class Adapter extends ModelAdapter<ImportCount> {
+        public Class<ImportCount> getModelClass() {
+            return ImportCount.class;
+        }
 
-    @JsonProperty("deleted")
-    @Column
-    private int deleted;
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `ImportCount` (`IMPORTED`, `UPDATED`, `IGNORED`, `DELETED`) VALUES (?, ?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, ImportCount model) {
+            statement.bindLong(1, (long) model.getImported());
+            statement.bindLong(2, (long) model.getUpdated());
+            statement.bindLong(3, (long) model.getIgnored());
+            statement.bindLong(4, (long) model.getDeleted());
+        }
+
+        public void bindToContentValues(ContentValues contentValues, ImportCount model) {
+            contentValues.put("id", Integer.valueOf(model.id));
+            contentValues.put(Table.IMPORTED, Integer.valueOf(model.getImported()));
+            contentValues.put(Table.UPDATED, Integer.valueOf(model.getUpdated()));
+            contentValues.put(Table.IGNORED, Integer.valueOf(model.getIgnored()));
+            contentValues.put(Table.DELETED, Integer.valueOf(model.getDeleted()));
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, ImportCount model) {
+            contentValues.put(Table.IMPORTED, Integer.valueOf(model.getImported()));
+            contentValues.put(Table.UPDATED, Integer.valueOf(model.getUpdated()));
+            contentValues.put(Table.IGNORED, Integer.valueOf(model.getIgnored()));
+            contentValues.put(Table.DELETED, Integer.valueOf(model.getDeleted()));
+        }
+
+        public boolean exists(ImportCount model) {
+            return model.id > 0;
+        }
+
+        public void loadFromCursor(Cursor cursor, ImportCount model) {
+            int indexid = cursor.getColumnIndex("id");
+            if (indexid != -1) {
+                model.id = cursor.getInt(indexid);
+            }
+            int indeximported = cursor.getColumnIndex(Table.IMPORTED);
+            if (indeximported != -1) {
+                model.setImported(cursor.getInt(indeximported));
+            }
+            int indexupdated = cursor.getColumnIndex(Table.UPDATED);
+            if (indexupdated != -1) {
+                model.setUpdated(cursor.getInt(indexupdated));
+            }
+            int indexignored = cursor.getColumnIndex(Table.IGNORED);
+            if (indexignored != -1) {
+                model.setIgnored(cursor.getInt(indexignored));
+            }
+            int indexdeleted = cursor.getColumnIndex(Table.DELETED);
+            if (indexdeleted != -1) {
+                model.setDeleted(cursor.getInt(indexdeleted));
+            }
+        }
+
+        public void updateAutoIncrement(ImportCount model, long id) {
+            model.id = (int) id;
+        }
+
+        public long getAutoIncrementingId(ImportCount model) {
+            return (long) model.id;
+        }
+
+        public String getAutoIncrementingColumnName() {
+            return "id";
+        }
+
+        public ConditionQueryBuilder<ImportCount> getPrimaryModelWhere(ImportCount model) {
+            return new ConditionQueryBuilder(ImportCount.class, Condition.column("id").is(Integer.valueOf(model.id)));
+        }
+
+        public ConditionQueryBuilder<ImportCount> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(ImportCount.class, Condition.column("id").is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `ImportCount`(`id` INTEGER PRIMARY KEY AUTOINCREMENT, `imported` INTEGER, `updated` INTEGER, `ignored` INTEGER, `deleted` INTEGER);";
+        }
+
+        public final ImportCount newInstance() {
+            return new ImportCount();
+        }
+    }
+
+    public final class Table {
+        public static final String DELETED = "deleted";
+        public static final String ID = "id";
+        public static final String IGNORED = "ignored";
+        public static final String IMPORTED = "imported";
+        public static final String TABLE_NAME = "ImportCount";
+        public static final String UPDATED = "updated";
+    }
 
     @JsonAnySetter
     public void handleUnknown(String key, Object value) {
-        // do something: put to a Map; log a warning, whatever
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public int getImported() {
-        return imported;
+        return this.imported;
     }
 
     public int getUpdated() {
-        return updated;
+        return this.updated;
     }
 
     public int getIgnored() {
-        return ignored;
+        return this.ignored;
     }
 
     public int getDeleted() {
-        return deleted;
+        return this.deleted;
     }
 
     public void setDeleted(int deleted) {

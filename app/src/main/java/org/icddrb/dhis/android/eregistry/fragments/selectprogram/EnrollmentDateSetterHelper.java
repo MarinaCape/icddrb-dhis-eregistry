@@ -1,62 +1,46 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.eregistry.fragments.selectprogram;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.widget.DatePicker;
-
+import org.icddrb.dhis.android.eregistry.C0773R;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.ui.views.CustomDatePickerDialog;
-import org.icddrb.dhis.android.eregistry.R;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 
-/**
- * Helper-class for showing DatePickers for selecting Enrollment date, then incident date,
- * and then triggering Enrollment-creation in a chain of events.
- */
 public class EnrollmentDateSetterHelper {
-    private final IEnroller enroller;
     private final Context context;
-    private final boolean showIncidentDate;
-    private final boolean enrollmentDatesInFuture;
-    private final boolean incidentDatesInFuture;
-    private final String enrollmentDateLabel;
-    private final String incidentDateLabel;
-    private TrackedEntityInstance trackedEntityInstance;
+    private final IEnroller enroller;
     private DateTime enrollmentDate;
+    private final String enrollmentDateLabel;
+    private final boolean enrollmentDatesInFuture;
     private DateTime incidentDate;
+    private final String incidentDateLabel;
+    private final boolean incidentDatesInFuture;
+    private final boolean showIncidentDate;
+    private TrackedEntityInstance trackedEntityInstance;
 
-    public EnrollmentDateSetterHelper(IEnroller enroller, Context context, boolean showIncidentDate,
-                                      boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.selectprogram.EnrollmentDateSetterHelper$2 */
+    class C08062 implements OnClickListener {
+        C08062() {
+        }
+
+        public void onClick(DialogInterface dialog, int which) {
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.selectprogram.EnrollmentDateSetterHelper$4 */
+    class C08084 implements OnClickListener {
+        C08084() {
+        }
+
+        public void onClick(DialogInterface dialog, int which) {
+        }
+    }
+
+    public EnrollmentDateSetterHelper(IEnroller enroller, Context context, boolean showIncidentDate, boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
         this.enroller = enroller;
         this.context = context;
         this.showIncidentDate = showIncidentDate;
@@ -66,8 +50,7 @@ public class EnrollmentDateSetterHelper {
         this.incidentDateLabel = incidentDateLabel;
     }
 
-    public EnrollmentDateSetterHelper(TrackedEntityInstance trackedEntityInstance, IEnroller enroller, Context context, boolean showIncidentDate,
-                                      boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
+    public EnrollmentDateSetterHelper(TrackedEntityInstance trackedEntityInstance, IEnroller enroller, Context context, boolean showIncidentDate, boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
         this.trackedEntityInstance = trackedEntityInstance;
         this.enroller = enroller;
         this.context = context;
@@ -78,90 +61,63 @@ public class EnrollmentDateSetterHelper {
         this.incidentDateLabel = incidentDateLabel;
     }
 
-    public static void createEnrollment(TrackedEntityInstance trackedEntityInstance, IEnroller enroller, Context context, boolean showIncidentDate,
-                                        boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
-        EnrollmentDateSetterHelper enrollmentDateSetterHelper = new EnrollmentDateSetterHelper(trackedEntityInstance, enroller, context, showIncidentDate, enrollmentDatesInFuture, incidentDatesInFuture, enrollmentDateLabel, incidentDateLabel);
-        enrollmentDateSetterHelper.showEnrollmentDatePicker();
+    public static void createEnrollment(TrackedEntityInstance trackedEntityInstance, IEnroller enroller, Context context, boolean showIncidentDate, boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
+        new EnrollmentDateSetterHelper(trackedEntityInstance, enroller, context, showIncidentDate, enrollmentDatesInFuture, incidentDatesInFuture, enrollmentDateLabel, incidentDateLabel).showEnrollmentDatePicker();
     }
 
-    public static void createEnrollment(IEnroller enroller, Context context, boolean showIncidentDate,
-                                        boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
-        EnrollmentDateSetterHelper enrollmentDateSetterHelper = new EnrollmentDateSetterHelper(enroller, context, showIncidentDate, enrollmentDatesInFuture, incidentDatesInFuture, enrollmentDateLabel, incidentDateLabel);
-        enrollmentDateSetterHelper.showEnrollmentDatePicker();
+    public static void createEnrollment(IEnroller enroller, Context context, boolean showIncidentDate, boolean enrollmentDatesInFuture, boolean incidentDatesInFuture, String enrollmentDateLabel, String incidentDateLabel) {
+        new EnrollmentDateSetterHelper(enroller, context, showIncidentDate, enrollmentDatesInFuture, incidentDatesInFuture, enrollmentDateLabel, incidentDateLabel).showEnrollmentDatePicker();
     }
 
     private void showEnrollmentDatePicker() {
-        enrollmentDate = new DateTime(1, 1, 1, 1, 0);
+        this.enrollmentDate = new DateTime(1, 1, 1, 1, 0);
         LocalDate currentDate = new LocalDate();
-        final CustomDatePickerDialog enrollmentDatePickerDialog =
-                new CustomDatePickerDialog(context,
-                        null, currentDate.getYear(),
-                        currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth());
-        enrollmentDatePickerDialog.setPermanentTitle(context.getString(R.string.please_enter) + " " + enrollmentDateLabel);
+        final CustomDatePickerDialog enrollmentDatePickerDialog = new CustomDatePickerDialog(this.context, null, currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth());
+        enrollmentDatePickerDialog.setPermanentTitle(this.context.getString(C0773R.string.please_enter) + " " + this.enrollmentDateLabel);
         enrollmentDatePickerDialog.setCanceledOnTouchOutside(true);
-        if(!enrollmentDatesInFuture) {
+        if (!this.enrollmentDatesInFuture) {
             enrollmentDatePickerDialog.getDatePicker().setMaxDate(DateTime.now().getMillis());
         }
-        enrollmentDatePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok_option),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        DatePicker dp = enrollmentDatePickerDialog.getDatePicker();
-                        enrollmentDate = enrollmentDate.withYear(dp.getYear());
-                        enrollmentDate = enrollmentDate.withMonthOfYear(dp.getMonth() + 1);
-                        enrollmentDate = enrollmentDate.withDayOfMonth(dp.getDayOfMonth());
-
-                        if (showIncidentDate) {
-                            showIncidentDatePicker();
-                        } else {
-                            showEnrollmentFragment();
-                        }
-                    }
-                });
-        enrollmentDatePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel_option),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
+        enrollmentDatePickerDialog.setButton(-1, this.context.getString(C0773R.string.ok_option), new OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                DatePicker dp = enrollmentDatePickerDialog.getDatePicker();
+                EnrollmentDateSetterHelper.this.enrollmentDate = EnrollmentDateSetterHelper.this.enrollmentDate.withYear(dp.getYear());
+                EnrollmentDateSetterHelper.this.enrollmentDate = EnrollmentDateSetterHelper.this.enrollmentDate.withMonthOfYear(dp.getMonth() + 1);
+                EnrollmentDateSetterHelper.this.enrollmentDate = EnrollmentDateSetterHelper.this.enrollmentDate.withDayOfMonth(dp.getDayOfMonth());
+                if (EnrollmentDateSetterHelper.this.showIncidentDate) {
+                    EnrollmentDateSetterHelper.this.showIncidentDatePicker();
+                } else {
+                    EnrollmentDateSetterHelper.this.showEnrollmentFragment();
+                }
+            }
+        });
+        enrollmentDatePickerDialog.setButton(-2, this.context.getString(C0773R.string.cancel_option), new C08062());
         enrollmentDatePickerDialog.show();
     }
 
     private void showIncidentDatePicker() {
         LocalDate currentDate = new LocalDate();
-        incidentDate = new DateTime(1, 1, 1, 1, 0);
-        final CustomDatePickerDialog incidentDatePickerDialog =
-                new CustomDatePickerDialog(context,
-                        null, currentDate.getYear(),
-                        currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth());
-        incidentDatePickerDialog.setPermanentTitle(context.getString(R.string.please_enter) + " " + incidentDateLabel);
+        this.incidentDate = new DateTime(1, 1, 1, 1, 0);
+        final CustomDatePickerDialog incidentDatePickerDialog = new CustomDatePickerDialog(this.context, null, currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth());
+        incidentDatePickerDialog.setPermanentTitle(this.context.getString(C0773R.string.please_enter) + " " + this.incidentDateLabel);
         incidentDatePickerDialog.setCanceledOnTouchOutside(true);
-        if(!incidentDatesInFuture) {
+        if (!this.incidentDatesInFuture) {
             incidentDatePickerDialog.getDatePicker().setMaxDate(DateTime.now().getMillis());
         }
-        incidentDatePickerDialog.setButton(DialogInterface.BUTTON_POSITIVE, context.getString(R.string.ok_option),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        DatePicker dp = incidentDatePickerDialog.getDatePicker();
-                        incidentDate = incidentDate.withYear(dp.getYear());
-                        incidentDate = incidentDate.withMonthOfYear(dp.getMonth() + 1);
-                        incidentDate = incidentDate.withDayOfMonth(dp.getDayOfMonth());
-                        showEnrollmentFragment();
-                    }
-                });
-        incidentDatePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, context.getString(R.string.cancel_option),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
+        incidentDatePickerDialog.setButton(-1, this.context.getString(C0773R.string.ok_option), new OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                DatePicker dp = incidentDatePickerDialog.getDatePicker();
+                EnrollmentDateSetterHelper.this.incidentDate = EnrollmentDateSetterHelper.this.incidentDate.withYear(dp.getYear());
+                EnrollmentDateSetterHelper.this.incidentDate = EnrollmentDateSetterHelper.this.incidentDate.withMonthOfYear(dp.getMonth() + 1);
+                EnrollmentDateSetterHelper.this.incidentDate = EnrollmentDateSetterHelper.this.incidentDate.withDayOfMonth(dp.getDayOfMonth());
+                EnrollmentDateSetterHelper.this.showEnrollmentFragment();
+            }
+        });
+        incidentDatePickerDialog.setButton(-2, this.context.getString(C0773R.string.cancel_option), new C08084());
         incidentDatePickerDialog.show();
     }
 
     private void showEnrollmentFragment() {
-        enroller.showEnrollmentFragment(trackedEntityInstance, enrollmentDate, incidentDate);
+        this.enroller.showEnrollmentFragment(this.trackedEntityInstance, this.enrollmentDate, this.incidentDate);
     }
 }

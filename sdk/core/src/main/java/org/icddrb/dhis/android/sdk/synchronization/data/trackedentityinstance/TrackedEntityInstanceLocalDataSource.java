@@ -1,12 +1,9 @@
 package org.icddrb.dhis.android.sdk.synchronization.data.trackedentityinstance;
 
-
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
-import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
-import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance$Table;
-
 import java.util.List;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 
 public class TrackedEntityInstanceLocalDataSource {
     public void save(TrackedEntityInstance trackedEntityInstance) {
@@ -14,12 +11,10 @@ public class TrackedEntityInstanceLocalDataSource {
     }
 
     public List<TrackedEntityInstance> getAllLocalTeis() {
-        return new Select().from(TrackedEntityInstance.class).where(Condition.column(TrackedEntityInstance$Table.FROMSERVER).
-                is(false)).queryList();
+        return new Select().from(TrackedEntityInstance.class).where(Condition.column("fromServer").is(Boolean.valueOf(false))).queryList();
     }
 
     public TrackedEntityInstance getTrackedEntityInstance(String trackedEntityInstanceUid) {
-        return new Select().from(TrackedEntityInstance.class).where(Condition.column
-                (TrackedEntityInstance$Table.TRACKEDENTITYINSTANCE).is(trackedEntityInstanceUid)).querySingle();
+        return (TrackedEntityInstance) new Select().from(TrackedEntityInstance.class).where(Condition.column("trackedEntityInstance").is(trackedEntityInstanceUid)).querySingle();
     }
 }

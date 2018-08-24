@@ -2,55 +2,47 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
 import android.os.Handler;
 import android.util.Log;
-
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 
-/**
- * Created by thomaslindsjorn on 28/07/16.
- */
 public class RunProgramRulesDelayedDispatcher {
-
-    private final int DELAY_MILLIS = 1000; // program rules are ran after this many milliseconds
-    private Handler handler;
-    private Runnable runnable;
+    private final int DELAY_MILLIS = 1000;
+    private Handler handler = new Handler();
     private RunProgramRulesEvent runProgramRulesEvent;
+    private Runnable runnable;
 
-    public RunProgramRulesDelayedDispatcher() {
-        handler = new Handler();
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.RunProgramRulesDelayedDispatcher$1 */
+    class C08831 implements Runnable {
+        C08831() {
+        }
+
+        public void run() {
+            if (RunProgramRulesDelayedDispatcher.this.runProgramRulesEvent != null) {
+                Dhis2Application.getEventBus().post(RunProgramRulesDelayedDispatcher.this.runProgramRulesEvent);
+            } else {
+                Log.d("RunProgramRules", "runProgramRulesEvent is null");
+            }
+            RunProgramRulesDelayedDispatcher.this.runnable = null;
+        }
     }
 
     public void dispatchDelayed(RunProgramRulesEvent runProgramRulesEvent) {
         this.runProgramRulesEvent = runProgramRulesEvent;
-
-        if (runnable == null) {
+        if (this.runnable == null) {
             initRunnable();
         } else {
-            handler.removeCallbacks(runnable);
+            this.handler.removeCallbacks(this.runnable);
         }
-        handler.postDelayed(runnable, DELAY_MILLIS);
-
+        this.handler.postDelayed(this.runnable, 1000);
     }
 
     public void dispatchNow() {
-        if (handler != null && runnable != null) {
-            handler.removeCallbacks(runnable);
-            handler.post(runnable);
+        if (this.handler != null && this.runnable != null) {
+            this.handler.removeCallbacks(this.runnable);
+            this.handler.post(this.runnable);
         }
     }
 
     private void initRunnable() {
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (runProgramRulesEvent != null) {
-                    Dhis2Application.getEventBus()
-                            .post(runProgramRulesEvent);
-                } else {
-                    Log.d("RunProgramRules", "runProgramRulesEvent is null");
-                }
-                RunProgramRulesDelayedDispatcher.this.runnable = null;
-            }
-        };
-
+        this.runnable = new C08831();
     }
 }

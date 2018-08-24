@@ -3,47 +3,37 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
-import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.C0845R;
 
 class AutoCompleteRowViewHolder {
-    public final TextView textView;
-    public final TextView mandatoryIndicator;
-    public final TextView warningLabel;
-    public final TextView errorLabel;
-    public final TextView valueTextView;
     public final ImageButton clearButton;
-    //        public final View detailedInfoButton;
-    public final AutoCompleteOnClearButtonListener onClearButtonListener;
-    public final AutoCompleteOnTextChangedListener onTextChangedListener;
-    public final AutoCompleteDropDownButtonListener onDropDownButtonListener;
-    public final AutoCompleteOnOptionSelectedListener onOptionListener;
-
+    public final TextView errorLabel;
+    public final TextView mandatoryIndicator;
+    public final AutoCompleteOnClearButtonListener onClearButtonListener = new AutoCompleteOnClearButtonListener(this.valueTextView);
+    public final AutoCompleteDropDownButtonListener onDropDownButtonListener = new AutoCompleteDropDownButtonListener();
+    public final AutoCompleteOnOptionSelectedListener onOptionListener = new OnOptionItemSelectedListener(this.valueTextView);
+    public final AutoCompleteOnTextChangedListener onTextChangedListener = new AutoCompleteOnTextChangedListener();
+    public final TextView textView;
+    public final TextView valueTextView;
+    public final TextView warningLabel;
 
     AutoCompleteRowViewHolder(View view) {
-        mandatoryIndicator = (TextView) view.findViewById(R.id.mandatory_indicator);
-        textView = (TextView) view.findViewById(R.id.text_label);
-        warningLabel = (TextView) view.findViewById(R.id.warning_label);
-        errorLabel = (TextView) view.findViewById(R.id.error_label);
-        valueTextView = (TextView) view.findViewById(R.id.choose_option);
-        clearButton = (ImageButton) view.findViewById(R.id.clear_option_value);
-//            this.detailedInfoButton = detailedInfoButton;
-
-        onOptionListener = new OnOptionItemSelectedListener(valueTextView);
-        onClearButtonListener = new AutoCompleteOnClearButtonListener(valueTextView);
-        onTextChangedListener = new AutoCompleteOnTextChangedListener();
-        onDropDownButtonListener = new AutoCompleteDropDownButtonListener();
-        onDropDownButtonListener.setListener(onOptionListener);
-
-        clearButton.setOnClickListener(onClearButtonListener);
-        valueTextView.setOnClickListener(onDropDownButtonListener);
+        this.mandatoryIndicator = (TextView) view.findViewById(C0845R.id.mandatory_indicator);
+        this.textView = (TextView) view.findViewById(C0845R.id.text_label);
+        this.warningLabel = (TextView) view.findViewById(C0845R.id.warning_label);
+        this.errorLabel = (TextView) view.findViewById(C0845R.id.error_label);
+        this.valueTextView = (TextView) view.findViewById(C0845R.id.choose_option);
+        this.clearButton = (ImageButton) view.findViewById(C0845R.id.clear_option_value);
+        this.onDropDownButtonListener.setListener(this.onOptionListener);
+        this.clearButton.setOnClickListener(this.onClearButtonListener);
+        this.valueTextView.setOnClickListener(this.onDropDownButtonListener);
     }
 
     void setOnTextChangedListener() {
-        valueTextView.addTextChangedListener(onTextChangedListener);
+        this.valueTextView.addTextChangedListener(this.onTextChangedListener);
     }
 
     void clearOnTextChangedListener() {
-        valueTextView.removeTextChangedListener(onTextChangedListener);
+        this.valueTextView.removeTextChangedListener(this.onTextChangedListener);
     }
 }

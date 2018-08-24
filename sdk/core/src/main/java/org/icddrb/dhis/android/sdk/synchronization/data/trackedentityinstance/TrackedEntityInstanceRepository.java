@@ -1,53 +1,43 @@
 package org.icddrb.dhis.android.sdk.synchronization.data.trackedentityinstance;
 
+import java.util.List;
+import java.util.Map;
+import org.icddrb.dhis.android.sdk.persistence.models.BaseIdentifiableObject;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.synchronization.domain.trackedentityinstance.ITrackedEntityInstanceRepository;
 import org.joda.time.DateTime;
 
-import java.util.List;
-import java.util.Map;
-
-public class TrackedEntityInstanceRepository  implements ITrackedEntityInstanceRepository {
+public class TrackedEntityInstanceRepository implements ITrackedEntityInstanceRepository {
     TrackedEntityInstanceLocalDataSource mLocalDataSource;
     TrackedEntityInstanceRemoteDataSource mRemoteDataSource;
 
-    public TrackedEntityInstanceRepository(
-            TrackedEntityInstanceLocalDataSource localDataSource,
-            TrackedEntityInstanceRemoteDataSource remoteDataSource) {
-        mLocalDataSource = localDataSource;
-        mRemoteDataSource = remoteDataSource;
+    public TrackedEntityInstanceRepository(TrackedEntityInstanceLocalDataSource localDataSource, TrackedEntityInstanceRemoteDataSource remoteDataSource) {
+        this.mLocalDataSource = localDataSource;
+        this.mRemoteDataSource = remoteDataSource;
     }
-    @Override
+
     public void save(TrackedEntityInstance trackedEntityInstance) {
-        mLocalDataSource.save(trackedEntityInstance);
+        this.mLocalDataSource.save(trackedEntityInstance);
     }
 
-    @Override
     public ImportSummary sync(TrackedEntityInstance trackedEntityInstance) {
-        ImportSummary importSummary = mRemoteDataSource.save(trackedEntityInstance);
-
+        ImportSummary importSummary = this.mRemoteDataSource.save(trackedEntityInstance);
         if (importSummary.isSuccessOrOK()) {
             updateTrackedEntityInstanceTimestamp(trackedEntityInstance);
         }
-
         return importSummary;
     }
 
-    @Override
     public List<ImportSummary> sync(List<TrackedEntityInstance> trackedEntityInstanceList) {
-
-        List<ImportSummary> importSummaries = mRemoteDataSource.save(trackedEntityInstanceList);
-
-        Map<String, TrackedEntityInstance> trackedEntityInstanceMap =
-                TrackedEntityInstance.toMap(trackedEntityInstanceList);
-
+        List<ImportSummary> importSummaries = this.mRemoteDataSource.save((List) trackedEntityInstanceList);
+        Map<String, TrackedEntityInstance> trackedEntityInstanceMap = BaseIdentifiableObject.toMap(trackedEntityInstanceList);
         if (importSummaries != null) {
-            DateTime dateTime = mRemoteDataSource.getServerTime();
+            DateTime dateTime = this.mRemoteDataSource.getServerTime();
             for (ImportSummary importSummary : importSummaries) {
                 if (importSummary.isSuccessOrOK()) {
-                    System.out.println("IMPORT SUMMARY(teibatch): " + importSummary.getDescription() + importSummary.getHref() +" "+ importSummary.getReference());
-                    TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceMap.get(importSummary.getReference());
+                    System.out.println("IMPORT SUMMARY(teibatch): " + importSummary.getDescription() + importSummary.getHref() + " " + importSummary.getReference());
+                    TrackedEntityInstance trackedEntityInstance = (TrackedEntityInstance) trackedEntityInstanceMap.get(importSummary.getReference());
                     if (trackedEntityInstance != null) {
                         updateTrackedEntityInstanceTimestamp(trackedEntityInstance, dateTime.toString(), dateTime.toString());
                     }
@@ -58,9 +48,8 @@ public class TrackedEntityInstanceRepository  implements ITrackedEntityInstanceR
     }
 
     private void updateTrackedEntityInstanceTimestamp(TrackedEntityInstance trackedEntityInstance) {
-        TrackedEntityInstance remoteTrackedEntityInstance = mRemoteDataSource.getTrackedEntityInstance(trackedEntityInstance.getTrackedEntityInstance());
-        if(trackedEntityInstance.getRelationships()!=null && trackedEntityInstance.getRelationships().size()==0){
-            //Restore relations before save.
+        TrackedEntityInstance remoteTrackedEntityInstance = this.mRemoteDataSource.getTrackedEntityInstance(trackedEntityInstance.getTrackedEntityInstance());
+        if (trackedEntityInstance.getRelationships() != null && trackedEntityInstance.getRelationships().size() == 0) {
             trackedEntityInstance.setRelationships(null);
             trackedEntityInstance.getRelationships();
         }
@@ -70,17 +59,14 @@ public class TrackedEntityInstanceRepository  implements ITrackedEntityInstanceR
     private void updateTrackedEntityInstanceTimestamp(TrackedEntityInstance trackedEntityInstance, String createdDate, String lastUpdated) {
         trackedEntityInstance.setCreated(createdDate);
         trackedEntityInstance.setLastUpdated(lastUpdated);
-
-        mLocalDataSource.save(trackedEntityInstance);
+        this.mLocalDataSource.save(trackedEntityInstance);
     }
 
-    @Override
     public TrackedEntityInstance getTrackedEntityInstance(String trackedEntityInstanceUid) {
-        return mLocalDataSource.getTrackedEntityInstance(trackedEntityInstanceUid);
+        return this.mLocalDataSource.getTrackedEntityInstance(trackedEntityInstanceUid);
     }
 
-    @Override
     public List<TrackedEntityInstance> getAllLocalTeis() {
-        return mLocalDataSource.getAllLocalTeis();
+        return this.mLocalDataSource.getAllLocalTeis();
     }
 }

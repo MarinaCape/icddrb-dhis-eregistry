@@ -1,19 +1,20 @@
 package org.icddrb.dhis.android.sdk.events;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
+import org.icddrb.dhis.android.sdk.C0845R;
 
-import org.icddrb.dhis.android.sdk.R;
-
-/**
- * Created by thomaslindsjorn on 25/07/16.
- */
 public class OnTeiDownloadedEvent {
-
-    private int eventNumber;
-    private int totalNumberOfTeis;
-    private EventType eventType;
     private boolean errorHasOccured;
+    private int eventNumber;
+    private EventType eventType;
+    private int totalNumberOfTeis;
+
+    public enum EventType {
+        START,
+        UPDATE,
+        ERROR,
+        END
+    }
 
     public OnTeiDownloadedEvent(EventType eventType) {
         this(eventType, -1);
@@ -30,28 +31,29 @@ public class OnTeiDownloadedEvent {
     }
 
     public String getUserFriendlyMessage(Context context) {
-        switch (eventType) {
+        switch (this.eventType) {
             case START:
-                return String.format(context.getString(R.string.downloading) + " 1/%s", totalNumberOfTeis);
+                return String.format(context.getString(C0845R.string.downloading) + " 1/%s", new Object[]{Integer.valueOf(this.totalNumberOfTeis)});
             case UPDATE:
-                return String.format(context.getString(R.string.downloading) + " %s/%s", eventNumber, totalNumberOfTeis);
+                return String.format(context.getString(C0845R.string.downloading) + " %s/%s", new Object[]{Integer.valueOf(this.eventNumber), Integer.valueOf(this.totalNumberOfTeis)});
             case ERROR:
-                return String.format(context.getString(R.string.error_downloading) + " %s", eventNumber);
+                return String.format(context.getString(C0845R.string.error_downloading) + " %s", new Object[]{Integer.valueOf(this.eventNumber)});
             case END:
-                if (errorHasOccured) {
-                    return context.getString(R.string.downloaded_with_errors);
+                if (this.errorHasOccured) {
+                    return context.getString(C0845R.string.downloaded_with_errors);
                 }
-                return context.getString(R.string.download_complete);
+                return context.getString(C0845R.string.download_complete);
+            default:
+                return context.getString(C0845R.string.download_error_try_again);
         }
-        return context.getString(R.string.download_error_try_again);
     }
 
     public int getMessageDuration() {
-        switch (eventType) {
+        switch (this.eventType) {
             case END:
-                return Snackbar.LENGTH_SHORT;
+                return -1;
             default:
-                return Snackbar.LENGTH_INDEFINITE;
+                return -2;
         }
     }
 
@@ -59,13 +61,7 @@ public class OnTeiDownloadedEvent {
         this.errorHasOccured = errorHasOccured;
     }
 
-    public enum EventType {
-        START, UPDATE, ERROR, END
-    }
-
     public EventType getEventType() {
-        return eventType;
+        return this.eventType;
     }
 }
-
-

@@ -1,56 +1,19 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.eregistry.fragments.programoverview;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 
-/**
- * https://nishantvnair.wordpress.com/2010/09/28/flowlayout-in-android/
- * @author RAW
- */
 public class FlowLayout extends ViewGroup {
-
+    static final /* synthetic */ boolean $assertionsDisabled = (!FlowLayout.class.desiredAssertionStatus());
     private int line_height;
 
-    public static class LayoutParams extends ViewGroup.LayoutParams {
-
+    public static class LayoutParams extends android.view.ViewGroup.LayoutParams {
         public final int horizontal_spacing;
         public final int vertical_spacing;
 
-        /**
-         * @param horizontal_spacing Pixels between items, horizontally
-         * @param vertical_spacing Pixels between items, vertically
-         */
         public LayoutParams(int horizontal_spacing, int vertical_spacing) {
             super(0, 0);
             this.horizontal_spacing = horizontal_spacing;
@@ -66,87 +29,74 @@ public class FlowLayout extends ViewGroup {
         super(context, attrs);
     }
 
-    @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        assert (MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED);
-
-        final int width = MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft() - getPaddingRight();
-        int height = MeasureSpec.getSize(heightMeasureSpec) - getPaddingTop() - getPaddingBottom();
-        final int count = getChildCount();
-        int line_height = 0;
-
-        int xpos = getPaddingLeft();
-        int ypos = getPaddingTop();
-
-        int childHeightMeasureSpec;
-        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
-            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST);
-        } else {
-            childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED);
-        }
-
-
-        for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                child.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST), childHeightMeasureSpec);
-                final int childw = child.getMeasuredWidth();
-                line_height = Math.max(line_height, child.getMeasuredHeight() + lp.vertical_spacing);
-
-                if (xpos + childw > width) {
-                    xpos = getPaddingLeft();
-                    ypos += line_height;
-                }
-
-                xpos += childw + lp.horizontal_spacing;
+        if ($assertionsDisabled || MeasureSpec.getMode(widthMeasureSpec) != 0) {
+            int childHeightMeasureSpec;
+            int width = (MeasureSpec.getSize(widthMeasureSpec) - getPaddingLeft()) - getPaddingRight();
+            int height = (MeasureSpec.getSize(heightMeasureSpec) - getPaddingTop()) - getPaddingBottom();
+            int count = getChildCount();
+            int line_height = 0;
+            int xpos = getPaddingLeft();
+            int ypos = getPaddingTop();
+            if (MeasureSpec.getMode(heightMeasureSpec) == Integer.MIN_VALUE) {
+                childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, Integer.MIN_VALUE);
+            } else {
+                childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(0, 0);
             }
-        }
-        this.line_height = line_height;
-
-        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED) {
-            height = ypos + line_height;
-
-        } else if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
-            if (ypos + line_height < height) {
+            for (int i = 0; i < count; i++) {
+                View child = getChildAt(i);
+                if (child.getVisibility() != 8) {
+                    LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                    child.measure(MeasureSpec.makeMeasureSpec(width, Integer.MIN_VALUE), childHeightMeasureSpec);
+                    int childw = child.getMeasuredWidth();
+                    line_height = Math.max(line_height, child.getMeasuredHeight() + lp.vertical_spacing);
+                    if (xpos + childw > width) {
+                        xpos = getPaddingLeft();
+                        ypos += line_height;
+                    }
+                    xpos += lp.horizontal_spacing + childw;
+                }
+            }
+            this.line_height = line_height;
+            if (MeasureSpec.getMode(heightMeasureSpec) == 0) {
+                height = ypos + line_height;
+            } else if (MeasureSpec.getMode(heightMeasureSpec) == Integer.MIN_VALUE && ypos + line_height < height) {
                 height = ypos + line_height;
             }
+            setMeasuredDimension(width, height);
+            return;
         }
-        setMeasuredDimension(width, height);
+        throw new AssertionError();
     }
 
-    @Override
-    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {
-        return new LayoutParams(1, 1); // default of 1px spacing
+    protected android.view.ViewGroup.LayoutParams generateDefaultLayoutParams() {
+        return new LayoutParams(1, 1);
     }
 
-    @Override
-    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {
+    protected boolean checkLayoutParams(android.view.ViewGroup.LayoutParams p) {
         if (p instanceof LayoutParams) {
             return true;
         }
         return false;
     }
 
-    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int count = getChildCount();
-        final int width = r - l;
+        int count = getChildCount();
+        int width = r - l;
         int xpos = getPaddingLeft();
         int ypos = getPaddingTop();
-
         for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() != GONE) {
-                final int childw = child.getMeasuredWidth();
-                final int childh = child.getMeasuredHeight();
-                final LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            View child = getChildAt(i);
+            if (child.getVisibility() != 8) {
+                int childw = child.getMeasuredWidth();
+                int childh = child.getMeasuredHeight();
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
                 if (xpos + childw > width) {
                     xpos = getPaddingLeft();
-                    ypos += line_height;
+                    ypos += this.line_height;
                 }
                 child.layout(xpos, ypos, xpos + childw, ypos + childh);
-                xpos += childw + lp.horizontal_spacing;
+                xpos += lp.horizontal_spacing + childw;
             }
         }
     }

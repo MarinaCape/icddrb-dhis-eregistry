@@ -1,0 +1,12 @@
+package org.icddrb.dhis.client.sdk.ui.rows;
+
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import org.icddrb.dhis.client.sdk.ui.models.FormEntity;
+
+public interface RowView {
+    void onBindViewHolder(ViewHolder viewHolder, FormEntity formEntity);
+
+    ViewHolder onCreateViewHolder(LayoutInflater layoutInflater, ViewGroup viewGroup);
+}

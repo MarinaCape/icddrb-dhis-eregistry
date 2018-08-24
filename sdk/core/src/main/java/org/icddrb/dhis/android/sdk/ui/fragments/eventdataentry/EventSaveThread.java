@@ -1,34 +1,7 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.fragments.eventdataentry;
 
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
@@ -36,20 +9,12 @@ import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.AsyncHelperThread;
 
-import java.util.HashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-/**
- * This class enables thread safe scheduling and re-scheduling of saving of data in a data entry
- * fragment. The class has been implemented as a mechanism to simply handle problematic cases
- * where the user wants to save data while data is already being saved on the same element.
- */
 public class EventSaveThread extends AsyncHelperThread {
     private EventDataEntryFragment dataEntryFragment;
+    private HashMap<String, DataValue> dataValues = new HashMap();
     private Event event;
+    private ConcurrentLinkedQueue<String> queuedDataValues = new ConcurrentLinkedQueue();
     private boolean saveEvent = false;
-    private ConcurrentLinkedQueue<String> queuedDataValues = new ConcurrentLinkedQueue<>();
-    private HashMap<String, DataValue> dataValues = new HashMap<>();
 
     public void init(EventDataEntryFragment dataEntryFragment) {
         setDataEntryFragment(dataEntryFragment);
@@ -64,7 +29,7 @@ public class EventSaveThread extends AsyncHelperThread {
             this.event = event;
             if (event.getDataValues() != null) {
                 for (DataValue dataValue : event.getDataValues()) {
-                    dataValues.put(dataValue.getDataElement(), dataValue);
+                    this.dataValues.put(dataValue.getDataElement(), dataValue);
                 }
             }
         }
@@ -72,97 +37,89 @@ public class EventSaveThread extends AsyncHelperThread {
 
     protected void work() {
         if (this.dataEntryFragment != null && this.event != null) {
-            if (event.getLocalId() < 0) {
-                saveEvent = true;
+            if (this.event.getLocalId() < 0) {
+                this.saveEvent = true;
             }
-
-            while (saveEvent) {
+            while (this.saveEvent) {
                 saveEvent();
             }
-
             boolean invalidateEvent = false;
-            while (!queuedDataValues.isEmpty()) {
+            while (!this.queuedDataValues.isEmpty()) {
                 saveDataValue();
-
-                //after saving data values have to schedule saving the event to flag it to "not from server"
                 invalidateEvent = true;
             }
             if (invalidateEvent) {
                 saveEvent();
             }
-
             this.dataEntryFragment.save();
         }
     }
 
     private void saveEvent() {
-        if (event == null) {
-            return;
+        if (this.event != null) {
+            this.saveEvent = false;
+            this.event.setFromServer(false);
+            Enrollment enrollment = TrackerController.getEnrollment(this.event.getEnrollment());
+            enrollment.setFromServer(false);
+            enrollment.save();
+            TrackedEntityInstance trackedEntityInstance = TrackerController.getTrackedEntityInstance(this.event.getTrackedEntityInstance());
+            trackedEntityInstance.setFromServer(false);
+            trackedEntityInstance.save();
+            Event tempEvent = new Event();
+            tempEvent.setLocalId(this.event.getLocalId());
+            tempEvent.setEvent(this.event.getEvent());
+            tempEvent.setStatus(this.event.getStatus());
+            tempEvent.setLatitude(this.event.getLatitude());
+            tempEvent.setLongitude(this.event.getLongitude());
+            tempEvent.setTrackedEntityInstance(this.event.getTrackedEntityInstance());
+            tempEvent.setLocalEnrollmentId(this.event.getLocalEnrollmentId());
+            tempEvent.setEnrollment(this.event.getEnrollment());
+            tempEvent.setProgramId(this.event.getProgramId());
+            tempEvent.setProgramStageId(this.event.getProgramStageId());
+            tempEvent.setOrganisationUnitId(this.event.getOrganisationUnitId());
+            tempEvent.setEventDate(this.event.getEventDate());
+            tempEvent.setDueDate(this.event.getDueDate());
+            tempEvent.setFromServer(this.event.isFromServer());
+            tempEvent.setUid(this.event.getUid());
+            tempEvent.setName(this.event.getName());
+            tempEvent.setDisplayName(this.event.getDisplayName());
+            tempEvent.setCreated(this.event.getCreated());
+            tempEvent.setLastUpdated(this.event.getLastUpdated());
+            tempEvent.setAccess(this.event.getAccess());
+            tempEvent.save();
+            this.event.setLocalId(tempEvent.getLocalId());
         }
-        saveEvent = false;
-        event.setFromServer(false);
-        Enrollment enrollment = TrackerController.getEnrollment(event.getEnrollment());
-        enrollment.setFromServer(false);
-        enrollment.save();
-        TrackedEntityInstance trackedEntityInstance = TrackerController.getTrackedEntityInstance(event.getTrackedEntityInstance());
-        trackedEntityInstance.setFromServer(false);
-        trackedEntityInstance.save();
-        Event tempEvent = new Event();
-        tempEvent.setLocalId(event.getLocalId());
-        tempEvent.setEvent(event.getEvent());
-        tempEvent.setStatus(event.getStatus());
-        tempEvent.setLatitude(event.getLatitude());
-        tempEvent.setLongitude(event.getLongitude());
-        tempEvent.setTrackedEntityInstance(event.getTrackedEntityInstance());
-        tempEvent.setLocalEnrollmentId(event.getLocalEnrollmentId());
-        tempEvent.setEnrollment(event.getEnrollment());
-        tempEvent.setProgramId(event.getProgramId());
-        tempEvent.setProgramStageId(event.getProgramStageId());
-        tempEvent.setOrganisationUnitId(event.getOrganisationUnitId());
-        tempEvent.setEventDate(event.getEventDate());
-        tempEvent.setDueDate(event.getDueDate());
-        tempEvent.setFromServer(event.isFromServer());
-        tempEvent.setUid(event.getUid());
-        tempEvent.setName(event.getName());
-        tempEvent.setDisplayName(event.getDisplayName());
-        tempEvent.setCreated(event.getCreated());
-        tempEvent.setLastUpdated(event.getLastUpdated());
-        tempEvent.setAccess(event.getAccess());
-        tempEvent.save();
-        event.setLocalId(tempEvent.getLocalId());
     }
 
     private void saveDataValue() {
-        if (event != null) {
-            String dataElementDataValue = queuedDataValues.poll();
-            DataValue dataValue = dataValues.get(dataElementDataValue);
+        if (this.event != null) {
+            DataValue dataValue = (DataValue) this.dataValues.get((String) this.queuedDataValues.poll());
             if (dataValue != null) {
-                dataValue.setLocalEventId(event.getLocalId());
+                dataValue.setLocalEventId(this.event.getLocalId());
                 dataValue.save();
             }
         }
     }
 
     public void scheduleSaveEvent() {
-        saveEvent = true;
+        this.saveEvent = true;
         super.schedule();
     }
 
     public void scheduleSaveDataValue(String dataValueDataElement) {
-        if (!queuedDataValues.contains(dataValueDataElement)) {
-            queuedDataValues.add(dataValueDataElement);
+        if (!this.queuedDataValues.contains(dataValueDataElement)) {
+            this.queuedDataValues.add(dataValueDataElement);
         }
         super.schedule();
     }
 
-    @Override
     public void kill() {
         super.kill();
-        dataEntryFragment = null;
-        event = null;
-        if (dataValues != null) {
-            dataValues.clear();
-            dataValues = null;
+        this.dataEntryFragment = null;
+        this.event = null;
+        if (this.dataValues != null) {
+            this.dataValues.clear();
+            this.dataValues = null;
         }
     }
 }

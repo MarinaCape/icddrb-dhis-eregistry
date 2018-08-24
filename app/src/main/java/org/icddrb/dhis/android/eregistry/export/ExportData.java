@@ -3,15 +3,9 @@ package org.icddrb.dhis.android.eregistry.export;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.ShareCompat;
+import android.support.v4.app.ShareCompat.IntentBuilder;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
-
-import org.icddrb.dhis.android.sdk.R;
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
-import org.icddrb.dhis.client.sdk.ui.BuildConfig;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,82 +20,51 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.icddrb.dhis.android.eregistry.C0773R;
 
 public class ExportData {
-
-    private final String TAG = ".ExportData";
-
-    /**
-     * Temporal folder that contains all the files to send
-     */
-    private final String EXPORT_DATA_FOLDER = "exportdata/";
-    /**
-     * Temporal file to be attached
-     */
-    private final String EXPORT_DATA_FILE = "compressedData.zip";
-    /**
-     * Temporal file that contains phonemetadata and app version info
-     */
-    private final String EXTRA_INFO = "extrainfo.txt";
-    /**
-     * Databases folder
-     */
     private final String DATABASE_FOLDER = "databases/";
-    /**
-     * Shared preferences folder
-     */
+    private final String EXPORT_DATA_FILE = "compressedData.zip";
+    private final String EXPORT_DATA_FOLDER = "exportdata/";
+    private final String EXTRA_INFO = "extrainfo.txt";
     private final String SHAREDPREFERENCES_FOLDER = "shared_prefs/";
-
+    private final String TAG = ".ExportData";
     private Context mContext;
 
     public static String getCommitHash(Context context) {
-        String stringCommit;
-        //Check if lastcommit.txt file exist, and if not exist show as unavailable.
-        int layoutId = context.getResources().getIdentifier("lastcommit", "raw",
-                context.getPackageName());
+        int layoutId = context.getResources().getIdentifier("lastcommit", "raw", context.getPackageName());
         if (layoutId == 0) {
-            stringCommit = "";
-        } else {
-            InputStream commit = context.getResources().openRawResource(layoutId);
-            stringCommit = convertFromInputStreamToString(commit).toString();
+            return "";
         }
-        return stringCommit;
+        return convertFromInputStreamToString(context.getResources().openRawResource(layoutId)).toString();
     }
 
     public static StringBuilder convertFromInputStreamToString(InputStream inputStream) {
         StringBuilder stringBuilder = new StringBuilder();
-
         try {
             BufferedReader r = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            String line;
-            while ((line = r.readLine()) != null) {
-                stringBuilder.append(line + "\n");
+            while (true) {
+                String line = r.readLine();
+                if (line == null) {
+                    break;
+                }
+                stringBuilder.append(line + StringUtils.LF);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return stringBuilder;
     }
 
-    /**
-     * This method create the dump and returns the intent
-     */
     public Intent dumpAndSendToAIntent(Activity activity) throws IOException {
-        mContext = activity.getBaseContext();
+        this.mContext = activity.getBaseContext();
         removeDumpIfExist(activity);
-        File tempFolder = new File(getCacheDir() + "/" + EXPORT_DATA_FOLDER);
+        File tempFolder = new File(getCacheDir() + "/" + "exportdata/");
         tempFolder.mkdir();
-        //copy database
-        dumpDatabase(Dhis2Database.NAME + ".db", tempFolder);
-        //Copy the sharedPreferences
+        dumpDatabase("Dhis2.db", tempFolder);
         dumpSharedPreferences(tempFolder);
-
-        //copy phonemetadata and gradle version
-        File customInformation = new File(tempFolder + "/" + EXTRA_INFO);
-        dumpMetadata(customInformation, activity);
-
-        //compress and send
+        dumpMetadata(new File(tempFolder + "/" + "extrainfo.txt"), activity);
         File compressedFile = compressFolder(tempFolder);
         if (compressedFile == null) {
             return null;
@@ -109,46 +72,32 @@ public class ExportData {
         return createEmailIntent(activity, compressedFile);
     }
 
-    /**
-     * This method create the dump the metadata in a temporally file
-     */
-    private void dumpMetadata(File customInformation, Activity activity)
-            throws IOException {
+    private void dumpMetadata(File customInformation, Activity activity) throws IOException {
         customInformation.createNewFile();
         FileWriter fw = new FileWriter(customInformation.getAbsoluteFile(), true);
         BufferedWriter bw = new BufferedWriter(fw);
-        bw.write("Flavour: " + BuildConfig.FLAVOR + "\n");
-        bw.write("Version code: " + BuildConfig.VERSION_CODE + "\n");
-        bw.write("Version name: " + BuildConfig.VERSION_NAME + "\n");
-        bw.write("Application Id: " + BuildConfig.APPLICATION_ID + "\n");
-        bw.write("Build type: " + BuildConfig.BUILD_TYPE + "\n");
+        bw.write("Flavour: \n");
+        bw.write("Version code: 4\n");
+        bw.write("Version name: 1.2.1\n");
+        bw.write("Application Id: org.icddrb.dhis.client.sdk.ui\n");
+        bw.write("Build type: release\n");
         bw.write("Hash: " + getCommitHash(activity));
-
         bw.close();
         fw.close();
     }
 
-    /**
-     * This method checks if the tempfolder contains files and zip it.
-     */
     private File compressFolder(File tempFolder) throws IOException {
         if (tempFolder.listFiles() == null) {
-            Log.d(TAG, "Error, nothing to convert");
+            Log.d(".ExportData", "Error, nothing to convert");
             return null;
         }
-        zipFolder(tempFolder.getAbsolutePath(), getCacheDir() + "/" + EXPORT_DATA_FILE);
-        File file = new File(getCacheDir() + "/" + EXPORT_DATA_FILE);
-        return file;
+        zipFolder(tempFolder.getAbsolutePath(), getCacheDir() + "/" + "compressedData.zip");
+        return new File(getCacheDir() + "/" + "compressedData.zip");
     }
 
-
-    /**
-     * This method compress all the files in the temporal folder to be sent
-     */
     private void zipFolder(String inputFolderPath, String outputFilePath) throws IOException {
         try {
-            FileOutputStream fos = new FileOutputStream(outputFilePath);
-            ZipOutputStream zos = new ZipOutputStream(fos);
+            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(outputFilePath));
             File srcFile = new File(inputFolderPath);
             File[] files = srcFile.listFiles();
             Log.d("", "Zip directory: " + srcFile.getName());
@@ -157,8 +106,11 @@ public class ExportData {
                 byte[] buffer = new byte[1024];
                 FileInputStream fis = new FileInputStream(files[i]);
                 zos.putNextEntry(new ZipEntry(files[i].getName()));
-                int length;
-                while ((length = fis.read(buffer)) > 0) {
+                while (true) {
+                    int length = fis.read(buffer);
+                    if (length <= 0) {
+                        break;
+                    }
                     zos.write(buffer, 0, length);
                 }
                 zos.closeEntry();
@@ -170,24 +122,14 @@ public class ExportData {
         }
     }
 
-
-    /**
-     * This method dump a database
-     */
     private void dumpDatabase(String dbName, File tempFolder) throws IOException {
-        File backupDB = null;
         if (tempFolder.canWrite()) {
-            File currentDB = new File(getDatabasesFolder(), dbName);
-            backupDB = new File(tempFolder, dbName);
-            copyFile(currentDB, backupDB);
+            copyFile(new File(getDatabasesFolder(), dbName), new File(tempFolder, dbName));
         }
     }
 
-    /**
-     * This method dump the sharedPreferences
-     */
     private void dumpSharedPreferences(File tempFolder) throws IOException {
-        File files[] = getSharedPreferencesFolder().listFiles();
+        File[] files = getSharedPreferencesFolder().listFiles();
         Log.d("Files", "Size: " + files.length);
         for (int i = 0; i < files.length; i++) {
             Log.d("Files", "FileName:" + files[i].getName());
@@ -195,94 +137,47 @@ public class ExportData {
         }
     }
 
-    /**
-     * This method copy a file in other file
-     */
     private void copyFile(File current, File backup) throws IOException {
         if (current.exists()) {
-            FileChannel src = new FileInputStream(current)
-                    .getChannel();
-            FileChannel dst = new FileOutputStream(backup)
-                    .getChannel();
+            FileChannel src = new FileInputStream(current).getChannel();
+            FileChannel dst = new FileOutputStream(backup).getChannel();
             dst.transferFrom(src, 0, src.size());
             src.close();
             dst.close();
         }
     }
 
-    /**
-     * This method returns the app cache dir
-     */
     private File getCacheDir() {
-        return mContext.getCacheDir();
-
+        return this.mContext.getCacheDir();
     }
 
-    /**
-     * This method returns the app path
-     */
     private String getAppPath() {
-        return "/data/data/" + mContext.getPackageName() + "/";
-
+        return "/data/data/" + this.mContext.getPackageName() + "/";
     }
 
-    /**
-     * This method returns the sharedPreferences app folder
-     */
     private File getSharedPreferencesFolder() {
-        String sharedPreferencesPath = getAppPath() + SHAREDPREFERENCES_FOLDER;
-        File file = new File(sharedPreferencesPath);
-        return file;
+        return new File(getAppPath() + "shared_prefs/");
     }
 
-    /**
-     * This method returns the databases app folder
-     */
     private File getDatabasesFolder() {
-        String databasesPath = getAppPath() + DATABASE_FOLDER;
-        File file = new File(databasesPath);
-        return file;
+        return new File(getAppPath() + "databases/");
     }
 
-    /**
-     * This method create the email intent
-     */
     private Intent createEmailIntent(Activity activity, File data) {
-        Log.d(TAG, data.toURI() + "");
+        Log.d(".ExportData", data.toURI() + "");
         data.setReadable(true, false);
-        final Uri uri = FileProvider.getUriForFile(activity,
-                "org.icddrb.dhis.android.eregistry.export.ExportData", data);
-
-        final Intent chooser = ShareCompat.IntentBuilder.from(activity)
-                .setType("application/zip")
-                .setSubject(mContext.getString(
-                        R.string.app_name)
-                        + " db " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(
-                        Calendar.getInstance().getTime()))
-                .setStream(uri)
-                .setChooserTitle(
-                        activity.getResources().getString(R.string.export_data_name))
-                .createChooserIntent()
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        return chooser;
+        return IntentBuilder.from(activity).setType("application/zip").setSubject(this.mContext.getString(C0773R.string.app_name) + " db " + new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(Calendar.getInstance().getTime())).setStream(FileProvider.getUriForFile(activity, "org.icddrb.dhis.android.eregistry.export.ExportData", data)).setChooserTitle(activity.getResources().getString(C0773R.string.export_data_name)).createChooserIntent().addFlags(1);
     }
 
-    /**
-     * This method remove the dump.
-     */
     public void removeDumpIfExist(Activity activity) {
-        File file = new File(activity.getCacheDir() + "/" + EXPORT_DATA_FILE);
-        file.delete();
-
-        File tempFolder = new File(activity.getCacheDir() + "/" + EXPORT_DATA_FOLDER);
+        new File(activity.getCacheDir() + "/" + "compressedData.zip").delete();
+        File tempFolder = new File(activity.getCacheDir() + "/" + "exportdata/");
         File[] files = tempFolder.listFiles();
-        if (files == null) {
-            return;
+        if (files != null) {
+            for (File delete : files) {
+                delete.delete();
+            }
+            tempFolder.delete();
         }
-        for (int i = 0; i < files.length; i++) {
-            files[i].delete();
-        }
-        tempFolder.delete();
     }
 }

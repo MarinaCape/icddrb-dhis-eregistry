@@ -1,46 +1,25 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.icddrb.dhis.android.sdk.utils.StringUtils;
+import org.icddrb.dhis.android.sdk.utils.support.expression.Expression;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Access {
-
-    public Access() {
-
-    }
+    @JsonProperty("delete")
+    boolean delete;
+    @JsonProperty("externalize")
+    boolean externalize;
+    @JsonProperty("manage")
+    boolean manage;
+    @JsonProperty("read")
+    boolean read;
+    @JsonProperty("update")
+    boolean update;
+    @JsonProperty("write")
+    boolean write;
 
     public Access(Access access) {
         this.manage = access.manage;
@@ -51,29 +30,6 @@ public final class Access {
         this.delete = access.delete;
     }
 
-    @JsonProperty("manage")
-    boolean manage;
-
-    @JsonProperty("externalize")
-    boolean externalize;
-
-    @JsonProperty("write")
-    boolean write;
-
-    @JsonProperty("read")
-    boolean read;
-
-    @JsonProperty("update")
-    boolean update;
-
-    @JsonProperty("delete")
-    boolean delete;
-
-    /**
-     * Factory method which creates Access object with all rights set to true.
-     *
-     * @return new Access object.
-     */
     static Access provideDefaultAccess() {
         Access access = new Access();
         access.setManage(true);
@@ -87,7 +43,7 @@ public final class Access {
 
     @JsonIgnore
     public boolean isDelete() {
-        return delete;
+        return this.delete;
     }
 
     @JsonIgnore
@@ -97,7 +53,7 @@ public final class Access {
 
     @JsonIgnore
     public boolean isExternalize() {
-        return externalize;
+        return this.externalize;
     }
 
     @JsonIgnore
@@ -107,7 +63,7 @@ public final class Access {
 
     @JsonIgnore
     public boolean isManage() {
-        return manage;
+        return this.manage;
     }
 
     @JsonIgnore
@@ -117,7 +73,7 @@ public final class Access {
 
     @JsonIgnore
     public boolean isRead() {
-        return read;
+        return this.read;
     }
 
     @JsonIgnore
@@ -127,7 +83,7 @@ public final class Access {
 
     @JsonIgnore
     public boolean isUpdate() {
-        return update;
+        return this.update;
     }
 
     @JsonIgnore
@@ -137,7 +93,7 @@ public final class Access {
 
     @JsonIgnore
     public boolean isWrite() {
-        return write;
+        return this.write;
     }
 
     @JsonIgnore
@@ -146,17 +102,7 @@ public final class Access {
     }
 
     @JsonIgnore
-    @Override
     public String toString() {
-        return StringUtils.create()
-                .append("Access {")
-                .append("manage=").append(manage)
-                .append(", externalize=").append(externalize)
-                .append(", write=").append(write)
-                .append(", read=").append(read)
-                .append(", update=").append(update)
-                .append(", delete=").append(delete)
-                .append("}")
-                .build();
+        return StringUtils.create().append("Access {").append("manage=").append(Boolean.valueOf(this.manage)).append(", externalize=").append(Boolean.valueOf(this.externalize)).append(", write=").append(Boolean.valueOf(this.write)).append(", read=").append(Boolean.valueOf(this.read)).append(", update=").append(Boolean.valueOf(this.update)).append(", delete=").append(Boolean.valueOf(this.delete)).append(Expression.EXP_CLOSE).build();
     }
 }

@@ -1,19 +1,11 @@
 package org.icddrb.dhis.android.sdk.persistence.migrations.version18;
 
-import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.icddrb.dhis.android.sdk.persistence.models.SystemInfo;
-import org.icddrb.dhis.android.sdk.persistence.models.SystemInfo$Table;
 
-
-@Migration(version = 18, databaseName = Dhis2Database.NAME)
-public class Version18MigrationAddSystemInfoColumn extends
-        AlterTableMigration<SystemInfo> {
-
-    public Version18MigrationAddSystemInfoColumn(Class<SystemInfo> table) {
+public class Version18MigrationAddSystemInfoColumn extends AlterTableMigration<SystemInfo> {
+    public Version18MigrationAddSystemInfoColumn(Class<SystemInfo> cls) {
         super(SystemInfo.class);
     }
 
@@ -21,12 +13,10 @@ public class Version18MigrationAddSystemInfoColumn extends
         super(SystemInfo.class);
     }
 
-    @Override
     public void onPreMigrate() {
         super.onPreMigrate();
-        if (!MigrationUtil.columnExists(SystemInfo.class,
-                SystemInfo$Table.VERSION)) {
-            addColumn(Boolean.class, SystemInfo$Table.VERSION);
+        if (!MigrationUtil.columnExists(SystemInfo.class, "version")) {
+            addColumn(Boolean.class, "version");
         }
     }
 }

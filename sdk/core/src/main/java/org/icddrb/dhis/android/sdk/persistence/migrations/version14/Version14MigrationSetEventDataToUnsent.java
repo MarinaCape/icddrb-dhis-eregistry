@@ -1,20 +1,10 @@
 package org.icddrb.dhis.android.sdk.persistence.migrations.version14;
 
-import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 
-@Migration(version = 15, databaseName = Dhis2Database.NAME)
 public class Version14MigrationSetEventDataToUnsent extends UpdateTableMigration<Event> {
-
-    /**
-     * Creates an update migration.
-     *
-     * @param table The table to update
-     */
-    public Version14MigrationSetEventDataToUnsent(Class<Event> table) {
+    public Version14MigrationSetEventDataToUnsent(Class<Event> cls) {
         super(Event.class);
     }
 
@@ -22,9 +12,6 @@ public class Version14MigrationSetEventDataToUnsent extends UpdateTableMigration
         super(Event.class);
     }
 
-    @Override
     public void onPreMigrate() {
-//        set(Condition.column(Event$Table.FROMSERVER).eq(0)).where(Condition.column(Event$Table.FROMSERVER).eq(1));
     }
-
 }

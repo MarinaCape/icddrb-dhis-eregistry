@@ -1,63 +1,25 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.utils;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-
-import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent;
+import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent.EventType;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseSerializableModel;
 import org.icddrb.dhis.android.sdk.ui.dialogs.CustomDialogFragment;
 import org.icddrb.dhis.android.sdk.ui.fragments.progressdialog.ProgressDialogFragment;
 
-/**
- * @author Simen Skogly Russnes on 25.08.15.
- */
 public final class UiUtils {
-
-    private static UiUtils uiUtils;
+    private static UiUtils uiUtils = new UiUtils();
     private ProgressDialogFragment progressDialogFragment;
 
-    static {
-        uiUtils = new UiUtils();
-    }
-
     private ProgressDialogFragment getProgressDialogFragment() {
-        return progressDialogFragment;
+        return this.progressDialogFragment;
     }
 
     private void setProgressDialogFragment(ProgressDialogFragment progressDialogFragment) {
@@ -68,90 +30,61 @@ public final class UiUtils {
         return uiUtils;
     }
 
-    private UiUtils() {}
+    private UiUtils() {
+    }
 
     public static void showErrorDialog(final Activity activity, final String title, final String message) {
-        if (activity == null) return;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new CustomDialogFragment(title, message,
-                        activity.getString(R.string.ok_option), null).show(activity.getFragmentManager(), title);
-            }
-        });
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    new CustomDialogFragment(title, message, activity.getString(C0845R.string.ok_option), null).show(activity.getFragmentManager(), title);
+                }
+            });
+        }
     }
 
-    public static void showErrorDialog(final Activity activity, final String title,
-                                       final String message, final int iconId) {
-        if (activity == null) return;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new CustomDialogFragment(title, message,
-                        activity.getString(R.string.ok_option), iconId, null).show(activity.getFragmentManager(), title);
-            }
-        });
+    public static void showErrorDialog(final Activity activity, final String title, final String message, final int iconId) {
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    new CustomDialogFragment(title, message, activity.getString(C0845R.string.ok_option), iconId, null).show(activity.getFragmentManager(), title);
+                }
+            });
+        }
     }
 
-    public static void showErrorDialog(final Activity activity, final String title, final String message, final DialogInterface.OnClickListener onConfirmClickListener) {
-        if (activity == null) return;
-        activity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                new CustomDialogFragment(title, message,
-                        activity.getString(R.string.ok_option), onConfirmClickListener).show(activity.getFragmentManager(), title);
-            }
-        });
+    public static void showErrorDialog(final Activity activity, final String title, final String message, final OnClickListener onConfirmClickListener) {
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    new CustomDialogFragment(title, message, activity.getString(C0845R.string.ok_option), onConfirmClickListener).show(activity.getFragmentManager(), title);
+                }
+            });
+        }
     }
 
-    public static void showConfirmDialog(final Activity activity, final String title, final String message,
-                                         final String confirmOption, final String cancelOption,
-                                         DialogInterface.OnClickListener onClickListener) {
-        new CustomDialogFragment(title, message, confirmOption, cancelOption, onClickListener).
-                show(activity.getFragmentManager(), title);
-    }
-    public static void showConfirmDialog(final Activity activity, final String title, final String message,
-                                         final String confirmOption,
-                                         DialogInterface.OnClickListener onClickListener) {
-        new CustomDialogFragment(title, message, confirmOption, onClickListener).
-                show(activity.getFragmentManager(), title);
-    }
-    public static void showConfirmDialog(final Activity activity, final String title, final String message,
-                                         final String confirmOption, final String cancelOption,
-                                         final int iconId,
-                                         DialogInterface.OnClickListener onClickListener) {
-        new CustomDialogFragment(title, message, confirmOption, cancelOption,iconId ,  onClickListener).
-                show(activity.getFragmentManager(), title);
+    public static void showConfirmDialog(Activity activity, String title, String message, String confirmOption, String cancelOption, OnClickListener onClickListener) {
+        new CustomDialogFragment(title, message, confirmOption, cancelOption, onClickListener).show(activity.getFragmentManager(), title);
     }
 
-    public static void showConfirmDialog(final Activity activity, final String title, final String message,
-                                         final String confirmOption, final String cancelOption,
-                                         DialogInterface.OnClickListener onConfirmListener,
-                                         DialogInterface.OnClickListener onCancelListener) {
-        new CustomDialogFragment(title, message, confirmOption, cancelOption, onConfirmListener,
-                onCancelListener).
-                show(activity.getFragmentManager(), title);
+    public static void showConfirmDialog(Activity activity, String title, String message, String confirmOption, OnClickListener onClickListener) {
+        new CustomDialogFragment(title, message, confirmOption, onClickListener).show(activity.getFragmentManager(), title);
     }
 
-    public static void showConfirmDialog(final Activity activity, final String title, final String message,
-                                         final String firstOption, final String secondOption, final String thirdOption,
-                                         DialogInterface.OnClickListener firstOptionListener,
-                                         DialogInterface.OnClickListener secondOptionListener,
-                                         DialogInterface.OnClickListener thirdOptionListener) {
-        new CustomDialogFragment(title, message, firstOption, secondOption, thirdOption,
-                firstOptionListener, secondOptionListener, thirdOptionListener).
-                show(activity.getFragmentManager(), title);
+    public static void showConfirmDialog(Activity activity, String title, String message, String confirmOption, String cancelOption, int iconId, OnClickListener onClickListener) {
+        new CustomDialogFragment(title, message, confirmOption, cancelOption, iconId, onClickListener).show(activity.getFragmentManager(), title);
     }
 
-    /**
-     * Sends an event with feedback to user on loading. Picked up in LoadingFragment.
-     *
-     * @param message
-     * @param eventType
-     */
-    public static void postProgressMessage(final String message, final LoadingMessageEvent.EventType eventType) {
+    public static void showConfirmDialog(Activity activity, String title, String message, String confirmOption, String cancelOption, OnClickListener onConfirmListener, OnClickListener onCancelListener) {
+        new CustomDialogFragment(title, message, confirmOption, cancelOption, onConfirmListener, onCancelListener).show(activity.getFragmentManager(), title);
+    }
+
+    public static void showConfirmDialog(Activity activity, String title, String message, String firstOption, String secondOption, String thirdOption, OnClickListener firstOptionListener, OnClickListener secondOptionListener, OnClickListener thirdOptionListener) {
+        new CustomDialogFragment(title, message, firstOption, secondOption, thirdOption, firstOptionListener, secondOptionListener, thirdOptionListener).show(activity.getFragmentManager(), title);
+    }
+
+    public static void postProgressMessage(final String message, final EventType eventType) {
         new Thread() {
-            @Override
             public void run() {
                 Dhis2Application.bus.post(new LoadingMessageEvent(message, eventType));
             }
@@ -159,17 +92,10 @@ public final class UiUtils {
     }
 
     @Deprecated
-    /**
-     * @deprecated due to abstraction of status dialog fragment
-     */
     public static void showStatusDialog(FragmentManager fragmentManager, BaseSerializableModel item) {
-//        ItemStatusDialogFragment fragment = new ItemStatusDialogFragment(item).newInstance(item);
-//        fragment.show(fragmentManager);
     }
 
-
-
-    public static void showLoadingDialog(final FragmentManager fragmentManager, int message) {
+    public static void showLoadingDialog(FragmentManager fragmentManager, int message) {
         if (getInstance().getProgressDialogFragment() != null) {
             getInstance().getProgressDialogFragment().dismissAllowingStateLoss();
             getInstance().setProgressDialogFragment(null);
@@ -178,34 +104,31 @@ public final class UiUtils {
         getInstance().getProgressDialogFragment().show(fragmentManager, ProgressDialogFragment.TAG);
     }
 
-    public static void hideLoadingDialog(final FragmentManager fragmentManager) {
+    public static void hideLoadingDialog(FragmentManager fragmentManager) {
         if (getInstance().getProgressDialogFragment() != null) {
-            if(getInstance().getProgressDialogFragment().isAdded()) {
+            if (getInstance().getProgressDialogFragment().isAdded()) {
                 getInstance().getProgressDialogFragment().dismissAllowingStateLoss();
             }
             getInstance().setProgressDialogFragment(null);
         }
     }
 
-    public static void showSnackBar(View parentLayout, String text, int duration)
-    {
-        Snackbar.make(parentLayout, text, duration).show();
+    public static void showSnackBar(View parentLayout, String text, int duration) {
+        Snackbar.make(parentLayout, (CharSequence) text, duration).show();
     }
-    public static void showSnackBarWithAction(View parentLayout, String text, int duration, int resId, View.OnClickListener onClickListener )
-    {
-        Snackbar.make(parentLayout, text, duration).setAction(resId, onClickListener).show();
+
+    public static void showSnackBarWithAction(View parentLayout, String text, int duration, int resId, View.OnClickListener onClickListener) {
+        Snackbar.make(parentLayout, (CharSequence) text, duration).setAction(resId, onClickListener).show();
     }
-    public static void showSnackBarWithAction(View parentLayout, String text, int duration, String actionText, View.OnClickListener onClickListener )
-    {
-        Snackbar.make(parentLayout, text, duration).setAction(actionText, onClickListener).show();
+
+    public static void showSnackBarWithAction(View parentLayout, String text, int duration, String actionText, View.OnClickListener onClickListener) {
+        Snackbar.make(parentLayout, (CharSequence) text, duration).setAction((CharSequence) actionText, onClickListener).show();
     }
 
     public static void hideKeyboard(Activity activity) {
         View view = activity.getCurrentFocus();
-        //hide keyboard
-        if(view != null) {
-            InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        if (view != null) {
+            ((InputMethodManager) activity.getSystemService("input_method")).hideSoftInputFromWindow(view.getWindowToken(), 2);
         }
     }
 }

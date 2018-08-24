@@ -1,3 +1,6 @@
 package org.icddrb.dhis.android.sdk.controllers;
 
-public enum SyncStrategy{DOWNLOAD_ALL, DOWNLOAD_ONLY_NEW}
+public enum SyncStrategy {
+    DOWNLOAD_ALL,
+    DOWNLOAD_ONLY_NEW
+}

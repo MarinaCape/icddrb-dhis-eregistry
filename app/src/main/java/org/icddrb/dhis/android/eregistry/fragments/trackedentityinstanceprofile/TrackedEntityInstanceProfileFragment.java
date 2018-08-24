@@ -1,37 +1,7 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.eregistry.fragments.trackedentityinstanceprofile;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v4.content.Loader;
 import android.view.Menu;
@@ -39,10 +9,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-
 import com.raizlabs.android.dbflow.structure.Model;
 import com.squareup.otto.Subscribe;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
+import org.icddrb.dhis.android.eregistry.C0773R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.ErrorType;
 import org.icddrb.dhis.android.sdk.controllers.GpsController;
@@ -65,151 +39,148 @@ import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RefreshListViewEvent;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.SaveThread;
 import org.icddrb.dhis.android.sdk.utils.UiUtils;
-import org.icddrb.dhis.android.eregistry.R;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
- * Created by erling on 5/18/15.
- */
-public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<TrackedEntityInstanceProfileFragmentForm>
-        implements OnBackPressedListener {
-    public static final String TAG = TrackedEntityInstanceProfileFragment.class.getName();
-    public static final String TRACKEDENTITYINSTANCE_ID = "extra:TrackedEntityInstanceId";
-    public static final String PROGRAM_ID = "extra:ProgramId";
-
+public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<TrackedEntityInstanceProfileFragmentForm> implements OnBackPressedListener {
     private static final String EXTRA_ARGUMENTS = "extra:Arguments";
     private static final String EXTRA_SAVED_INSTANCE_STATE = "extra:savedInstanceState";
-
     private static final int LOADER_ID = 95640;
+    private static final String ORG_UNIT_ID = "extra:orgUnitId";
+    public static final String PROGRAM_ID = "extra:ProgramId";
+    public static final String TAG = TrackedEntityInstanceProfileFragment.class.getName();
+    public static final String TRACKEDENTITYINSTANCE_ID = "extra:TrackedEntityInstanceId";
     private static final String TRACKEDENTITYINSTANCE_ORIGINAL = "extra:OriginalTEI";
-
     private boolean edit;
+    private MenuItem editFormButton;
     private boolean editableDataEntryRows;
-
-    private Map<String, List<ProgramRule>> programRulesForTrackedEntityAttributes;
     private TrackedEntityInstanceProfileFragmentForm form;
+    private TrackedEntityInstance originalTrackedEntityInstance = null;
+    private Map<String, List<ProgramRule>> programRulesForTrackedEntityAttributes;
     private SaveThread saveThread;
 
-    private MenuItem editFormButton;
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.trackedentityinstanceprofile.TrackedEntityInstanceProfileFragment$1 */
+    class C08311 implements OnClickListener {
+        C08311() {
+        }
 
+        public void onClick(DialogInterface dialog, int which) {
+            if (TrackedEntityInstanceProfileFragment.this.validate()) {
+                TrackedEntityInstanceProfileFragment.this.onDetach();
+                DhisController.hasUnSynchronizedDatavalues = true;
+                TrackedEntityInstanceProfileFragment.this.getActivity().finish();
+            }
+        }
+    }
 
-    //the TEI before anything is changed, used to backtrack
-    private TrackedEntityInstance originalTrackedEntityInstance;
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.trackedentityinstanceprofile.TrackedEntityInstanceProfileFragment$2 */
+    class C08322 implements OnClickListener {
+        C08322() {
+        }
+
+        public void onClick(DialogInterface dialog, int which) {
+            TrackedEntityInstanceProfileFragment.this.onDetach();
+            TrackedEntityInstanceProfileFragment.this.getActivity().finish();
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.trackedentityinstanceprofile.TrackedEntityInstanceProfileFragment$3 */
+    class C08333 implements OnClickListener {
+        C08333() {
+        }
+
+        public void onClick(DialogInterface dialog, int which) {
+            dialog.dismiss();
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.trackedentityinstanceprofile.TrackedEntityInstanceProfileFragment$4 */
+    class C08344 implements OnClickListener {
+        C08344() {
+        }
+
+        public void onClick(DialogInterface dialogInterface, int i) {
+            TrackedEntityInstanceProfileFragment.this.getActivity().finish();
+        }
+    }
 
     public TrackedEntityInstanceProfileFragment() {
-        originalTrackedEntityInstance = null;
         setProgramRuleFragmentHelper(new TrackedEntityInstanceProfileRuleHelper(this));
     }
 
     public static TrackedEntityInstanceProfileFragment newInstance(long mTrackedEntityInstanceId, String mProgramId, Long enrollmentId) {
         TrackedEntityInstanceProfileFragment fragment = new TrackedEntityInstanceProfileFragment();
         Bundle fragmentArgs = new Bundle();
-        fragmentArgs.putLong(TRACKEDENTITYINSTANCE_ID, mTrackedEntityInstanceId);
-        fragmentArgs.putString(PROGRAM_ID, mProgramId);
+        fragmentArgs.putLong("extra:TrackedEntityInstanceId", mTrackedEntityInstanceId);
+        fragmentArgs.putString("extra:ProgramId", mProgramId);
         fragment.setArguments(fragmentArgs);
         return fragment;
     }
 
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActionBar().setDisplayShowTitleEnabled(true);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-        getActionBar().setTitle(getString(R.string.profile));
+        getActionBar().setTitle(getString(C0773R.string.profile));
     }
 
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (saveThread == null || saveThread.isKilled()) {
-            saveThread = new SaveThread();
-            saveThread.start();
+        if (this.saveThread == null || this.saveThread.isKilled()) {
+            this.saveThread = new SaveThread();
+            this.saveThread.start();
         }
-        saveThread.init(this);
+        this.saveThread.init(this);
         setHasOptionsMenu(true);
-        editableDataEntryRows = false;
+        this.editableDataEntryRows = false;
     }
 
     public void toggleEditFormButtonIcon(boolean editing) {
         if (editing) {
-            editFormButton.setIcon(R.drawable.ic_save);
+            this.editFormButton.setIcon(C0773R.drawable.ic_save);
         } else {
-            editFormButton.setIcon(R.drawable.ic_edit);
+            this.editFormButton.setIcon(C0773R.drawable.ic_edit);
         }
-        editFormButton.getIcon().setAlpha(0xFF);
+        this.editFormButton.getIcon().setAlpha(255);
     }
 
-
-    @Override
     public void onDestroy() {
-        saveThread.kill();
+        this.saveThread.kill();
         super.onDestroy();
     }
 
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(org.icddrb.dhis.android.sdk.R.menu.menu_data_entry, menu);
-        editFormButton = menu.findItem(org.icddrb.dhis.android.sdk.R.id.action_new_event);
-        editFormButton.setEnabled(true);
+        inflater.inflate(C0773R.menu.menu_data_entry, menu);
+        this.editFormButton = menu.findItem(C0773R.id.action_new_event);
+        this.editFormButton.setEnabled(true);
         toggleEditFormButtonIcon(false);
-        editFormButton.getIcon().setAlpha(0xFF);
+        this.editFormButton.getIcon().setAlpha(255);
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() == android.R.id.home) {
+        boolean z = false;
+        if (menuItem.getItemId() == 16908332) {
             doBack();
             return true;
-        } else if (menuItem.getItemId() == org.icddrb.dhis.android.sdk.R.id.action_new_event) {
-            if (editableDataEntryRows) {
+        } else if (menuItem.getItemId() != C0773R.id.action_new_event) {
+            return super.onOptionsItemSelected(menuItem);
+        } else {
+            if (this.editableDataEntryRows) {
                 setEditableDataEntryRows(false);
             } else {
                 setEditableDataEntryRows(true);
             }
-            editableDataEntryRows = !editableDataEntryRows;
+            if (!this.editableDataEntryRows) {
+                z = true;
+            }
+            this.editableDataEntryRows = z;
             proceed();
             return true;
         }
-        return super.onOptionsItemSelected(menuItem);
     }
 
-    @Override
     public boolean doBack() {
-        if (edit) {
-            UiUtils.showConfirmDialog(getActivity(),
-                    getString(org.icddrb.dhis.android.sdk.R.string.discard), getString(org.icddrb.dhis.android.sdk.R.string.discard_confirm_changes),
-                    getString(org.icddrb.dhis.android.sdk.R.string.save_and_close),
-                    getString(org.icddrb.dhis.android.sdk.R.string.discard),
-                    getString(org.icddrb.dhis.android.sdk.R.string.cancel),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (validate()) {
-                                onDetach();
-                                //                            getFragmentManager().popBackStack();
-                                DhisController.hasUnSynchronizedDatavalues = true;
-                                getActivity().finish();
-                            }
-                        }
-                    }, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            onDetach();
-                            getActivity().finish();
-//                            getFragmentManager().popBackStack();
-
-                        }
-                    }, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    });
+        if (this.edit) {
+            UiUtils.showConfirmDialog(getActivity(), getString(C0773R.string.discard), getString(C0773R.string.discard_confirm_changes), getString(C0773R.string.save_and_close), getString(C0773R.string.discard), getString(C0773R.string.cancel), new C08311(), new C08322(), new C08333());
         } else {
             onDetach();
             getActivity().finish();
@@ -217,91 +188,68 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
         return false;
     }
 
-    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         Bundle argumentsBundle = new Bundle();
-        argumentsBundle.putBundle(EXTRA_ARGUMENTS, getArguments());
-        argumentsBundle.putBundle(EXTRA_SAVED_INSTANCE_STATE, savedInstanceState);
+        argumentsBundle.putBundle("extra:Arguments", getArguments());
+        argumentsBundle.putBundle("extra:savedInstanceState", savedInstanceState);
         getLoaderManager().initLoader(LOADER_ID, argumentsBundle, this);
-        progressBar.setVisibility(View.VISIBLE);
-        listView.setVisibility(View.GONE);
+        this.progressBar.setVisibility(0);
+        this.listView.setVisibility(8);
     }
 
-    @Override
     public Loader<TrackedEntityInstanceProfileFragmentForm> onCreateLoader(int id, Bundle args) {
-        if (LOADER_ID == id && isAdded()) {
-            // Adding Tables for tracking here is dangerous (since MetaData updates in background
-            // can trigger reload of values from db which will reset all fields).
-            // Hence, it would be more safe not to track any changes in any tables
-            List<Class<? extends Model>> modelsToTrack = new ArrayList<>();
-            Bundle fragmentArguments = args.getBundle(EXTRA_ARGUMENTS);
-            String programId = fragmentArguments.getString(PROGRAM_ID);
-            long trackedEntityInstance = fragmentArguments.getLong(TRACKEDENTITYINSTANCE_ID, -1);
-            return new DbLoader<>(
-                    getActivity().getBaseContext(),
-                    modelsToTrack,
-                    new TrackedEntityInstanceProfileFragmentQuery(
-                            trackedEntityInstance,
-                            programId));
+        if (LOADER_ID != id || !isAdded()) {
+            return null;
         }
-        return null;
+        List<Class<? extends Model>> modelsToTrack = new ArrayList();
+        Bundle fragmentArguments = args.getBundle("extra:Arguments");
+        String programId = fragmentArguments.getString("extra:ProgramId");
+        return new DbLoader(getActivity().getBaseContext(), modelsToTrack, new TrackedEntityInstanceProfileFragmentQuery(fragmentArguments.getLong("extra:TrackedEntityInstanceId", -1), programId, fragmentArguments.getString("extra:orgUnitId", null)));
     }
 
-    @Override
     public void onLoadFinished(Loader<TrackedEntityInstanceProfileFragmentForm> loader, TrackedEntityInstanceProfileFragmentForm data) {
         if (loader.getId() == LOADER_ID && isAdded()) {
-            progressBar.setVisibility(View.GONE);
-            listView.setVisibility(View.VISIBLE);
-            form = data;
-            listViewAdapter.swapData(form.getDataEntryRows());
-            programRuleFragmentHelper.mapFieldsToRulesAndIndicators();
+            this.progressBar.setVisibility(8);
+            this.listView.setVisibility(0);
+            this.form = data;
+            this.listViewAdapter.swapData(this.form.getDataEntryRows());
+            this.programRuleFragmentHelper.mapFieldsToRulesAndIndicators();
         }
     }
 
-    @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putSerializable(TRACKEDENTITYINSTANCE_ORIGINAL, originalTrackedEntityInstance);
+        outState.putSerializable(TRACKEDENTITYINSTANCE_ORIGINAL, this.originalTrackedEntityInstance);
     }
 
-    @Override
     public void onLoaderReset(Loader<TrackedEntityInstanceProfileFragmentForm> loader) {
-        if (listViewAdapter != null) {
-            listViewAdapter.swapData(null);
+        if (this.listViewAdapter != null) {
+            this.listViewAdapter.swapData(null);
         }
     }
 
     public void setEditableDataEntryRows(boolean editable) {
-        listViewAdapter.swapData(null);
-        List<Row> rows = new ArrayList<>(form.getDataEntryRows());
-        //is that needed now ? :
+        this.listViewAdapter.swapData(null);
+        List<Row> rows = new ArrayList(this.form.getDataEntryRows());
         for (Row row : rows) {
             if (!row.isShouldNeverBeEdited()) {
                 row.setEditable(editable);
             }
         }
         if (editable) {
-            if (form.getTrackedEntityInstance().getLocalId() >= 0) {
-                originalTrackedEntityInstance = new TrackedEntityInstance(form.getTrackedEntityInstance());
+            if (this.form.getTrackedEntityInstance().getLocalId() >= 0) {
+                this.originalTrackedEntityInstance = new TrackedEntityInstance(this.form.getTrackedEntityInstance());
             }
-            if (form.isOutOfTrackedEntityAttributeGeneratedValues()) {
-                for (Row row : form.getDataEntryRows()) {
-                    row.setEditable(false);
+            if (this.form.isOutOfTrackedEntityAttributeGeneratedValues()) {
+                for (Row row2 : this.form.getDataEntryRows()) {
+                    row2.setEditable(false);
                 }
-                UiUtils.showErrorDialog(getActivity(),
-                        getString(R.string.error_message),
-                        getString(R.string.out_of_generated_ids),
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                getActivity().finish();
-                            }
-                        });
+                UiUtils.showErrorDialog(getActivity(), getString(C0773R.string.error_message), getString(C0773R.string.out_of_generated_ids), new C08344());
             }
         }
-        listViewAdapter.swapData(rows);
-        listView.setAdapter(listViewAdapter);
+        this.listViewAdapter.swapData(rows);
+        this.listView.setAdapter(this.listViewAdapter);
         if (editable) {
             initiateEvaluateProgramRules();
         }
@@ -309,52 +257,43 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
     }
 
     public void flagDataChanged(boolean changed) {
-        edit = changed;
+        this.edit = changed;
     }
 
     @Subscribe
-    public void onRowValueChanged(final RowValueChangedEvent event) {
+    public void onRowValueChanged(RowValueChangedEvent event) {
         flagDataChanged(true);
-        if (form == null) {
-            return;
+        if (this.form != null) {
+            if (event.getRow() == null || !event.getRow().isEditTextRow()) {
+                evaluateRules(event.getId());
+            }
+            this.saveThread.schedule();
         }
-        // do not run program rules for EditTextRows - DelayedDispatcher takes care of this
-        if (event.getRow() == null || !(event.getRow().isEditTextRow())) {
-            evaluateRules(event.getId());
-        }
-        saveThread.schedule();
     }
 
     @Subscribe
-    public void onRunProgramRules(final RunProgramRulesEvent event) {
+    public void onRunProgramRules(RunProgramRulesEvent event) {
         evaluateRules(event.getId());
     }
 
     private void evaluateRules(String trackedEntityAttribute) {
-        if (trackedEntityAttribute == null || form == null) {
-            return;
-        }
-        if (hasRules(trackedEntityAttribute)) {
+        if (trackedEntityAttribute != null && this.form != null && hasRules(trackedEntityAttribute)) {
             getProgramRuleFragmentHelper().getProgramRuleValidationErrors().clear();
             initiateEvaluateProgramRules();
         }
     }
 
-    /**
-     * Schedules evaluation and updating of views based on ProgramRules in a thread.
-     * This is used to avoid stacking up calls to evaluateAndApplyProgramRules
-     */
     public void initiateEvaluateProgramRules() {
-        if (rulesEvaluatorThread != null) {
-            rulesEvaluatorThread.schedule();
+        if (this.rulesEvaluatorThread != null) {
+            this.rulesEvaluatorThread.schedule();
         }
     }
 
     private boolean hasRules(String trackedEntityAttribute) {
-        if (programRulesForTrackedEntityAttributes == null) {
+        if (this.programRulesForTrackedEntityAttributes == null) {
             return false;
         }
-        return programRulesForTrackedEntityAttributes.containsKey(trackedEntityAttribute);
+        return this.programRulesForTrackedEntityAttributes.containsKey(trackedEntityAttribute);
     }
 
     @Subscribe
@@ -368,7 +307,7 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
     }
 
     public SaveThread getSaveThread() {
-        return saveThread;
+        return this.saveThread;
     }
 
     public void setSaveThread(SaveThread saveThread) {
@@ -376,7 +315,7 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
     }
 
     public TrackedEntityInstanceProfileFragmentForm getForm() {
-        return form;
+        return this.form;
     }
 
     public void setForm(TrackedEntityInstanceProfileFragmentForm form) {
@@ -384,56 +323,44 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
     }
 
     public Map<String, List<ProgramRule>> getProgramRulesForTrackedEntityAttributes() {
-        return programRulesForTrackedEntityAttributes;
+        return this.programRulesForTrackedEntityAttributes;
     }
 
     public void setProgramRulesForTrackedEntityAttributes(Map<String, List<ProgramRule>> programRulesForTrackedEntityAttributes) {
         this.programRulesForTrackedEntityAttributes = programRulesForTrackedEntityAttributes;
     }
 
-    @Override
     public SectionAdapter getSpinnerAdapter() {
         return null;
     }
 
-    @Override
     public void onPrepareOptionsMenu(Menu menu) {
     }
 
-    @Override
     protected HashMap<ErrorType, ArrayList<String>> getValidationErrors() {
-        HashMap<ErrorType, ArrayList<String>> errors = new HashMap<>();
-        if (form.getEnrollment() == null || form.getProgram() == null) {
-            return errors;
-        }
-        if (isEmpty(form.getEnrollment().getEnrollmentDate())) {
-            String dateOfEnrollmentDescription = form.getProgram().getEnrollmentDateLabel() == null ?
-                    getString(R.string.report_date) : form.getProgram().getEnrollmentDateLabel();
-            if(!errors.containsKey(ErrorType.MANDATORY)){
-                errors.put(ErrorType.MANDATORY, new ArrayList<String>());
-            }
-            errors.get(ErrorType.MANDATORY).add(dateOfEnrollmentDescription);
-        }
-        Map<String, ProgramTrackedEntityAttribute> dataElements = toMap(
-                MetaDataController.getProgramTrackedEntityAttributes(form.getProgram().getUid())
-        );
-        for (TrackedEntityAttributeValue value : form.getTrackedEntityInstance().getAttributes()) {
-            ProgramTrackedEntityAttribute programTrackedEntityAttribute = dataElements.get(value.getTrackedEntityAttributeId());
-            if (programTrackedEntityAttribute.getMandatory() && isEmpty(value.getValue())) {
-                if(!errors.containsKey(ErrorType.MANDATORY)){
-                    errors.put(ErrorType.MANDATORY, new ArrayList<String>());
+        HashMap<ErrorType, ArrayList<String>> errors = new HashMap();
+        if (!(this.form.getEnrollment() == null || this.form.getProgram() == null)) {
+            if (StringUtils.isEmpty(this.form.getEnrollment().getEnrollmentDate())) {
+                String dateOfEnrollmentDescription = this.form.getProgram().getEnrollmentDateLabel() == null ? getString(C0773R.string.report_date) : this.form.getProgram().getEnrollmentDateLabel();
+                if (!errors.containsKey(ErrorType.MANDATORY)) {
+                    errors.put(ErrorType.MANDATORY, new ArrayList());
                 }
-                errors.get(ErrorType.MANDATORY).add(programTrackedEntityAttribute.getTrackedEntityAttribute().getName());
+                ((ArrayList) errors.get(ErrorType.MANDATORY)).add(dateOfEnrollmentDescription);
             }
-            if(programTrackedEntityAttribute.getTrackedEntityAttribute().isUnique()){
-                if(value.getValue()==null || value.getValue().isEmpty()) {
-                    continue;
-                }
-                if(TrackerController.countTrackedEntityAttributeValue(value)!=0){
-                    if(!errors.containsKey(ErrorType.UNIQUE)){
-                        errors.put(ErrorType.UNIQUE, new ArrayList<String>());
+            Map<String, ProgramTrackedEntityAttribute> dataElements = toMap(MetaDataController.getProgramTrackedEntityAttributes(this.form.getProgram().getUid()));
+            for (TrackedEntityAttributeValue value : this.form.getTrackedEntityInstance().getAttributes()) {
+                ProgramTrackedEntityAttribute programTrackedEntityAttribute = (ProgramTrackedEntityAttribute) dataElements.get(value.getTrackedEntityAttributeId());
+                if (programTrackedEntityAttribute.getMandatory() && StringUtils.isEmpty(value.getValue())) {
+                    if (!errors.containsKey(ErrorType.MANDATORY)) {
+                        errors.put(ErrorType.MANDATORY, new ArrayList());
                     }
-                    errors.get(ErrorType.UNIQUE).add(programTrackedEntityAttribute.getTrackedEntityAttribute().getName());
+                    ((ArrayList) errors.get(ErrorType.MANDATORY)).add(programTrackedEntityAttribute.getTrackedEntityAttribute().getName());
+                }
+                if (!(!programTrackedEntityAttribute.getTrackedEntityAttribute().isUnique() || value.getValue() == null || value.getValue().isEmpty() || TrackerController.countTrackedEntityAttributeValue(value) == 0)) {
+                    if (!errors.containsKey(ErrorType.UNIQUE)) {
+                        errors.put(ErrorType.UNIQUE, new ArrayList());
+                    }
+                    ((ArrayList) errors.get(ErrorType.UNIQUE)).add(programTrackedEntityAttribute.getTrackedEntityAttribute().getName());
                 }
             }
         }
@@ -441,8 +368,8 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
     }
 
     private static Map<String, ProgramTrackedEntityAttribute> toMap(List<ProgramTrackedEntityAttribute> attributes) {
-        Map<String, ProgramTrackedEntityAttribute> attributeMap = new HashMap<>();
-        if (attributes != null && !attributes.isEmpty()) {
+        Map<String, ProgramTrackedEntityAttribute> attributeMap = new HashMap();
+        if (!(attributes == null || attributes.isEmpty())) {
             for (ProgramTrackedEntityAttribute attribute : attributes) {
                 attributeMap.put(attribute.getTrackedEntityAttributeId(), attribute);
             }
@@ -450,58 +377,49 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
         return attributeMap;
     }
 
-    @Override
     protected boolean isValid() {
-        if (form.getEnrollment() == null || form.getProgram() == null) {
+        if (this.form.getEnrollment() == null || this.form.getProgram() == null) {
             return false;
         }
-        Map<String, ProgramTrackedEntityAttribute> dataElements = toMap(
-                MetaDataController.getProgramTrackedEntityAttributes(form.getProgram().getUid())
-        );
-        for (TrackedEntityAttributeValue value : form.getEnrollment().getAttributes()) {
-            ProgramTrackedEntityAttribute programTrackedEntityAttribute = dataElements.get(value.getTrackedEntityAttributeId());
-            if (programTrackedEntityAttribute.getMandatory() && isEmpty(value.getValue())) {
+        Map<String, ProgramTrackedEntityAttribute> dataElements = toMap(MetaDataController.getProgramTrackedEntityAttributes(this.form.getProgram().getUid()));
+        for (TrackedEntityAttributeValue value : this.form.getEnrollment().getAttributes()) {
+            if (((ProgramTrackedEntityAttribute) dataElements.get(value.getTrackedEntityAttributeId())).getMandatory() && StringUtils.isEmpty(value.getValue())) {
                 return false;
             }
         }
         return true;
     }
 
-    @Override
-    protected void save() { }
+    protected void save() {
+    }
 
-    @Override
     protected void proceed() {
-        if (!edit) {// if rows are not edited
-            return;
-        }
-        if (validate() &&
-                form != null && isAdded() && form.getTrackedEntityInstance() != null) {
-            for (TrackedEntityAttributeValue val : form.getTrackedEntityAttributeValues()) {
+        if (this.edit && validate() && this.form != null && isAdded() && this.form.getTrackedEntityInstance() != null) {
+            for (TrackedEntityAttributeValue val : this.form.getTrackedEntityAttributeValues()) {
                 val.save();
             }
-            form.getTrackedEntityInstance().setFromServer(false);
-            form.getTrackedEntityInstance().save();
+            this.form.getTrackedEntityInstance().setFromServer(false);
+            this.form.getTrackedEntityInstance().save();
             flagDataChanged(false);
         }
     }
 
     private boolean validate() {
         ArrayList<String> programRulesValidationErrors = getProgramRuleFragmentHelper().getProgramRuleValidationErrors();
-        HashMap<ErrorType, ArrayList<String>>  allErrors = getValidationErrors();
-        ArrayList<String> validationErrors = new ArrayList<>();
-        for(DataEntryRow dataEntryRow : form.getDataEntryRows()){
-            if(dataEntryRow.getValidationError()!=null)
-                validationErrors.add(getContext().getString(dataEntryRow.getValidationError()));
+        HashMap<ErrorType, ArrayList<String>> allErrors = getValidationErrors();
+        ArrayList<String> validationErrors = new ArrayList();
+        for (DataEntryRow dataEntryRow : this.form.getDataEntryRows()) {
+            if (dataEntryRow.getValidationError() != null) {
+                validationErrors.add(getContext().getString(dataEntryRow.getValidationError().intValue()));
+            }
         }
         if (programRulesValidationErrors.isEmpty() && allErrors.isEmpty() && validationErrors.isEmpty()) {
             return true;
-        } else {
-            allErrors.put(ErrorType.PROGRAM_RULE, programRulesValidationErrors);
-            allErrors.put(ErrorType.INVALID_FIELD, validationErrors);
-            showValidationErrorDialog(allErrors);
-            return false;
         }
+        allErrors.put(ErrorType.PROGRAM_RULE, programRulesValidationErrors);
+        allErrors.put(ErrorType.INVALID_FIELD, validationErrors);
+        showValidationErrorDialog(allErrors);
+        return false;
     }
 
     @Subscribe
@@ -509,10 +427,9 @@ public class TrackedEntityInstanceProfileFragment extends DataEntryFragment<Trac
         super.onShowDetailedInfo(eventClick);
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {}
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+    }
 
-    @Override
     public void onDetach() {
         super.onDetach();
         GpsController.disableGps();

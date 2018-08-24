@@ -1,32 +1,3 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.eregistry.fragments.enrollmentdate;
 
 import android.os.Bundle;
@@ -36,31 +7,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-
-import com.raizlabs.android.dbflow.structure.Model;
 import com.squareup.otto.Subscribe;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import org.icddrb.dhis.android.eregistry.C0773R;
 import org.icddrb.dhis.android.sdk.controllers.ErrorType;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.persistence.loaders.DbLoader;
-import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.ui.adapters.SectionAdapter;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragment;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.SaveThread;
-import org.icddrb.dhis.android.eregistry.R;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 @Deprecated
-/**
- * @deprecated Use EnrollmentFragment instead to avoid having fragments doing the same thing
- */
-public class EnrollmentDateFragment extends DataEntryFragment<EnrollmentDateFragmentForm>
-{
+public class EnrollmentDateFragment extends DataEntryFragment<EnrollmentDateFragmentForm> {
     public static final String ENROLLMENT_ID = "extra:EnrollmentId";
     private static final String EXTRA_ARGUMENTS = "extra:Arguments";
     private static final String EXTRA_SAVED_INSTANCE_STATE = "extra:savedInstanceState";
@@ -70,144 +32,116 @@ public class EnrollmentDateFragment extends DataEntryFragment<EnrollmentDateFrag
     private EnrollmentDateFragmentForm mForm;
     private SaveThread saveThread;
 
-
     public static EnrollmentDateFragment newInstance(long enrollmentId) {
         EnrollmentDateFragment fragment = new EnrollmentDateFragment();
         Bundle args = new Bundle();
-        args.putLong(ENROLLMENT_ID, enrollmentId);
+        args.putLong("extra:EnrollmentId", enrollmentId);
         fragment.setArguments(args);
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(saveThread == null || saveThread.isKilled()) {
-            saveThread = new SaveThread();
-            saveThread.start();
+        if (this.saveThread == null || this.saveThread.isKilled()) {
+            this.saveThread = new SaveThread();
+            this.saveThread.start();
         }
-        saveThread.init(this);
+        this.saveThread.init(this);
         setHasOptionsMenu(true);
     }
 
-    @Override
     public void onDestroy() {
-        saveThread.kill();
+        this.saveThread.kill();
         super.onDestroy();
     }
 
-
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getActionBar().setDisplayShowTitleEnabled(true);
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-        getActionBar().setTitle(R.string.enrollment);
+        getActionBar().setTitle((int) C0773R.string.enrollment);
     }
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-    {
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
     }
 
-    @Override
     public void onPrepareOptionsMenu(Menu menu) {
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        if (menuItem.getItemId() == android.R.id.home) {
-//            getFragmentManager().popBackStack();
+        boolean z = false;
+        if (menuItem.getItemId() == 16908332) {
             getActivity().finish();
-        }
-        else if (menuItem.getItemId() == org.icddrb.dhis.android.sdk.R.id.action_new_event)
-        {
-
-            if (editableRows) {
+        } else if (menuItem.getItemId() == C0773R.id.action_new_event) {
+            if (this.editableRows) {
                 setEditableDataEntryRows(false);
             } else {
                 setEditableDataEntryRows(true);
             }
-            editableRows= !editableRows;
+            if (!this.editableRows) {
+                z = true;
+            }
+            this.editableRows = z;
         }
         return true;
     }
 
-
-
-
     public void setEditableDataEntryRows(boolean editable) {
-        List<Row> rows = new ArrayList<>(mForm.getDataEntryRows());
-        listViewAdapter.swapData(null);
-        if(editable) {
-            for(Row row : rows) {
+        List<Row> rows = new ArrayList(this.mForm.getDataEntryRows());
+        this.listViewAdapter.swapData(null);
+        if (editable) {
+            for (Row row : rows) {
                 row.setEditable(true);
             }
         } else {
-            for(Row row : rows) {
-                row.setEditable(false);
+            for (Row row2 : rows) {
+                row2.setEditable(false);
             }
         }
-        listView.setAdapter(null);
-        listViewAdapter.swapData(rows);
-        listView.setAdapter(listViewAdapter);
+        this.listView.setAdapter(null);
+        this.listViewAdapter.swapData(rows);
+        this.listView.setAdapter(this.listViewAdapter);
     }
 
     @Subscribe
-    public void onRowValueChanged(final RowValueChangedEvent event) {
+    public void onRowValueChanged(RowValueChangedEvent event) {
         flagDataChanged(true);
-        if (mForm == null ) {
-            return;
+        if (this.mForm != null) {
+            this.edit = true;
+            save();
         }
-        edit = true;
-        save();
-
     }
 
-    @Override
     public SectionAdapter getSpinnerAdapter() {
         return null;
     }
 
-    @Override
     protected HashMap<ErrorType, ArrayList<String>> getValidationErrors() {
         return null;
     }
 
-    @Override
     protected boolean isValid() {
         return true;
     }
 
-    @Override
     protected void save() {
-        if(!edit) return; // if rows are not edited, return
-
-        flagDataChanged(false);
-
-        if(mForm!=null && isAdded())
-        {
-            mForm.getEnrollment().setFromServer(false);
-            TrackedEntityInstance trackedEntityInstance = TrackerController.getTrackedEntityInstance(mForm.getEnrollment().getTrackedEntityInstance());
-            trackedEntityInstance.setFromServer(false);
-            mForm.getEnrollment().save();
-
+        if (this.edit) {
+            flagDataChanged(false);
+            if (this.mForm != null && isAdded()) {
+                this.mForm.getEnrollment().setFromServer(false);
+                TrackerController.getTrackedEntityInstance(this.mForm.getEnrollment().getTrackedEntityInstance()).setFromServer(false);
+                this.mForm.getEnrollment().save();
+            }
+            this.edit = false;
         }
-        edit = false;
     }
 
-    @Override
     protected void proceed() {
-
     }
 
-
-    //@Override
     protected boolean goBack() {
-        if(isValid()) {
+        if (isValid()) {
             goBackToPreviousActivity();
         }
         return false;
@@ -217,42 +151,24 @@ public class EnrollmentDateFragment extends DataEntryFragment<EnrollmentDateFrag
         getActivity().finish();
     }
 
-
-    @Override
-    public void onLoadFinished(Loader<EnrollmentDateFragmentForm> loader, EnrollmentDateFragmentForm data)
-    {
-        mForm = data;
-        progressBar.setVisibility(View.GONE);
-        listView.setVisibility(View.VISIBLE);
-        listViewAdapter.swapData(data.getDataEntryRows());
+    public void onLoadFinished(Loader<EnrollmentDateFragmentForm> loader, EnrollmentDateFragmentForm data) {
+        this.mForm = data;
+        this.progressBar.setVisibility(8);
+        this.listView.setVisibility(0);
+        this.listViewAdapter.swapData(data.getDataEntryRows());
         setEditableDataEntryRows(false);
     }
 
-    @Override
     public Loader onCreateLoader(int id, Bundle args) {
-
-        if (LOADER_ID == id && isAdded()) {
-
-            List<Class<? extends Model>> modelsToTrack = new ArrayList<>();
-            Bundle fragmentArguments = args.getBundle(EXTRA_ARGUMENTS);
-            long enrollmentId = fragmentArguments.getLong(ENROLLMENT_ID, 0);
-
-            return new DbLoader<>(
-                    getActivity().getBaseContext(), modelsToTrack, new EnrollmentDateFragmentQuery(
-                    enrollmentId)
-            );
+        if (17 != id || !isAdded()) {
+            return null;
         }
-        return null;
+        return new DbLoader(getActivity().getBaseContext(), new ArrayList(), new EnrollmentDateFragmentQuery(args.getBundle("extra:Arguments").getLong("extra:EnrollmentId", 0)));
     }
 
-    @Override
     public void onLoaderReset(Loader loader) {
-
     }
 
-
-    @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
     }
 }

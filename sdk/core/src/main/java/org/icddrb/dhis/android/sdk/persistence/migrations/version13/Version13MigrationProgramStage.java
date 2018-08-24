@@ -1,17 +1,12 @@
 package org.icddrb.dhis.android.sdk.persistence.migrations.version13;
 
-import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage;
-import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage$Table;
+import org.icddrb.dhis.android.sdk.persistence.models.ProgramStage.Table;
 
-@Migration(version = 13, databaseName = Dhis2Database.NAME)
 public class Version13MigrationProgramStage extends AlterTableMigration<ProgramStage> {
-
-    public Version13MigrationProgramStage(Class<ProgramStage> table) {
+    public Version13MigrationProgramStage(Class<ProgramStage> cls) {
         super(ProgramStage.class);
     }
 
@@ -19,14 +14,13 @@ public class Version13MigrationProgramStage extends AlterTableMigration<ProgramS
         super(ProgramStage.class);
     }
 
-    @Override
     public void onPreMigrate() {
         super.onPreMigrate();
-        if (!MigrationUtil.columnExists(ProgramStage.class, ProgramStage$Table.HIDEDUEDATE)) {
-            addColumn(Boolean.class, ProgramStage$Table.HIDEDUEDATE);
+        if (!MigrationUtil.columnExists(ProgramStage.class, Table.HIDEDUEDATE)) {
+            addColumn(Boolean.class, Table.HIDEDUEDATE);
         }
-        if (!MigrationUtil.columnExists(ProgramStage.class, ProgramStage$Table.PERIODTYPE)) {
-            addColumn(String.class, ProgramStage$Table.PERIODTYPE);
+        if (!MigrationUtil.columnExists(ProgramStage.class, Table.PERIODTYPE)) {
+            addColumn(String.class, Table.PERIODTYPE);
         }
     }
 }

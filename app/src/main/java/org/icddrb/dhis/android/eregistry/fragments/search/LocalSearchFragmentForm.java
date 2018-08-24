@@ -1,23 +1,22 @@
 package org.icddrb.dhis.android.eregistry.fragments.search;
 
+import java.util.HashMap;
+import java.util.List;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.Row;
 
-import java.util.HashMap;
-import java.util.List;
-
 public class LocalSearchFragmentForm {
+    private HashMap<String, String> attributeValues;
+    private List<Row> dataEntryRows;
     private String organisationUnitId;
     private String program;
     private String queryString;
-    private HashMap<String, String> attributeValues;
-    private List<TrackedEntityAttribute> trackedEntityAttributes;
     private List<TrackedEntityAttributeValue> trackedEntityAttributeValues;
-    private List<Row> dataEntryRows;
+    private List<TrackedEntityAttribute> trackedEntityAttributes;
 
     public String getOrganisationUnitId() {
-        return organisationUnitId;
+        return this.organisationUnitId;
     }
 
     public void setOrganisationUnitId(String organisationUnitId) {
@@ -25,7 +24,7 @@ public class LocalSearchFragmentForm {
     }
 
     public HashMap<String, String> getAttributeValues() {
-        return attributeValues;
+        return this.attributeValues;
     }
 
     public void setAttributeValues(HashMap<String, String> attributeValues) {
@@ -33,7 +32,7 @@ public class LocalSearchFragmentForm {
     }
 
     public List<TrackedEntityAttribute> getTrackedEntityAttributes() {
-        return trackedEntityAttributes;
+        return this.trackedEntityAttributes;
     }
 
     public void setTrackedEntityAttributes(List<TrackedEntityAttribute> trackedEntityAttributes) {
@@ -41,7 +40,7 @@ public class LocalSearchFragmentForm {
     }
 
     public List<Row> getDataEntryRows() {
-        return dataEntryRows;
+        return this.dataEntryRows;
     }
 
     public void setDataEntryRows(List<Row> dataEntryRows) {
@@ -49,7 +48,7 @@ public class LocalSearchFragmentForm {
     }
 
     public List<TrackedEntityAttributeValue> getTrackedEntityAttributeValues() {
-        return trackedEntityAttributeValues;
+        return this.trackedEntityAttributeValues;
     }
 
     public void setTrackedEntityAttributeValues(List<TrackedEntityAttributeValue> trackedEntityAttributeValues) {
@@ -57,7 +56,7 @@ public class LocalSearchFragmentForm {
     }
 
     public String getProgram() {
-        return program;
+        return this.program;
     }
 
     public void setProgram(String program) {
@@ -65,7 +64,7 @@ public class LocalSearchFragmentForm {
     }
 
     public String getQueryString() {
-        return queryString;
+        return this.queryString;
     }
 
     public void setQueryString(String queryString) {

@@ -1,66 +1,36 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.eregistry.fragments.programoverview;
 
+import java.util.List;
+import java.util.Map;
+import org.icddrb.dhis.android.eregistry.ui.rows.programoverview.ProgramStageRow;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Program;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramIndicator;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.IndicatorRow;
-import org.icddrb.dhis.android.eregistry.ui.rows.programoverview.ProgramStageRow;
-
-import java.util.List;
-import java.util.Map;
 
 class ProgramOverviewFragmentForm {
-    private Enrollment enrollment;
-    private Program program;
-    private TrackedEntityInstance trackedEntityInstance;
-    private String dateOfEnrollmentLabel;
-    private String dateOfEnrollmentValue;
-    private String incidentDateLabel;
-    private String incidentDateValue;
-
     private String attribute1Label;
     private String attribute1Value;
     private String attribute2Label;
     private String attribute2Value;
     private String attribute3Label;
     private String attribute3Value;
-
-    private List<ProgramStageRow> programStageRows;
-
+    private String dateOfEnrollmentLabel;
+    private String dateOfEnrollmentValue;
+    private Enrollment enrollment;
+    private String incidentDateLabel;
+    private String incidentDateValue;
+    private Program program;
     private Map<ProgramIndicator, IndicatorRow> programIndicatorRows;
+    private List<ProgramStageRow> programStageRows;
+    private TrackedEntityInstance trackedEntityInstance;
+
+    ProgramOverviewFragmentForm() {
+    }
 
     public Enrollment getEnrollment() {
-        return enrollment;
+        return this.enrollment;
     }
 
     public void setEnrollment(Enrollment enrollment) {
@@ -68,7 +38,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public Program getProgram() {
-        return program;
+        return this.program;
     }
 
     public void setProgram(Program program) {
@@ -76,7 +46,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public TrackedEntityInstance getTrackedEntityInstance() {
-        return trackedEntityInstance;
+        return this.trackedEntityInstance;
     }
 
     public void setTrackedEntityInstance(TrackedEntityInstance trackedEntityInstance) {
@@ -84,7 +54,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getDateOfEnrollmentLabel() {
-        return dateOfEnrollmentLabel;
+        return this.dateOfEnrollmentLabel;
     }
 
     public void setDateOfEnrollmentLabel(String dateOfEnrollmentLabel) {
@@ -92,7 +62,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getDateOfEnrollmentValue() {
-        return dateOfEnrollmentValue;
+        return this.dateOfEnrollmentValue;
     }
 
     public void setDateOfEnrollmentValue(String dateOfEnrollmentValue) {
@@ -100,7 +70,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getIncidentDateLabel() {
-        return incidentDateLabel;
+        return this.incidentDateLabel;
     }
 
     public void setIncidentDateLabel(String incidentDateLabel) {
@@ -108,7 +78,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getIncidentDateValue() {
-        return incidentDateValue;
+        return this.incidentDateValue;
     }
 
     public void setIncidentDateValue(String incidentDateValue) {
@@ -116,7 +86,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getAttribute1Label() {
-        return attribute1Label;
+        return this.attribute1Label;
     }
 
     public void setAttribute1Label(String attribute1Label) {
@@ -124,7 +94,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getAttribute1Value() {
-        return attribute1Value;
+        return this.attribute1Value;
     }
 
     public void setAttribute1Value(String attribute1Value) {
@@ -132,7 +102,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getAttribute2Label() {
-        return attribute2Label;
+        return this.attribute2Label;
     }
 
     public void setAttribute2Label(String attribute2Label) {
@@ -140,16 +110,15 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getAttribute2Value() {
-        return attribute2Value;
+        return this.attribute2Value;
     }
 
     public void setAttribute2Value(String attribute2Value) {
         this.attribute2Value = attribute2Value;
     }
 
-
     public String getAttribute3Label() {
-        return attribute3Label;
+        return this.attribute3Label;
     }
 
     public void setAttribute3Label(String attribute3Label) {
@@ -157,7 +126,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public String getAttribute3Value() {
-        return attribute3Value;
+        return this.attribute3Value;
     }
 
     public void setAttribute3Value(String attribute3Value) {
@@ -165,7 +134,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public List<ProgramStageRow> getProgramStageRows() {
-        return programStageRows;
+        return this.programStageRows;
     }
 
     public void setProgramStageRows(List<ProgramStageRow> programStageRows) {
@@ -173,7 +142,7 @@ class ProgramOverviewFragmentForm {
     }
 
     public Map<ProgramIndicator, IndicatorRow> getProgramIndicatorRows() {
-        return programIndicatorRows;
+        return this.programIndicatorRows;
     }
 
     public void setProgramIndicatorRows(Map<ProgramIndicator, IndicatorRow> programIndicatorRows) {

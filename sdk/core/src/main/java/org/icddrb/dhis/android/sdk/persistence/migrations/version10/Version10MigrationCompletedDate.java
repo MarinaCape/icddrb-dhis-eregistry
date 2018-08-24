@@ -1,16 +1,12 @@
 package org.icddrb.dhis.android.sdk.persistence.migrations.version10;
 
-import com.raizlabs.android.dbflow.annotation.Migration;
 import com.raizlabs.android.dbflow.sql.migration.AlterTableMigration;
-
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 import org.icddrb.dhis.android.sdk.persistence.migrations.MigrationUtil;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
+import org.icddrb.dhis.android.sdk.persistence.models.Event.Table;
 
-@Migration(version = 10, databaseName = Dhis2Database.NAME)
 public class Version10MigrationCompletedDate extends AlterTableMigration<Event> {
-
-    public Version10MigrationCompletedDate(Class<Event> table) {
+    public Version10MigrationCompletedDate(Class<Event> cls) {
         super(Event.class);
     }
 
@@ -18,11 +14,10 @@ public class Version10MigrationCompletedDate extends AlterTableMigration<Event> 
         super(Event.class);
     }
 
-    @Override
     public void onPreMigrate() {
         super.onPreMigrate();
-        if (!MigrationUtil.columnExists(Event.class, "completedDate")) {
-            addColumn(String.class, "completedDate");
+        if (!MigrationUtil.columnExists(Event.class, Table.COMPLETEDDATE)) {
+            addColumn(String.class, Table.COMPLETEDDATE);
         }
     }
 }

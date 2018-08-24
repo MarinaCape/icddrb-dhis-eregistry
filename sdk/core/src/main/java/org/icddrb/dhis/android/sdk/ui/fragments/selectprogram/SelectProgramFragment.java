@@ -1,214 +1,162 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.ui.fragments.selectprogram;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Pair;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.squareup.otto.Subscribe;
-
-import org.icddrb.dhis.android.sdk.R;
+import java.util.Arrays;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.controllers.DhisService;
 import org.icddrb.dhis.android.sdk.controllers.SyncStrategy;
 import org.icddrb.dhis.android.sdk.events.UiEvent;
+import org.icddrb.dhis.android.sdk.events.UiEvent.UiEventType;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.ui.activities.SynchronisationStateHandler;
+import org.icddrb.dhis.android.sdk.ui.activities.SynchronisationStateHandler.OnSynchronisationStateListener;
 import org.icddrb.dhis.android.sdk.ui.adapters.AbsAdapter;
-import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment;
+import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment.OnOptionSelectedListener;
 import org.icddrb.dhis.android.sdk.ui.dialogs.OrgUnitDialogFragment;
 import org.icddrb.dhis.android.sdk.ui.dialogs.ProgramDialogFragment;
-import org.icddrb.dhis.android.sdk.ui.dialogs.UpcomingEventsDialogFilter;
+import org.icddrb.dhis.android.sdk.ui.dialogs.UpcomingEventsDialogFilter.Type;
 import org.icddrb.dhis.android.sdk.ui.views.CardTextViewButton;
 import org.icddrb.dhis.android.sdk.utils.api.ProgramType;
 import org.icddrb.dhis.client.sdk.ui.fragments.BaseFragment;
 
-import java.util.Arrays;
-
-public abstract class SelectProgramFragment extends BaseFragment
-        implements View.OnClickListener, AutoCompleteDialogFragment.OnOptionSelectedListener,
-        SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<SelectProgramFragmentForm>, SynchronisationStateHandler.OnSynchronisationStateListener {
+public abstract class SelectProgramFragment extends BaseFragment implements OnClickListener, OnOptionSelectedListener, OnRefreshListener, LoaderCallbacks<SelectProgramFragmentForm>, OnSynchronisationStateListener {
     public static final String TAG = SelectProgramFragment.class.getSimpleName();
-    protected final String STATE;
     protected final int LOADER_ID;
-
-    protected SwipeRefreshLayout mSwipeRefreshLayout;
-    protected ListView mListView;
-    protected ProgressBar mProgressBar;
+    protected final String STATE;
     protected AbsAdapter mAdapter;
-
+    protected ListView mListView;
     protected CardTextViewButton mOrgUnitButton;
-    protected CardTextViewButton mProgramButton;
-
-    protected SelectProgramFragmentState mState;
     protected SelectProgramFragmentPreferences mPrefs;
+    protected CardTextViewButton mProgramButton;
+    protected ProgressBar mProgressBar;
+    protected SelectProgramFragmentState mState;
+    protected SwipeRefreshLayout mSwipeRefreshLayout;
+
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.fragments.selectprogram.SelectProgramFragment$1 */
+    class C09171 implements OnClickListener {
+        C09171() {
+        }
+
+        public void onClick(View v) {
+            OrgUnitDialogFragment.newInstance(SelectProgramFragment.this, SelectProgramFragment.this.getProgramTypes()).show(SelectProgramFragment.this.getChildFragmentManager());
+        }
+    }
+
+    /* renamed from: org.icddrb.dhis.android.sdk.ui.fragments.selectprogram.SelectProgramFragment$2 */
+    class C09182 implements OnClickListener {
+        C09182() {
+        }
+
+        public void onClick(View v) {
+            ProgramDialogFragment.newInstance(SelectProgramFragment.this, SelectProgramFragment.this.mState.getOrgUnitId(), SelectProgramFragment.this.getProgramTypes()).show(SelectProgramFragment.this.getChildFragmentManager());
+        }
+    }
+
+    protected abstract AbsAdapter getAdapter(Bundle bundle);
+
+    protected abstract ProgramType[] getProgramTypes();
+
+    protected abstract void handleViews(int i);
+
+    public abstract boolean onContextItemSelected(MenuItem menuItem);
+
+    public abstract void onCreateContextMenu(ContextMenu contextMenu, View view, ContextMenuInfo contextMenuInfo);
+
+    public abstract Loader<SelectProgramFragmentForm> onCreateLoader(int i, Bundle bundle);
 
     public SelectProgramFragment() {
         this("state:SelectProgramFragment", 1);
     }
 
     public SelectProgramFragment(String stateName, int loaderId) {
-        STATE = stateName;
-        LOADER_ID = loaderId;
+        this.STATE = stateName;
+        this.LOADER_ID = loaderId;
     }
 
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_select_program, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(C0845R.layout.fragment_select_program, container, false);
     }
 
-    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-
-        mPrefs = new SelectProgramFragmentPreferences(
-                getActivity().getApplicationContext());
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_to_refresh_layout);
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.Green, R.color.Blue, R.color.orange);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-
-        mListView = (ListView) view.findViewById(R.id.event_listview);
-
-
-
-        mAdapter = getAdapter(savedInstanceState);
+        this.mPrefs = new SelectProgramFragmentPreferences(getActivity().getApplicationContext());
+        this.mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(C0845R.id.swipe_to_refresh_layout);
+        this.mSwipeRefreshLayout.setColorSchemeResources(C0845R.color.Green, C0845R.color.Blue, C0845R.color.orange);
+        this.mSwipeRefreshLayout.setOnRefreshListener(this);
+        this.mListView = (ListView) view.findViewById(C0845R.id.event_listview);
+        this.mAdapter = getAdapter(savedInstanceState);
         View header = getListViewHeader(savedInstanceState);
         setStandardButtons(header);
-        mListView.addHeaderView(header, TAG, false);
-        mListView.setAdapter(mAdapter);
-        registerForContextMenu(mListView);
-
-        if (savedInstanceState != null &&
-                savedInstanceState.getParcelable(STATE) != null) {
-            mState = savedInstanceState.getParcelable(STATE);
+        this.mListView.addHeaderView(header, TAG, false);
+        this.mListView.setAdapter(this.mAdapter);
+        registerForContextMenu(this.mListView);
+        if (!(savedInstanceState == null || savedInstanceState.getParcelable(this.STATE) == null)) {
+            this.mState = (SelectProgramFragmentState) savedInstanceState.getParcelable(this.STATE);
         }
-
-        if (mState == null) {
-            // restoring last selection of program
-            Pair<String, String> orgUnit = mPrefs.getOrgUnit();
-            Pair<String, String> program = mPrefs.getProgram();
-            Pair<String, String> filter = mPrefs.getFilter();
-            mState = new SelectProgramFragmentState();
+        if (this.mState == null) {
+            Pair<String, String> orgUnit = this.mPrefs.getOrgUnit();
+            Pair<String, String> program = this.mPrefs.getProgram();
+            Pair<String, String> filter = this.mPrefs.getFilter();
+            this.mState = new SelectProgramFragmentState();
             if (orgUnit != null) {
-                mState.setOrgUnit(orgUnit.first, orgUnit.second);
+                this.mState.setOrgUnit((String) orgUnit.first, (String) orgUnit.second);
                 if (program != null) {
-                    mState.setProgram(program.first, program.second);
+                    this.mState.setProgram((String) program.first, (String) program.second);
                 }
-                if(filter != null) {
-                    mState.setFilter(filter.first, filter.second);
+                if (filter != null) {
+                    this.mState.setFilter((String) filter.first, (String) filter.second);
+                } else {
+                    this.mState.setFilter("0", ((Type) Arrays.asList(Type.values()).get(0)).toString());
                 }
-                else {
-                    mState.setFilter("0", Arrays.asList(UpcomingEventsDialogFilter.Type.values()).get(0).toString());
-                }
-
-
             }
         }
-
         onRestoreState(true);
     }
 
-    @Override
-    public abstract void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo);
-
-    @Override
-    public abstract boolean onContextItemSelected(MenuItem item);
-
-    protected abstract AbsAdapter getAdapter(Bundle savedInstanceState);
-
     protected View getListViewHeader(Bundle savedInstanceState) {
-        View header = getLayoutInflater(savedInstanceState).inflate(
-                R.layout.fragment_select_program_header, mListView, false
-        );
-        return header;
+        return getLayoutInflater(savedInstanceState).inflate(C0845R.layout.fragment_select_program_header, this.mListView, false);
     }
 
     protected void setStandardButtons(View header) {
-        mProgressBar = (ProgressBar) header.findViewById(R.id.progress_bar);
-        mProgressBar.setVisibility(View.GONE);
-        mOrgUnitButton = (CardTextViewButton) header.findViewById(R.id.select_organisation_unit);
-        mProgramButton = (CardTextViewButton) header.findViewById(R.id.select_program);
-
-        mOrgUnitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                OrgUnitDialogFragment fragment = OrgUnitDialogFragment
-                        .newInstance(SelectProgramFragment.this,
-                                getProgramTypes());
-                fragment.show(getChildFragmentManager());
-            }
-        });
-        mProgramButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProgramDialogFragment fragment = ProgramDialogFragment
-                        .newInstance(SelectProgramFragment.this, mState.getOrgUnitId(),
-                                getProgramTypes());
-                fragment.show(getChildFragmentManager());
-            }
-        });
-
-        mOrgUnitButton.setEnabled(true);
-        mProgramButton.setEnabled(false);
+        this.mProgressBar = (ProgressBar) header.findViewById(C0845R.id.progress_bar);
+        this.mProgressBar.setVisibility(8);
+        this.mOrgUnitButton = (CardTextViewButton) header.findViewById(C0845R.id.select_organisation_unit);
+        this.mProgramButton = (CardTextViewButton) header.findViewById(C0845R.id.select_program);
+        this.mOrgUnitButton.setOnClickListener(new C09171());
+        this.mProgramButton.setOnClickListener(new C09182());
+        this.mOrgUnitButton.setEnabled(true);
+        this.mProgramButton.setEnabled(false);
     }
 
-    protected abstract ProgramType[] getProgramTypes();
-
-    @Override
     public void onPause() {
         super.onPause();
         Dhis2Application.getEventBus().unregister(this);
         SynchronisationStateHandler.getInstance().removeListener();
     }
 
-    @Override
     public void onResume() {
         super.onResume();
         SynchronisationStateHandler.getInstance().setListener(this);
@@ -216,140 +164,107 @@ public abstract class SelectProgramFragment extends BaseFragment
         Dhis2Application.getEventBus().register(this);
     }
 
-    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
     public void onSaveInstanceState(Bundle out) {
-        out.putParcelable(STATE, mState);
+        out.putParcelable(this.STATE, this.mState);
         super.onSaveInstanceState(out);
     }
 
-    @Override
     public void onOptionSelected(int dialogId, int position, String id, String name) {
         switch (dialogId) {
-            case OrgUnitDialogFragment.ID: {
+            case OrgUnitDialogFragment.ID /*450123*/:
                 onUnitSelected(id, name);
-                break;
-            }
-            case ProgramDialogFragment.ID: {
+                return;
+            case ProgramDialogFragment.ID /*921345*/:
                 onProgramSelected(id, name);
-                break;
-            }
+                return;
+            default:
+                return;
         }
     }
 
-    @Override
-    public abstract Loader<SelectProgramFragmentForm> onCreateLoader(int id, Bundle args);
-
-    @Override
     public void onLoaderReset(Loader<SelectProgramFragmentForm> loader) {
-        mAdapter.swapData(null);
+        this.mAdapter.swapData(null);
     }
 
     public void onRefreshFinished() {
         setRefreshing(false);
     }
 
-    @Override
     public void onLoadFinished(Loader<SelectProgramFragmentForm> loader, SelectProgramFragmentForm data) {
-        if (LOADER_ID == loader.getId()) {
-            mProgressBar.setVisibility(View.GONE);
-            mAdapter.swapData(data.getEventRowList());
+        if (this.LOADER_ID == loader.getId()) {
+            this.mProgressBar.setVisibility(8);
+            this.mAdapter.swapData(data.getEventRowList());
             setRefreshing(false);
         }
     }
 
-    @Override
     public void onRefresh() {
         if (isAdded()) {
             Context context = getActivity().getBaseContext();
-            Toast.makeText(context, getString(R.string.syncing), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, getString(C0845R.string.syncing), 0).show();
             DhisService.synchronize(context, SyncStrategy.DOWNLOAD_ALL);
         }
     }
 
     protected void setRefreshing(final boolean refreshing) {
-        /* workaround for bug in android support v4 library */
-        if (mSwipeRefreshLayout.isRefreshing() != refreshing) {
-            mSwipeRefreshLayout.post(new Runnable() {
-                @Override
+        if (this.mSwipeRefreshLayout.isRefreshing() != refreshing) {
+            this.mSwipeRefreshLayout.post(new Runnable() {
                 public void run() {
-                    mSwipeRefreshLayout.setRefreshing(refreshing);
+                    SelectProgramFragment.this.mSwipeRefreshLayout.setRefreshing(refreshing);
                 }
             });
         }
     }
 
     public void onRestoreState(boolean hasUnits) {
-        mOrgUnitButton.setEnabled(hasUnits);
-        if (!hasUnits) {
-            return;
-        }
-
-        SelectProgramFragmentState backedUpState = new SelectProgramFragmentState(mState);
-        if (!backedUpState.isOrgUnitEmpty()) {
-            onUnitSelected(
-                    backedUpState.getOrgUnitId(),
-                    backedUpState.getOrgUnitLabel()
-            );
-
-            if (!backedUpState.isProgramEmpty()) {
-                onProgramSelected(
-                        backedUpState.getProgramId(),
-                        backedUpState.getProgramName()
-                );
+        this.mOrgUnitButton.setEnabled(hasUnits);
+        if (hasUnits) {
+            SelectProgramFragmentState backedUpState = new SelectProgramFragmentState(this.mState);
+            if (!backedUpState.isOrgUnitEmpty()) {
+                onUnitSelected(backedUpState.getOrgUnitId(), backedUpState.getOrgUnitLabel());
+                if (!backedUpState.isProgramEmpty()) {
+                    onProgramSelected(backedUpState.getProgramId(), backedUpState.getProgramName());
+                }
             }
         }
-
     }
 
     public void onUnitSelected(String orgUnitId, String orgUnitLabel) {
-        mOrgUnitButton.setText(orgUnitLabel);
-        mProgramButton.setEnabled(true);
-
-        mState.setOrgUnit(orgUnitId, orgUnitLabel);
-        mState.resetProgram();
-
-        mPrefs.putOrgUnit(new Pair<>(orgUnitId, orgUnitLabel));
-        mPrefs.putProgram(null);
-
+        this.mOrgUnitButton.setText(orgUnitLabel);
+        this.mProgramButton.setEnabled(true);
+        this.mState.setOrgUnit(orgUnitId, orgUnitLabel);
+        this.mState.resetProgram();
+        this.mPrefs.putOrgUnit(new Pair(orgUnitId, orgUnitLabel));
+        this.mPrefs.putProgram(null);
         handleViews(0);
     }
 
     public void onProgramSelected(String programId, String programName) {
-        mProgramButton.setText(programName);
-
-        mState.setProgram(programId, programName);
-        mPrefs.putProgram(new Pair<>(programId, programName));
+        this.mProgramButton.setText(programName);
+        this.mState.setProgram(programId, programName);
+        this.mPrefs.putProgram(new Pair(programId, programName));
         handleViews(1);
-
-        mProgressBar.setVisibility(View.VISIBLE);
-        // this call will trigger onCreateLoader method
-        getLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
+        this.mProgressBar.setVisibility(0);
+        getLoaderManager().restartLoader(this.LOADER_ID, getArguments(), this);
     }
 
-
-    @Subscribe /* it doesn't seem that this subscribe works. Inheriting class will have to */
+    @Subscribe
     public void onReceivedUiEvent(UiEvent uiEvent) {
-        if(uiEvent.getEventType().equals(UiEvent.UiEventType.SYNCING_START)) {
+        if (uiEvent.getEventType().equals(UiEventType.SYNCING_START)) {
             setRefreshing(true);
-        } else if(uiEvent.getEventType().equals(UiEvent.UiEventType.SYNCING_END)) {
+        } else if (uiEvent.getEventType().equals(UiEventType.SYNCING_END)) {
             setRefreshing(false);
         }
     }
 
-    @Override
     public void stateChanged() {
-        // stub - will listen to updates in onResume()
     }
-
-    protected abstract void handleViews(int level);
 }

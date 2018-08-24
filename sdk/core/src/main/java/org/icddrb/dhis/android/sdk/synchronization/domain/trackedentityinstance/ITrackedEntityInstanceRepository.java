@@ -1,21 +1,17 @@
 package org.icddrb.dhis.android.sdk.synchronization.domain.trackedentityinstance;
 
-
+import java.util.List;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 
-import java.util.List;
-
 public interface ITrackedEntityInstanceRepository {
-    void save (TrackedEntityInstance trackedEntityInstance);
-
-    ImportSummary sync (TrackedEntityInstance trackedEntityInstance);
-
-    List<ImportSummary> sync(List<TrackedEntityInstance> trackedEntityInstances);
-
     List<TrackedEntityInstance> getAllLocalTeis();
 
-    TrackedEntityInstance getTrackedEntityInstance(String uid);
+    TrackedEntityInstance getTrackedEntityInstance(String str);
+
+    void save(TrackedEntityInstance trackedEntityInstance);
+
+    List<ImportSummary> sync(List<TrackedEntityInstance> list);
+
+    ImportSummary sync(TrackedEntityInstance trackedEntityInstance);
 }
-
-

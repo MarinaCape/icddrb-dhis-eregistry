@@ -1,51 +1,28 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.eregistry.fragments.upcomingevents;
 
 import android.os.Bundle;
-import android.support.v4.app.LoaderManager;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
-import android.widget.TableLayout;
-
+import android.widget.TableLayout.LayoutParams;
 import com.raizlabs.android.dbflow.structure.Model;
-
-import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
+import java.util.ArrayList;
+import java.util.List;
+import org.icddrb.dhis.android.eregistry.C0773R;
+import org.icddrb.dhis.android.eregistry.activities.HolderActivity;
+import org.icddrb.dhis.android.eregistry.ui.adapters.UpcomingEventAdapter;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.persistence.loaders.DbLoader;
 import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
@@ -54,57 +31,48 @@ import org.icddrb.dhis.android.sdk.ui.adapters.AbsAdapter;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.DatePickerRow;
 import org.icddrb.dhis.android.sdk.ui.dialogs.OrgUnitDialogFragment;
 import org.icddrb.dhis.android.sdk.ui.dialogs.ProgramDialogFragment;
+import org.icddrb.dhis.android.sdk.ui.dialogs.UpcomingEventsDialogFilter;
 import org.icddrb.dhis.android.sdk.ui.fragments.selectprogram.SelectProgramFragment;
 import org.icddrb.dhis.android.sdk.ui.fragments.selectprogram.SelectProgramFragmentForm;
 import org.icddrb.dhis.android.sdk.ui.views.CardTextViewButton;
 import org.icddrb.dhis.android.sdk.ui.views.FloatingActionButton;
 import org.icddrb.dhis.android.sdk.utils.api.ProgramType;
 import org.icddrb.dhis.android.sdk.utils.support.DateUtils;
-import org.icddrb.dhis.android.eregistry.R;
-import org.icddrb.dhis.android.eregistry.activities.HolderActivity;
-import org.icddrb.dhis.android.eregistry.ui.adapters.UpcomingEventAdapter;
-import org.icddrb.dhis.android.sdk.ui.dialogs.UpcomingEventsDialogFilter;
 import org.joda.time.LocalDate;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * @author Simen Skogly Russnes on 20.02.15.
- */
-public class UpcomingEventsFragment extends SelectProgramFragment implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<SelectProgramFragmentForm> {
-
+public class UpcomingEventsFragment extends SelectProgramFragment implements OnItemClickListener, LoaderCallbacks<SelectProgramFragmentForm> {
     private static final String CLASS_TAG = "UpcomingEventsFragment";
-
     private List<OrganisationUnit> assignedOrganisationUnits;
+    private DataValue endDate;
     protected CardTextViewButton filterButton;
     private FloatingActionButton mQueryButton;
-
     private DataValue startDate;
-    private DataValue endDate;
 
-    public UpcomingEventsFragment(){
+    /* renamed from: org.icddrb.dhis.android.eregistry.fragments.upcomingevents.UpcomingEventsFragment$1 */
+    class C08351 implements OnClickListener {
+        C08351() {
+        }
+
+        public void onClick(View view) {
+            UpcomingEventsDialogFilter.newInstance(UpcomingEventsFragment.this).show(UpcomingEventsFragment.this.getChildFragmentManager());
+        }
+    }
+
+    public UpcomingEventsFragment() {
         super("state:UpcomingEventsFragment", 2);
     }
 
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == android.R.id.home) {
-            getActivity().finish();
-            return true;
+        if (item.getItemId() != 16908332) {
+            return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
+        getActivity().finish();
+        return true;
     }
 
-    @Override
     public boolean onContextItemSelected(MenuItem item) {
         return false;
     }
@@ -114,166 +82,129 @@ public class UpcomingEventsFragment extends SelectProgramFragment implements Ada
     }
 
     protected View getListViewHeader(Bundle savedInstanceState) {
-        if(getActivity() instanceof AppCompatActivity) {
+        if (getActivity() instanceof AppCompatActivity) {
             getActionBar().setDisplayHomeAsUpEnabled(true);
             getActionBar().setHomeButtonEnabled(true);
-            getActionBar().setTitle(getString(R.string.upcoming_events));
+            getActionBar().setTitle(getString(C0773R.string.upcoming_events));
         }
-
-        View header = getLayoutInflater(savedInstanceState).inflate(
-                R.layout.fragment_upcomingevents_header, mListView, false
-        );
-
-        mListView.setOnItemClickListener(this);
-        mQueryButton = (FloatingActionButton) header.findViewById(R.id.upcoming_query_button);
-        assignedOrganisationUnits = MetaDataController.getAssignedOrganisationUnits();
-        if( assignedOrganisationUnits==null || assignedOrganisationUnits.size() <= 0 ) {
-            return header;
+        View header = getLayoutInflater(savedInstanceState).inflate(C0773R.layout.fragment_upcomingevents_header, this.mListView, false);
+        this.mListView.setOnItemClickListener(this);
+        this.mQueryButton = (FloatingActionButton) header.findViewById(C0773R.id.upcoming_query_button);
+        this.assignedOrganisationUnits = MetaDataController.getAssignedOrganisationUnits();
+        if (this.assignedOrganisationUnits != null && this.assignedOrganisationUnits.size() > 0) {
+            this.mQueryButton.setOnClickListener(this);
+            this.mQueryButton.hide();
+            this.filterButton = (CardTextViewButton) header.findViewById(C0773R.id.select_filter);
+            this.filterButton.setText((CharSequence) this.mPrefs.getFilter().second);
+            this.filterButton.setOnClickListener(new C08351());
+            this.startDate = new DataValue();
+            this.startDate.setValue(DateUtils.getMediumDateString());
+            this.endDate = new DataValue();
+            this.endDate.setValue(new LocalDate(DateUtils.getMediumDateString()).plusWeeks(1).toString());
+            DatePickerRow startDatePicker = new DatePickerRow(getString(C0773R.string.startdate), false, null, this.startDate, true);
+            startDatePicker.setHideDetailedInfoButton(true);
+            DatePickerRow endDatePicker = new DatePickerRow(getString(C0773R.string.enddate), false, null, this.endDate, true);
+            endDatePicker.setHideDetailedInfoButton(true);
+            LinearLayout dateFilterContainer = (LinearLayout) header.findViewById(C0773R.id.datefilterlayout);
+            View view1 = startDatePicker.getView(getFragmentManager(), getActivity().getLayoutInflater(), null, dateFilterContainer);
+            view1.setLayoutParams(new LayoutParams(0, -2, 1.0f));
+            View view2 = endDatePicker.getView(getFragmentManager(), getActivity().getLayoutInflater(), null, dateFilterContainer);
+            view2.setLayoutParams(new LayoutParams(0, -2, 1.0f));
+            View detailedInfoButton1 = view1.findViewById(C0773R.id.detailed_info_button_layout);
+            View detailedInfoButton2 = view2.findViewById(C0773R.id.detailed_info_button_layout);
+            detailedInfoButton1.setVisibility(8);
+            detailedInfoButton2.setVisibility(8);
+            dateFilterContainer.addView(view1);
+            dateFilterContainer.addView(view2);
         }
-        mQueryButton.setOnClickListener(this);
-        mQueryButton.hide();
-
-        filterButton = (CardTextViewButton) header.findViewById(R.id.select_filter);
-        filterButton.setText(mPrefs.getFilter().second);
-
-        filterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                UpcomingEventsDialogFilter upcomingEventsDialogFilter = UpcomingEventsDialogFilter.newInstance(UpcomingEventsFragment.this);
-                upcomingEventsDialogFilter.show(getChildFragmentManager());
-            }
-        });
-
-        startDate = new DataValue();
-        startDate.setValue(DateUtils.getMediumDateString());
-        endDate = new DataValue();
-        endDate.setValue(new LocalDate(DateUtils.getMediumDateString()).plusWeeks(1).toString());
-        DatePickerRow startDatePicker = new DatePickerRow(getString(R.string.startdate), false, null, startDate, true);
-        startDatePicker.setHideDetailedInfoButton(true);
-        DatePickerRow endDatePicker = new DatePickerRow(getString(R.string.enddate), false, null, endDate, true);
-        endDatePicker.setHideDetailedInfoButton(true);
-        LinearLayout dateFilterContainer = (LinearLayout) header.findViewById(R.id.datefilterlayout);
-        View view1 = startDatePicker.getView(getFragmentManager(), getActivity().getLayoutInflater(), null, dateFilterContainer);
-        view1.setLayoutParams(new TableLayout.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT, 1f));
-        View view2 = endDatePicker.getView(getFragmentManager(), getActivity().getLayoutInflater(), null, dateFilterContainer);
-        view2.setLayoutParams(new TableLayout.LayoutParams(0, TableLayout.LayoutParams.WRAP_CONTENT, 1f));
-        View detailedInfoButton1 = view1.findViewById(R.id.detailed_info_button_layout);
-        View detailedInfoButton2 = view2.findViewById(R.id.detailed_info_button_layout);
-        detailedInfoButton1.setVisibility(View.GONE);
-        detailedInfoButton2.setVisibility(View.GONE);
-        dateFilterContainer.addView(view1);
-        dateFilterContainer.addView(view2);
         return header;
     }
 
-    @Override
     protected ProgramType[] getProgramTypes() {
-        return new ProgramType[] {
-                ProgramType.WITH_REGISTRATION
-        };
+        return new ProgramType[]{ProgramType.WITH_REGISTRATION};
     }
 
-
-    @Override
     public Loader<SelectProgramFragmentForm> onCreateLoader(int id, Bundle args) {
-        if (LOADER_ID == id && isAdded()) {
-            List<Class<? extends Model>> modelsToTrack = new ArrayList<>();
+        if (this.LOADER_ID == id && isAdded()) {
+            List<Class<? extends Model>> modelsToTrack = new ArrayList();
             modelsToTrack.add(Event.class);
-            if(startDate != null && endDate != null) {
-                return new DbLoader<>(
-                        getActivity().getBaseContext(), modelsToTrack,
-                        new UpcomingEventsFragmentQuery(mState.getOrgUnitId(), mState.getProgramId(),
-                                mState.getFilterLabel(), startDate.getValue(), endDate.getValue()));
+            if (!(this.startDate == null || this.endDate == null)) {
+                return new DbLoader(getActivity().getBaseContext(), modelsToTrack, new UpcomingEventsFragmentQuery(this.mState.getOrgUnitId(), this.mState.getProgramId(), this.mState.getFilterLabel(), this.startDate.getValue(), this.endDate.getValue()));
             }
         }
         return null;
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Event event = TrackerController.getEvent(id);
-
-
-        HolderActivity.navigateToProgramOverviewFragment(getActivity(),mState.getOrgUnitId(), mState.getProgramId(),
-                TrackerController.getEnrollment
-                        (event.getLocalEnrollmentId()).getLocalTrackedEntityInstanceId());
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        HolderActivity.navigateToProgramOverviewFragment(getActivity(), this.mState.getOrgUnitId(), this.mState.getProgramId(), TrackerController.getEnrollment(TrackerController.getEvent(id).getLocalEnrollmentId()).getLocalTrackedEntityInstanceId());
     }
 
-    @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.upcoming_query_button: {
-                if(startDate.getValue()==null || startDate.getValue().isEmpty()
-                        || endDate.getValue()==null || endDate.getValue().isEmpty())
-                    break;
-                mProgressBar.setVisibility(View.VISIBLE);
-                getLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
-                break;
-            }
+            case C0773R.id.upcoming_query_button:
+                if (this.startDate.getValue() != null && !this.startDate.getValue().isEmpty() && this.endDate.getValue() != null && !this.endDate.getValue().isEmpty()) {
+                    this.mProgressBar.setVisibility(0);
+                    getLoaderManager().restartLoader(this.LOADER_ID, getArguments(), this);
+                    return;
+                }
+                return;
+            default:
+                return;
         }
     }
 
     protected void handleViews(int level) {
-        mAdapter.swapData(null);
+        this.mAdapter.swapData(null);
         switch (level) {
-            case 0: {
-                mQueryButton.hide();
-                break;
-            }
-            case 1: {
-                if(mPrefs.getFilter() == null) {
-                    mQueryButton.hide();
-            }
-                else {
-                    mQueryButton.show();
+            case 0:
+                this.mQueryButton.hide();
+                return;
+            case 1:
+                if (this.mPrefs.getFilter() == null) {
+                    this.mQueryButton.hide();
+                    return;
+                } else {
+                    this.mQueryButton.show();
+                    return;
                 }
-                break;
-            }
-            case 2: {
-                mQueryButton.show();
-                break;
-            }
+            case 2:
+                this.mQueryButton.show();
+                return;
+            default:
+                return;
         }
     }
 
     private ActionBar getActionBar() {
-        if (getActivity() != null &&
-                getActivity() instanceof AppCompatActivity) {
+        if (getActivity() != null && (getActivity() instanceof AppCompatActivity)) {
             return ((AppCompatActivity) getActivity()).getSupportActionBar();
-        } else {
-            throw new IllegalArgumentException("Fragment should be attached to ActionBarActivity");
         }
+        throw new IllegalArgumentException("Fragment should be attached to ActionBarActivity");
     }
 
-    @Override
     public void stateChanged() {
-        // stub
     }
 
-    @Override
     public void onOptionSelected(int dialogId, int position, String id, String name) {
         switch (dialogId) {
-            case OrgUnitDialogFragment.ID: {
+            case OrgUnitDialogFragment.ID /*450123*/:
                 onUnitSelected(id, name);
-                break;
-            }
-            case ProgramDialogFragment.ID: {
+                return;
+            case ProgramDialogFragment.ID /*921345*/:
                 onProgramSelected(id, name);
-                break;
-            }
-            case UpcomingEventsDialogFilter.ID : {
-                onFilterSelected(id,name);
-            }
+                return;
+            case UpcomingEventsDialogFilter.ID /*120000101*/:
+                onFilterSelected(id, name);
+                return;
+            default:
+                return;
         }
     }
 
     private void onFilterSelected(String id, String name) {
-        filterButton.setText(name);
-        mState.setFilter(id, name);
-        mPrefs.putFilter(new Pair<>(id, name));
-
+        this.filterButton.setText(name);
+        this.mState.setFilter(id, name);
+        this.mPrefs.putFilter(new Pair(id, name));
         handleViews(2);
     }
-
-
 }

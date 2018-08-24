@@ -2,11 +2,15 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow;
 
 import android.support.v4.app.FragmentManager;
 import android.view.View;
+import android.view.View.OnClickListener;
 
-class AutoCompleteDropDownButtonListener implements View.OnClickListener {
+class AutoCompleteDropDownButtonListener implements OnClickListener {
     private FragmentManager fragmentManager;
-    private String optionSetId;
     private AutoCompleteOnOptionSelectedListener listener;
+    private String optionSetId;
+
+    AutoCompleteDropDownButtonListener() {
+    }
 
     public void setFragmentManager(FragmentManager fragmentManager) {
         this.fragmentManager = fragmentManager;
@@ -21,13 +25,10 @@ class AutoCompleteDropDownButtonListener implements View.OnClickListener {
     }
 
     public AutoCompleteOnOptionSelectedListener getListener() {
-        return listener;
+        return this.listener;
     }
 
-    @Override
     public void onClick(View v) {
-        OptionDialogFragment fragment =
-                OptionDialogFragment.newInstance(optionSetId, listener);
-        fragment.show(fragmentManager);
+        OptionDialogFragment.newInstance(this.optionSetId, this.listener).show(this.fragmentManager);
     }
 }

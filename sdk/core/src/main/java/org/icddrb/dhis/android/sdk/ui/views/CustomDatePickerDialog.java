@@ -1,9 +1,9 @@
 package org.icddrb.dhis.android.sdk.ui.views;
 
-
 import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
 import android.content.Context;
-import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.DatePicker;
@@ -11,19 +11,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class CustomDatePickerDialog extends DatePickerDialog {
-
-    private CharSequence title;
     private TextView customTextView;
+    private CharSequence title;
 
-    public CustomDatePickerDialog(Context context, OnDateSetListener callBack, int year,
-            int monthOfYear, int dayOfMonth) {
+    public CustomDatePickerDialog(Context context, OnDateSetListener callBack, int year, int monthOfYear, int dayOfMonth) {
         super(context, callBack, year, monthOfYear, dayOfMonth);
     }
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+        if (VERSION.SDK_INT > 23) {
             tryAddCustomTitleView();
         }
     }
@@ -33,24 +30,20 @@ public class CustomDatePickerDialog extends DatePickerDialog {
         setTitle(title);
     }
 
-    @Override
     public void setCustomTitle(View customTitleView) {
         super.setCustomTitle(customTitleView);
     }
 
-
-    @Override
     public void onDateChanged(DatePicker view, int year, int month, int day) {
         super.onDateChanged(view, year, month, day);
-        setTitle(title);
+        setTitle(this.title);
     }
 
     private void tryAddCustomTitleView() {
         try {
-            customTextView = new TextView(getContext());
-            customTextView.setText(title);
-            ((LinearLayout) getDatePicker().getParent().getParent().getParent()).addView(
-                    customTextView, 0);
+            this.customTextView = new TextView(getContext());
+            this.customTextView.setText(this.title);
+            ((LinearLayout) getDatePicker().getParent().getParent().getParent()).addView(this.customTextView, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }

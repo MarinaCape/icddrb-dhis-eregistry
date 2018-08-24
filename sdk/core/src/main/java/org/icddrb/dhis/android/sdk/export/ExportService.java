@@ -11,47 +11,26 @@ import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.lang.ref.WeakReference;
+import org.icddrb.dhis.android.sdk.persistence.models.ProgramRuleAction.Table;
 
-/**
- * Created by thomaslindsjorn on 05/09/16.
- */
 public abstract class ExportService<T extends ExportResponse> extends Service {
+    final Messenger messenger = new Messenger(new MessageHandler(this));
 
-    final Messenger messenger = new Messenger(new MessageHandler<T>(this));
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.d("Service", "onBind. Intent: " + intent);
-        return messenger.getBinder();
-    }
-
-    //static inner class doesn't hold an implicit reference to the outer class
     private static class MessageHandler<T extends ExportResponse> extends Handler {
-        //Using a weak reference to not prevent garbage collection
         private final WeakReference<ExportService<T>> exportServiceWeakReference;
 
         public MessageHandler(ExportService<T> exportServiceInstance) {
-            exportServiceWeakReference = new WeakReference<ExportService<T>>(exportServiceInstance);
+            this.exportServiceWeakReference = new WeakReference(exportServiceInstance);
         }
 
-        @Override
         public void handleMessage(Message msg) {
-            if (msg.replyTo != null && exportServiceWeakReference.get() != null) {
-                // TODO: Put in security measures here.
-                // Check username and password provided by client in msg bundle extra
-                // against UserAccount.getCurrentUserAccountFromDb() ?
-
+            if (msg.replyTo != null && this.exportServiceWeakReference.get() != null) {
                 Message message = Message.obtain();
                 Bundle bundle = new Bundle();
-                T responseObject = exportServiceWeakReference.get().getResponseObject();
-                String responseAsString = exportServiceWeakReference.get().marshallToString(responseObject);
-                bundle.putString("data", responseAsString);
+                bundle.putString(Table.DATA, ((ExportService) this.exportServiceWeakReference.get()).marshallToString(((ExportService) this.exportServiceWeakReference.get()).getResponseObject()));
                 message.setData(bundle);
                 try {
                     msg.replyTo.send(message);
@@ -62,25 +41,32 @@ public abstract class ExportService<T extends ExportResponse> extends Service {
         }
     }
 
+    public abstract T getResponseObject();
+
+    @Nullable
+    public IBinder onBind(Intent intent) {
+        Log.d("Service", "onBind. Intent: " + intent);
+        return this.messenger.getBinder();
+    }
+
     @NonNull
     private String marshallToString(T responseObject) {
-        ObjectMapper om = new ObjectMapper();
         String responseString;
+        ObjectMapper om = new ObjectMapper();
         try {
-            responseString = om.writeValueAsString(responseObject);
+            return om.writeValueAsString(responseObject);
         } catch (JsonProcessingException e) {
             try {
                 ExportResponse errorResponse = new ExportResponse();
                 errorResponse.setError(e);
                 responseString = om.writeValueAsString(errorResponse);
                 Log.e("EXPORT", "Unable to marshall object to String: " + responseObject.getClass().toString(), e);
+                return responseString;
             } catch (JsonProcessingException e1) {
                 responseString = "Unable to marshall object to String\n" + e1.toString();
                 Log.e("EXPORT", "Unable to marshall object to String", e1);
+                return responseString;
             }
         }
-        return responseString;
     }
-
-    public abstract T getResponseObject();
 }

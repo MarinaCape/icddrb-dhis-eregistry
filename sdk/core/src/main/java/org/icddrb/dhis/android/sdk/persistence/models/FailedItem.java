@@ -1,91 +1,189 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
 
-/**
- * Class for holding information on items that have failed to upload to the server.
- *
- * @author Simen Skogly Russnes on 26.02.15.
- */
-@Table(databaseName = Dhis2Database.NAME)
 public class FailedItem extends BaseModel {
-
-    public static final String EVENT = "Event";
+    private static final String CLASS_TAG = "FailedItem";
     public static final String ENROLLMENT = "Enrollment";
+    public static final String EVENT = "Event";
     public static final String TRACKEDENTITYINSTANCE = "TrackedEntityInstance";
-    private final static String CLASS_TAG = "FailedItem";
-    @Column
-    @ForeignKey(references = {@ForeignKeyReference(columnName = "importSummary",
-            columnType = int.class, foreignColumnName = "id")})
-    protected ImportSummary importSummary;
-    @Column
-    @PrimaryKey
-    private long itemId;
-    @Column
-    @PrimaryKey
-    private String itemType;
-    @Column
-    private int httpStatusCode; // 401, 500 .. etc
-    @Column
-    private String errorMessage; // the web api sometimes crashes with status 500, so for example the stack trace could be here.
-    @Column
+    private String errorMessage;
     private int failCount;
-    /**
-     * Returns the item for the given FailedItem. Can be cast to either of the model types
-     *
-     * @return
-     */
-    public BaseSerializableModel getItem() {
-        BaseSerializableModel item = null;
-        if (itemType.equals(EVENT)) {
-            item = TrackerController.getEvent(itemId);
-        } else if (itemType.equals(ENROLLMENT)) {
-            item = TrackerController.getEnrollment(itemId);
-        } else if (itemType.equals(TRACKEDENTITYINSTANCE)) {
-            item = TrackerController.getTrackedEntityInstance(itemId);
+    private int httpStatusCode;
+    protected ImportSummary importSummary;
+    private long itemId;
+    private String itemType;
+
+    public final class Adapter extends ModelAdapter<FailedItem> {
+        public Class<FailedItem> getModelClass() {
+            return FailedItem.class;
         }
-        return item;
+
+        public String getTableName() {
+            return "FailedItem";
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `FailedItem` (`importSummary`, `ITEMID`, `ITEMTYPE`, `HTTPSTATUSCODE`, `ERRORMESSAGE`, `FAILCOUNT`) VALUES (?, ?, ?, ?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, FailedItem model) {
+            if (model.importSummary != null) {
+                model.importSummary.save();
+                statement.bindLong(1, (long) model.importSummary.id);
+            } else {
+                statement.bindNull(1);
+            }
+            statement.bindLong(2, model.getItemId());
+            if (model.getItemType() != null) {
+                statement.bindString(3, model.getItemType());
+            } else {
+                statement.bindNull(3);
+            }
+            statement.bindLong(4, (long) model.getHttpStatusCode());
+            if (model.getErrorMessage() != null) {
+                statement.bindString(5, model.getErrorMessage());
+            } else {
+                statement.bindNull(5);
+            }
+            statement.bindLong(6, (long) model.getFailCount());
+        }
+
+        public void bindToContentValues(ContentValues contentValues, FailedItem model) {
+            if (model.importSummary != null) {
+                model.importSummary.save();
+                contentValues.put("importSummary", Integer.valueOf(model.importSummary.id));
+            } else {
+                contentValues.putNull("importSummary");
+            }
+            contentValues.put(Table.ITEMID, Long.valueOf(model.getItemId()));
+            if (model.getItemType() != null) {
+                contentValues.put(Table.ITEMTYPE, model.getItemType());
+            } else {
+                contentValues.putNull(Table.ITEMTYPE);
+            }
+            contentValues.put(Table.HTTPSTATUSCODE, Integer.valueOf(model.getHttpStatusCode()));
+            if (model.getErrorMessage() != null) {
+                contentValues.put(Table.ERRORMESSAGE, model.getErrorMessage());
+            } else {
+                contentValues.putNull(Table.ERRORMESSAGE);
+            }
+            contentValues.put(Table.FAILCOUNT, Integer.valueOf(model.getFailCount()));
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, FailedItem model) {
+            if (model.importSummary != null) {
+                model.importSummary.save();
+                contentValues.put("importSummary", Integer.valueOf(model.importSummary.id));
+            } else {
+                contentValues.putNull("importSummary");
+            }
+            contentValues.put(Table.ITEMID, Long.valueOf(model.getItemId()));
+            if (model.getItemType() != null) {
+                contentValues.put(Table.ITEMTYPE, model.getItemType());
+            } else {
+                contentValues.putNull(Table.ITEMTYPE);
+            }
+            contentValues.put(Table.HTTPSTATUSCODE, Integer.valueOf(model.getHttpStatusCode()));
+            if (model.getErrorMessage() != null) {
+                contentValues.put(Table.ERRORMESSAGE, model.getErrorMessage());
+            } else {
+                contentValues.putNull(Table.ERRORMESSAGE);
+            }
+            contentValues.put(Table.FAILCOUNT, Integer.valueOf(model.getFailCount()));
+        }
+
+        public boolean exists(FailedItem model) {
+            return new Select().from(FailedItem.class).where(getPrimaryModelWhere(model)).hasData();
+        }
+
+        public void loadFromCursor(Cursor cursor, FailedItem model) {
+            int indeximportSummary = cursor.getColumnIndex("importSummary");
+            if (!(indeximportSummary == -1 || cursor.isNull(indeximportSummary))) {
+                model.importSummary = (ImportSummary) new Select().from(ImportSummary.class).where().and(Condition.column("id").is(Integer.valueOf(cursor.getInt(indeximportSummary)))).querySingle();
+            }
+            int indexitemId = cursor.getColumnIndex(Table.ITEMID);
+            if (indexitemId != -1) {
+                model.setItemId(cursor.getLong(indexitemId));
+            }
+            int indexitemType = cursor.getColumnIndex(Table.ITEMTYPE);
+            if (indexitemType != -1) {
+                if (cursor.isNull(indexitemType)) {
+                    model.setItemType(null);
+                } else {
+                    model.setItemType(cursor.getString(indexitemType));
+                }
+            }
+            int indexhttpStatusCode = cursor.getColumnIndex(Table.HTTPSTATUSCODE);
+            if (indexhttpStatusCode != -1) {
+                model.setHttpStatusCode(cursor.getInt(indexhttpStatusCode));
+            }
+            int indexerrorMessage = cursor.getColumnIndex(Table.ERRORMESSAGE);
+            if (indexerrorMessage != -1) {
+                if (cursor.isNull(indexerrorMessage)) {
+                    model.setErrorMessage(null);
+                } else {
+                    model.setErrorMessage(cursor.getString(indexerrorMessage));
+                }
+            }
+            int indexfailCount = cursor.getColumnIndex(Table.FAILCOUNT);
+            if (indexfailCount != -1) {
+                model.setFailCount(cursor.getInt(indexfailCount));
+            }
+        }
+
+        public ConditionQueryBuilder<FailedItem> getPrimaryModelWhere(FailedItem model) {
+            return new ConditionQueryBuilder(FailedItem.class, Condition.column(Table.ITEMID).is(Long.valueOf(model.getItemId())), Condition.column(Table.ITEMTYPE).is(model.getItemType()));
+        }
+
+        public ConditionQueryBuilder<FailedItem> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(FailedItem.class, Condition.column(Table.ITEMID).is(Operation.EMPTY_PARAM), Condition.column(Table.ITEMTYPE).is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return String.format("CREATE TABLE IF NOT EXISTS `FailedItem`( `importSummary` INTEGER, `itemId` INTEGER, `itemType` TEXT, `httpStatusCode` INTEGER, `errorMessage` TEXT, `failCount` INTEGER, PRIMARY KEY(`itemId`, `itemType`), FOREIGN KEY(`importSummary`) REFERENCES `%1s` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION );", new Object[]{FlowManager.getTableName(ImportSummary.class)});
+        }
+
+        public final FailedItem newInstance() {
+            return new FailedItem();
+        }
+    }
+
+    public final class Table {
+        public static final String ERRORMESSAGE = "errorMessage";
+        public static final String FAILCOUNT = "failCount";
+        public static final String HTTPSTATUSCODE = "httpStatusCode";
+        public static final String IMPORTSUMMARY_IMPORTSUMMARY = "importSummary";
+        public static final String ITEMID = "itemId";
+        public static final String ITEMTYPE = "itemType";
+        public static final String TABLE_NAME = "FailedItem";
+    }
+
+    public BaseSerializableModel getItem() {
+        if (this.itemType.equals("Event")) {
+            return TrackerController.getEvent(this.itemId);
+        }
+        if (this.itemType.equals("Enrollment")) {
+            return TrackerController.getEnrollment(this.itemId);
+        }
+        if (this.itemType.equals("TrackedEntityInstance")) {
+            return TrackerController.getTrackedEntityInstance(this.itemId);
+        }
+        return null;
     }
 
     public ImportSummary getImportSummary() {
-        return importSummary;
+        return this.importSummary;
     }
 
     public void setImportSummary(ImportSummary importSummary) {
@@ -93,7 +191,7 @@ public class FailedItem extends BaseModel {
     }
 
     public long getItemId() {
-        return itemId;
+        return this.itemId;
     }
 
     public void setItemId(long itemId) {
@@ -101,7 +199,7 @@ public class FailedItem extends BaseModel {
     }
 
     public String getItemType() {
-        return itemType;
+        return this.itemType;
     }
 
     public void setItemType(String itemType) {
@@ -109,7 +207,7 @@ public class FailedItem extends BaseModel {
     }
 
     public int getHttpStatusCode() {
-        return httpStatusCode;
+        return this.httpStatusCode;
     }
 
     public void setHttpStatusCode(int httpStatusCode) {
@@ -117,7 +215,7 @@ public class FailedItem extends BaseModel {
     }
 
     public String getErrorMessage() {
-        return errorMessage;
+        return this.errorMessage;
     }
 
     public void setErrorMessage(String errorMessage) {
@@ -125,7 +223,7 @@ public class FailedItem extends BaseModel {
     }
 
     public int getFailCount() {
-        return failCount;
+        return this.failCount;
     }
 
     public void setFailCount(int failCount) {

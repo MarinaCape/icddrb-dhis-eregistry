@@ -1,159 +1,599 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.persistence.models;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteStatement;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.raizlabs.android.dbflow.annotation.Column;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
+import com.raizlabs.android.dbflow.sql.builder.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.builder.ConditionQueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-
-import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
-import org.icddrb.dhis.android.sdk.persistence.Dhis2Database;
-import org.icddrb.dhis.android.sdk.persistence.models.meta.State;
-import org.joda.time.DateTime;
-
+import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.icddrb.dhis.android.sdk.persistence.models.meta.State;
+import org.joda.time.DateTime;
 
-@Table(databaseName = Dhis2Database.NAME)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class UserAccount extends BaseModel implements IdentifiableObject {
-
-    // As we have only one user account, the id will be constant
     private static final int LOCAL_ID = 1;
-
-    @JsonIgnore
-    @Column(name = "id")
-    @PrimaryKey(autoincrement = false)
-    long id = LOCAL_ID;
-
-    @JsonProperty("id")
-    @Column(name = "uId")
-    String uId;
-
-    @JsonProperty("name")
-    @Column(name = "name")
-    String name;
-
-    @JsonProperty("displayName")
-    @Column(name = "displayName")
-    String displayName;
-
-    @JsonProperty("created")
-    @Column(name = "created")
-    DateTime created;
-
-    @JsonProperty("lastUpdated")
-    @Column(name = "lastUpdated")
-    DateTime lastUpdated;
-
     @JsonProperty("access")
-    @Column(name = "access")
     Access access;
-
-    @JsonIgnore
-    @Column(name = "state")
-    State state;
-
-    @JsonProperty("firstName")
-    @Column(name = "firstName")
-    String firstName;
-
-    @JsonProperty("surname")
-    @Column(name = "surname")
-    String surname;
-
-    @JsonProperty("gender")
-    @Column(name = "gender")
-    String gender;
-
     @JsonProperty("birthday")
-    @Column(name = "birthday")
     String birthday;
-
-    @JsonProperty("introduction")
-    @Column(name = "introduction")
-    String introduction;
-
+    @JsonProperty("created")
+    DateTime created;
+    @JsonProperty("displayName")
+    String displayName;
     @JsonProperty("education")
-    @Column(name = "education")
     String education;
-
-    @JsonProperty("employer")
-    @Column(name = "employer")
-    String employer;
-
-    @JsonProperty("interests")
-    @Column(name = "interests")
-    String interests;
-
-    @JsonProperty("jobTitle")
-    @Column(name = "jobTitle")
-    String jobTitle;
-
-    @JsonProperty("languages")
-    @Column(name = "languages")
-    String languages;
-
     @JsonProperty("email")
-    @Column(name = "email")
     String email;
-
-    @JsonProperty("phoneNumber")
-    @Column(name = "phoneNumber")
-    String phoneNumber;
-
-    /* This properties should not be directly
-    accessible through model accessors */
-    @JsonProperty("userCredentials")
-    UserCredentials userCredentials;
-
+    @JsonProperty("employer")
+    String employer;
+    @JsonProperty("firstName")
+    String firstName;
+    @JsonProperty("gender")
+    String gender;
+    @JsonIgnore
+    long id = 1;
+    @JsonProperty("interests")
+    String interests;
+    @JsonProperty("introduction")
+    String introduction;
+    @JsonProperty("jobTitle")
+    String jobTitle;
+    @JsonProperty("languages")
+    String languages;
+    @JsonProperty("lastUpdated")
+    DateTime lastUpdated;
+    @JsonProperty("name")
+    String name;
     @JsonProperty("organisationUnits")
     List<OrganisationUnit> organisationUnits;
-
+    @JsonProperty("phoneNumber")
+    String phoneNumber;
+    @JsonIgnore
+    State state = State.SYNCED;
+    @JsonProperty("surname")
+    String surname;
     @JsonProperty("teiSearchOrganisationUnits")
     List<OrganisationUnit> teiSearchOrganisationUnits;
-
-    /* Norway */
+    @JsonProperty("id")
+    String uId;
+    @JsonProperty("userCredentials")
+    UserCredentials userCredentials;
     List<UserGroup> userGroups;
+
+    public final class Adapter extends ModelAdapter<UserAccount> {
+        public Class<UserAccount> getModelClass() {
+            return UserAccount.class;
+        }
+
+        public String getTableName() {
+            return Table.TABLE_NAME;
+        }
+
+        protected final String getInsertStatementQuery() {
+            return "INSERT INTO `UserAccount` (`ID`, `UID`, `NAME`, `DISPLAYNAME`, `CREATED`, `LASTUPDATED`, `ACCESS`, `STATE`, `FIRSTNAME`, `SURNAME`, `GENDER`, `BIRTHDAY`, `INTRODUCTION`, `EDUCATION`, `EMPLOYER`, `INTERESTS`, `JOBTITLE`, `LANGUAGES`, `EMAIL`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        }
+
+        public void bindToStatement(SQLiteStatement statement, UserAccount model) {
+            statement.bindLong(1, model.id);
+            if (model.uId != null) {
+                statement.bindString(2, model.uId);
+            } else {
+                statement.bindNull(2);
+            }
+            if (model.name != null) {
+                statement.bindString(3, model.name);
+            } else {
+                statement.bindNull(3);
+            }
+            if (model.displayName != null) {
+                statement.bindString(4, model.displayName);
+            } else {
+                statement.bindNull(4);
+            }
+            Object modelcreated = FlowManager.getTypeConverterForClass(DateTime.class).getDBValue(model.created);
+            if (modelcreated != null) {
+                statement.bindString(5, (String) modelcreated);
+            } else {
+                statement.bindNull(5);
+            }
+            Object modellastUpdated = FlowManager.getTypeConverterForClass(DateTime.class).getDBValue(model.lastUpdated);
+            if (modellastUpdated != null) {
+                statement.bindString(6, (String) modellastUpdated);
+            } else {
+                statement.bindNull(6);
+            }
+            Object modelaccess = FlowManager.getTypeConverterForClass(Access.class).getDBValue(model.access);
+            if (modelaccess != null) {
+                statement.bindString(7, (String) modelaccess);
+            } else {
+                statement.bindNull(7);
+            }
+            State modelstate = model.state;
+            if (modelstate != null) {
+                statement.bindString(8, modelstate.name());
+            } else {
+                statement.bindNull(8);
+            }
+            if (model.firstName != null) {
+                statement.bindString(9, model.firstName);
+            } else {
+                statement.bindNull(9);
+            }
+            if (model.surname != null) {
+                statement.bindString(10, model.surname);
+            } else {
+                statement.bindNull(10);
+            }
+            if (model.gender != null) {
+                statement.bindString(11, model.gender);
+            } else {
+                statement.bindNull(11);
+            }
+            if (model.birthday != null) {
+                statement.bindString(12, model.birthday);
+            } else {
+                statement.bindNull(12);
+            }
+            if (model.introduction != null) {
+                statement.bindString(13, model.introduction);
+            } else {
+                statement.bindNull(13);
+            }
+            if (model.education != null) {
+                statement.bindString(14, model.education);
+            } else {
+                statement.bindNull(14);
+            }
+            if (model.employer != null) {
+                statement.bindString(15, model.employer);
+            } else {
+                statement.bindNull(15);
+            }
+            if (model.interests != null) {
+                statement.bindString(16, model.interests);
+            } else {
+                statement.bindNull(16);
+            }
+            if (model.jobTitle != null) {
+                statement.bindString(17, model.jobTitle);
+            } else {
+                statement.bindNull(17);
+            }
+            if (model.languages != null) {
+                statement.bindString(18, model.languages);
+            } else {
+                statement.bindNull(18);
+            }
+            if (model.email != null) {
+                statement.bindString(19, model.email);
+            } else {
+                statement.bindNull(19);
+            }
+        }
+
+        public void bindToContentValues(ContentValues contentValues, UserAccount model) {
+            contentValues.put("id", Long.valueOf(model.id));
+            if (model.uId != null) {
+                contentValues.put(Table.UID, model.uId);
+            } else {
+                contentValues.putNull(Table.UID);
+            }
+            if (model.name != null) {
+                contentValues.put("name", model.name);
+            } else {
+                contentValues.putNull("name");
+            }
+            if (model.displayName != null) {
+                contentValues.put("displayName", model.displayName);
+            } else {
+                contentValues.putNull("displayName");
+            }
+            Object modelcreated = FlowManager.getTypeConverterForClass(DateTime.class).getDBValue(model.created);
+            if (modelcreated != null) {
+                contentValues.put("created", (String) modelcreated);
+            } else {
+                contentValues.putNull("created");
+            }
+            Object modellastUpdated = FlowManager.getTypeConverterForClass(DateTime.class).getDBValue(model.lastUpdated);
+            if (modellastUpdated != null) {
+                contentValues.put("lastUpdated", (String) modellastUpdated);
+            } else {
+                contentValues.putNull("lastUpdated");
+            }
+            Object modelaccess = FlowManager.getTypeConverterForClass(Access.class).getDBValue(model.access);
+            if (modelaccess != null) {
+                contentValues.put("access", (String) modelaccess);
+            } else {
+                contentValues.putNull("access");
+            }
+            State modelstate = model.state;
+            if (modelstate != null) {
+                contentValues.put("state", modelstate.name());
+            } else {
+                contentValues.putNull("state");
+            }
+            if (model.firstName != null) {
+                contentValues.put("firstName", model.firstName);
+            } else {
+                contentValues.putNull("firstName");
+            }
+            if (model.surname != null) {
+                contentValues.put(Table.SURNAME, model.surname);
+            } else {
+                contentValues.putNull(Table.SURNAME);
+            }
+            if (model.gender != null) {
+                contentValues.put(Table.GENDER, model.gender);
+            } else {
+                contentValues.putNull(Table.GENDER);
+            }
+            if (model.birthday != null) {
+                contentValues.put(Table.BIRTHDAY, model.birthday);
+            } else {
+                contentValues.putNull(Table.BIRTHDAY);
+            }
+            if (model.introduction != null) {
+                contentValues.put(Table.INTRODUCTION, model.introduction);
+            } else {
+                contentValues.putNull(Table.INTRODUCTION);
+            }
+            if (model.education != null) {
+                contentValues.put(Table.EDUCATION, model.education);
+            } else {
+                contentValues.putNull(Table.EDUCATION);
+            }
+            if (model.employer != null) {
+                contentValues.put(Table.EMPLOYER, model.employer);
+            } else {
+                contentValues.putNull(Table.EMPLOYER);
+            }
+            if (model.interests != null) {
+                contentValues.put(Table.INTERESTS, model.interests);
+            } else {
+                contentValues.putNull(Table.INTERESTS);
+            }
+            if (model.jobTitle != null) {
+                contentValues.put(Table.JOBTITLE, model.jobTitle);
+            } else {
+                contentValues.putNull(Table.JOBTITLE);
+            }
+            if (model.languages != null) {
+                contentValues.put(Table.LANGUAGES, model.languages);
+            } else {
+                contentValues.putNull(Table.LANGUAGES);
+            }
+            if (model.email != null) {
+                contentValues.put("email", model.email);
+            } else {
+                contentValues.putNull("email");
+            }
+        }
+
+        public void bindToInsertValues(ContentValues contentValues, UserAccount model) {
+            contentValues.put("id", Long.valueOf(model.id));
+            if (model.uId != null) {
+                contentValues.put(Table.UID, model.uId);
+            } else {
+                contentValues.putNull(Table.UID);
+            }
+            if (model.name != null) {
+                contentValues.put("name", model.name);
+            } else {
+                contentValues.putNull("name");
+            }
+            if (model.displayName != null) {
+                contentValues.put("displayName", model.displayName);
+            } else {
+                contentValues.putNull("displayName");
+            }
+            Object modelcreated = FlowManager.getTypeConverterForClass(DateTime.class).getDBValue(model.created);
+            if (modelcreated != null) {
+                contentValues.put("created", (String) modelcreated);
+            } else {
+                contentValues.putNull("created");
+            }
+            Object modellastUpdated = FlowManager.getTypeConverterForClass(DateTime.class).getDBValue(model.lastUpdated);
+            if (modellastUpdated != null) {
+                contentValues.put("lastUpdated", (String) modellastUpdated);
+            } else {
+                contentValues.putNull("lastUpdated");
+            }
+            Object modelaccess = FlowManager.getTypeConverterForClass(Access.class).getDBValue(model.access);
+            if (modelaccess != null) {
+                contentValues.put("access", (String) modelaccess);
+            } else {
+                contentValues.putNull("access");
+            }
+            State modelstate = model.state;
+            if (modelstate != null) {
+                contentValues.put("state", modelstate.name());
+            } else {
+                contentValues.putNull("state");
+            }
+            if (model.firstName != null) {
+                contentValues.put("firstName", model.firstName);
+            } else {
+                contentValues.putNull("firstName");
+            }
+            if (model.surname != null) {
+                contentValues.put(Table.SURNAME, model.surname);
+            } else {
+                contentValues.putNull(Table.SURNAME);
+            }
+            if (model.gender != null) {
+                contentValues.put(Table.GENDER, model.gender);
+            } else {
+                contentValues.putNull(Table.GENDER);
+            }
+            if (model.birthday != null) {
+                contentValues.put(Table.BIRTHDAY, model.birthday);
+            } else {
+                contentValues.putNull(Table.BIRTHDAY);
+            }
+            if (model.introduction != null) {
+                contentValues.put(Table.INTRODUCTION, model.introduction);
+            } else {
+                contentValues.putNull(Table.INTRODUCTION);
+            }
+            if (model.education != null) {
+                contentValues.put(Table.EDUCATION, model.education);
+            } else {
+                contentValues.putNull(Table.EDUCATION);
+            }
+            if (model.employer != null) {
+                contentValues.put(Table.EMPLOYER, model.employer);
+            } else {
+                contentValues.putNull(Table.EMPLOYER);
+            }
+            if (model.interests != null) {
+                contentValues.put(Table.INTERESTS, model.interests);
+            } else {
+                contentValues.putNull(Table.INTERESTS);
+            }
+            if (model.jobTitle != null) {
+                contentValues.put(Table.JOBTITLE, model.jobTitle);
+            } else {
+                contentValues.putNull(Table.JOBTITLE);
+            }
+            if (model.languages != null) {
+                contentValues.put(Table.LANGUAGES, model.languages);
+            } else {
+                contentValues.putNull(Table.LANGUAGES);
+            }
+            if (model.email != null) {
+                contentValues.put("email", model.email);
+            } else {
+                contentValues.putNull("email");
+            }
+        }
+
+        public boolean exists(UserAccount model) {
+            return new Select().from(UserAccount.class).where(getPrimaryModelWhere(model)).hasData();
+        }
+
+        public void loadFromCursor(Cursor cursor, UserAccount model) {
+            int indexid = cursor.getColumnIndex("id");
+            if (indexid != -1) {
+                model.id = cursor.getLong(indexid);
+            }
+            int indexuId = cursor.getColumnIndex(Table.UID);
+            if (indexuId != -1) {
+                if (cursor.isNull(indexuId)) {
+                    model.uId = null;
+                } else {
+                    model.uId = cursor.getString(indexuId);
+                }
+            }
+            int indexname = cursor.getColumnIndex("name");
+            if (indexname != -1) {
+                if (cursor.isNull(indexname)) {
+                    model.name = null;
+                } else {
+                    model.name = cursor.getString(indexname);
+                }
+            }
+            int indexdisplayName = cursor.getColumnIndex("displayName");
+            if (indexdisplayName != -1) {
+                if (cursor.isNull(indexdisplayName)) {
+                    model.displayName = null;
+                } else {
+                    model.displayName = cursor.getString(indexdisplayName);
+                }
+            }
+            int indexcreated = cursor.getColumnIndex("created");
+            if (indexcreated != -1) {
+                if (cursor.isNull(indexcreated)) {
+                    model.created = null;
+                } else {
+                    model.created = (DateTime) FlowManager.getTypeConverterForClass(DateTime.class).getModelValue(cursor.getString(indexcreated));
+                }
+            }
+            int indexlastUpdated = cursor.getColumnIndex("lastUpdated");
+            if (indexlastUpdated != -1) {
+                if (cursor.isNull(indexlastUpdated)) {
+                    model.lastUpdated = null;
+                } else {
+                    model.lastUpdated = (DateTime) FlowManager.getTypeConverterForClass(DateTime.class).getModelValue(cursor.getString(indexlastUpdated));
+                }
+            }
+            int indexaccess = cursor.getColumnIndex("access");
+            if (indexaccess != -1) {
+                if (cursor.isNull(indexaccess)) {
+                    model.access = null;
+                } else {
+                    model.access = (Access) FlowManager.getTypeConverterForClass(Access.class).getModelValue(cursor.getString(indexaccess));
+                }
+            }
+            int indexstate = cursor.getColumnIndex("state");
+            if (indexstate != -1) {
+                if (cursor.isNull(indexstate)) {
+                    model.state = null;
+                } else {
+                    model.state = State.valueOf(cursor.getString(indexstate));
+                }
+            }
+            int indexfirstName = cursor.getColumnIndex("firstName");
+            if (indexfirstName != -1) {
+                if (cursor.isNull(indexfirstName)) {
+                    model.firstName = null;
+                } else {
+                    model.firstName = cursor.getString(indexfirstName);
+                }
+            }
+            int indexsurname = cursor.getColumnIndex(Table.SURNAME);
+            if (indexsurname != -1) {
+                if (cursor.isNull(indexsurname)) {
+                    model.surname = null;
+                } else {
+                    model.surname = cursor.getString(indexsurname);
+                }
+            }
+            int indexgender = cursor.getColumnIndex(Table.GENDER);
+            if (indexgender != -1) {
+                if (cursor.isNull(indexgender)) {
+                    model.gender = null;
+                } else {
+                    model.gender = cursor.getString(indexgender);
+                }
+            }
+            int indexbirthday = cursor.getColumnIndex(Table.BIRTHDAY);
+            if (indexbirthday != -1) {
+                if (cursor.isNull(indexbirthday)) {
+                    model.birthday = null;
+                } else {
+                    model.birthday = cursor.getString(indexbirthday);
+                }
+            }
+            int indexintroduction = cursor.getColumnIndex(Table.INTRODUCTION);
+            if (indexintroduction != -1) {
+                if (cursor.isNull(indexintroduction)) {
+                    model.introduction = null;
+                } else {
+                    model.introduction = cursor.getString(indexintroduction);
+                }
+            }
+            int indexeducation = cursor.getColumnIndex(Table.EDUCATION);
+            if (indexeducation != -1) {
+                if (cursor.isNull(indexeducation)) {
+                    model.education = null;
+                } else {
+                    model.education = cursor.getString(indexeducation);
+                }
+            }
+            int indexemployer = cursor.getColumnIndex(Table.EMPLOYER);
+            if (indexemployer != -1) {
+                if (cursor.isNull(indexemployer)) {
+                    model.employer = null;
+                } else {
+                    model.employer = cursor.getString(indexemployer);
+                }
+            }
+            int indexinterests = cursor.getColumnIndex(Table.INTERESTS);
+            if (indexinterests != -1) {
+                if (cursor.isNull(indexinterests)) {
+                    model.interests = null;
+                } else {
+                    model.interests = cursor.getString(indexinterests);
+                }
+            }
+            int indexjobTitle = cursor.getColumnIndex(Table.JOBTITLE);
+            if (indexjobTitle != -1) {
+                if (cursor.isNull(indexjobTitle)) {
+                    model.jobTitle = null;
+                } else {
+                    model.jobTitle = cursor.getString(indexjobTitle);
+                }
+            }
+            int indexlanguages = cursor.getColumnIndex(Table.LANGUAGES);
+            if (indexlanguages != -1) {
+                if (cursor.isNull(indexlanguages)) {
+                    model.languages = null;
+                } else {
+                    model.languages = cursor.getString(indexlanguages);
+                }
+            }
+            int indexemail = cursor.getColumnIndex("email");
+            if (indexemail == -1) {
+                return;
+            }
+            if (cursor.isNull(indexemail)) {
+                model.email = null;
+            } else {
+                model.email = cursor.getString(indexemail);
+            }
+        }
+
+        public boolean hasCachingId() {
+            return true;
+        }
+
+        public Object getCachingId(UserAccount model) {
+            return Long.valueOf(model.id);
+        }
+
+        public String getCachingColumnName() {
+            return "id";
+        }
+
+        public Object getCachingIdFromCursorIndex(Cursor cursor, int indexid) {
+            return Long.valueOf(cursor.getLong(indexid));
+        }
+
+        public ConditionQueryBuilder<UserAccount> getPrimaryModelWhere(UserAccount model) {
+            return new ConditionQueryBuilder(UserAccount.class, Condition.column("id").is(Long.valueOf(model.id)));
+        }
+
+        public ConditionQueryBuilder<UserAccount> createPrimaryModelWhere() {
+            return new ConditionQueryBuilder(UserAccount.class, Condition.column("id").is(Operation.EMPTY_PARAM));
+        }
+
+        public String getCreationQuery() {
+            return "CREATE TABLE IF NOT EXISTS `UserAccount`(`id` INTEGER, `uId` TEXT, `name` TEXT, `displayName` TEXT, `created` TEXT, `lastUpdated` TEXT, `access` TEXT, `state` TEXT, `firstName` TEXT, `surname` TEXT, `gender` TEXT, `birthday` TEXT, `introduction` TEXT, `education` TEXT, `employer` TEXT, `interests` TEXT, `jobTitle` TEXT, `languages` TEXT, `email` TEXT, PRIMARY KEY(`id`));";
+        }
+
+        public final UserAccount newInstance() {
+            return new UserAccount();
+        }
+    }
+
+    public final class Table {
+        public static final String ACCESS = "access";
+        public static final String BIRTHDAY = "birthday";
+        public static final String CREATED = "created";
+        public static final String DISPLAYNAME = "displayName";
+        public static final String EDUCATION = "education";
+        public static final String EMAIL = "email";
+        public static final String EMPLOYER = "employer";
+        public static final String FIRSTNAME = "firstName";
+        public static final String GENDER = "gender";
+        public static final String ID = "id";
+        public static final String INTERESTS = "interests";
+        public static final String INTRODUCTION = "introduction";
+        public static final String JOBTITLE = "jobTitle";
+        public static final String LANGUAGES = "languages";
+        public static final String LASTUPDATED = "lastUpdated";
+        public static final String NAME = "name";
+        public static final String STATE = "state";
+        public static final String SURNAME = "surname";
+        public static final String TABLE_NAME = "UserAccount";
+        public static final String UID = "uId";
+    }
 
     @JsonProperty("userGroups")
     public void setUserGroups(List<UserGroup> uga) {
-        this.userGroups  = new ArrayList<>();
+        this.userGroups = new ArrayList();
         for (UserGroup a : uga) {
             a.uniqId = this.uId;
             a.save();
@@ -161,33 +601,23 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
         }
     }
 
-
-    public UserAccount() {
-        state = State.SYNCED;
-    }
-
-    /* Norway: Using Organizations to get programs */
     public List<Program> getPrograms() {
-        Map<String, Program> programMap = new HashMap<>();
-
+        Map<String, Program> programMap = new HashMap();
         if (hasOrganisationPrograms()) {
-
-            /* go through all Programs and extract assigned programs where user has rights */
-            for (OrganisationUnit o : organisationUnits) {
+            for (OrganisationUnit o : this.organisationUnits) {
                 for (Program program : o.getPrograms()) {
-                    if (program.userHasAccess(userGroups)) {
+                    if (program.userHasAccess(this.userGroups)) {
                         programMap.put(program.getUid(), program);
                     }
                 }
             }
         }
-
-        return new ArrayList<>(programMap.values());
+        return new ArrayList(programMap.values());
     }
 
     private boolean hasOrganisationPrograms() {
-        if (organisationUnits != null && organisationUnits.size() > 0) {
-            for (OrganisationUnit o : organisationUnits) {
+        if (this.organisationUnits != null && this.organisationUnits.size() > 0) {
+            for (OrganisationUnit o : this.organisationUnits) {
                 if (o.getPrograms().size() > 0) {
                     return true;
                 }
@@ -196,31 +626,32 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
         return false;
     }
 
+    public boolean hasOrganisationAccess(String orgId) {
+        if (this.organisationUnits != null && this.organisationUnits.size() > 0) {
+            for (OrganisationUnit o : this.organisationUnits) {
+                if (o.getId().equals(orgId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-    public List<UserGroup> getUserGroups () {
+    public List<UserGroup> getUserGroups() {
         if (this.userGroups == null) {
-            // System.out.println("Norway - USER UID: " + this.uId + " name: "+this.getDisplayName());
             this.userGroups = MetaDataController.getUserGroups(this.uId);
-            // for(UserGroup a : this.userGroups) {
-            //    System.out.println("Norway - UG: " + a.getId());
-            //}
         }
         return this.userGroups;
     }
 
-    public UserCredentials getUserCredentials() { return userCredentials; }
+    public UserCredentials getUserCredentials() {
+        return this.userCredentials;
+    }
 
     @JsonIgnore
     public static UserAccount getCurrentUserAccountFromDb() {
-        return new Select().from(UserAccount.class)
-                .where(Condition.column(UserAccount$Table.ID).is(LOCAL_ID))
-                .querySingle();
+        return (UserAccount) new Select().from(UserAccount.class).where(Condition.column("id").is(Integer.valueOf(1))).querySingle();
     }
-
-    /* @JsonIgnore
-    public static User getCurrentUser() {
-        return toUser(getCurrentUserAccountFromDb());
-    } */
 
     @JsonIgnore
     public static User toUser(UserAccount userAccount) {
@@ -228,104 +659,88 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
         user.setUid(userAccount.getUId());
         user.setAccess(userAccount.getAccess());
         user.setCreated(user.getCreated());
-        //user.setLastUpdated(userAccount.getLastUpdated());
         user.setName(userAccount.getName());
-        //user.setDisplayName(userAccount.getDisplayName());
         return user;
     }
 
     @JsonIgnore
-    @Override
     public long getId() {
-        return id;
+        return this.id;
     }
 
     @JsonIgnore
-    @Override
     public void setId(long id) {
         throw new UnsupportedOperationException("You cannot set id on UserAccount");
     }
 
     @JsonIgnore
     public List<OrganisationUnit> getOrganisationUnits() {
-        return organisationUnits;
+        return this.organisationUnits;
     }
 
     @JsonIgnore
-    @Override
     public String getUId() {
-        return uId;
+        return this.uId;
     }
 
     @JsonIgnore
-    @Override
     public void setUId(String uId) {
         this.uId = uId;
     }
 
     @JsonIgnore
-    @Override
     public String getName() {
-        return name;
+        return this.name;
     }
 
     @JsonIgnore
-    @Override
     public void setName(String name) {
         this.name = name;
     }
 
     @JsonIgnore
-    @Override
     public String getDisplayName() {
-        return displayName;
+        return this.displayName;
     }
 
     @JsonIgnore
-    @Override
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
 
     @JsonIgnore
-    @Override
     public DateTime getCreated() {
-        return created;
+        return this.created;
     }
 
     @JsonIgnore
-    @Override
     public void setCreated(DateTime created) {
         this.created = created;
     }
 
     @JsonIgnore
-    @Override
     public DateTime getLastUpdated() {
-        return lastUpdated;
+        return this.lastUpdated;
     }
 
     @JsonIgnore
-    @Override
     public void setLastUpdated(DateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
     @JsonIgnore
-    @Override
     public Access getAccess() {
-        return access;
+        return this.access;
     }
 
     @JsonIgnore
-    @Override
     public void setAccess(Access access) {
         this.access = access;
     }
 
     @JsonIgnore
     public State getState() {
-        return state;
+        return this.state;
     }
 
     @JsonIgnore
@@ -335,7 +750,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getFirstName() {
-        return firstName;
+        return this.firstName;
     }
 
     @JsonIgnore
@@ -345,7 +760,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getSurname() {
-        return surname;
+        return this.surname;
     }
 
     @JsonIgnore
@@ -355,7 +770,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getGender() {
-        return gender;
+        return this.gender;
     }
 
     @JsonIgnore
@@ -365,7 +780,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getBirthday() {
-        return birthday;
+        return this.birthday;
     }
 
     @JsonIgnore
@@ -375,7 +790,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getIntroduction() {
-        return introduction;
+        return this.introduction;
     }
 
     @JsonIgnore
@@ -385,7 +800,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getEducation() {
-        return education;
+        return this.education;
     }
 
     @JsonIgnore
@@ -395,7 +810,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getEmployer() {
-        return employer;
+        return this.employer;
     }
 
     @JsonIgnore
@@ -405,7 +820,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getInterests() {
-        return interests;
+        return this.interests;
     }
 
     @JsonIgnore
@@ -415,7 +830,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getJobTitle() {
-        return jobTitle;
+        return this.jobTitle;
     }
 
     @JsonIgnore
@@ -425,7 +840,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getLanguages() {
-        return languages;
+        return this.languages;
     }
 
     @JsonIgnore
@@ -435,7 +850,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getEmail() {
-        return email;
+        return this.email;
     }
 
     @JsonIgnore
@@ -445,7 +860,7 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
 
     @JsonIgnore
     public String getPhoneNumber() {
-        return phoneNumber;
+        return this.phoneNumber;
     }
 
     @JsonIgnore
@@ -454,11 +869,10 @@ public final class UserAccount extends BaseModel implements IdentifiableObject {
     }
 
     public List<OrganisationUnit> getTeiSearchOrganisationUnits() {
-        return teiSearchOrganisationUnits;
+        return this.teiSearchOrganisationUnits;
     }
 
     public void setTeiSearchOrganisationUnits(List<OrganisationUnit> teiSearchOrganisationUnits) {
         this.teiSearchOrganisationUnits = teiSearchOrganisationUnits;
     }
-
 }

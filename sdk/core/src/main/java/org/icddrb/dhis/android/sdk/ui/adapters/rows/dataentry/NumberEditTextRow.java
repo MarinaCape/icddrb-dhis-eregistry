@@ -1,148 +1,71 @@
 package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
-
-import static org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.AbsDatePickerRow.EMPTY_FIELD;
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.text.InputFilter;
-import android.text.InputType;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.C0845R;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
+import org.icddrb.dhis.android.sdk.utils.support.expression.Expression;
 
 public class NumberEditTextRow extends TextRow {
     private static String rowTypeTemp;
 
-    public NumberEditTextRow(String label, boolean mandatory, String warning,
-            BaseValue baseValue,
-            DataEntryRowTypes rowType) {
-        mLabel = label;
-        mMandatory = mandatory;
-        mWarning = warning;
-        mValue = baseValue;
-        mRowType = rowType;
-
-        if (!DataEntryRowTypes.NUMBER.equals(rowType)) {
-            throw new IllegalArgumentException("Unsupported row type");
+    private static class NumberFilter implements InputFilter {
+        private NumberFilter() {
         }
-        checkNeedsForDescriptionButton();
+
+        public CharSequence filter(CharSequence str, int start, int end, Spanned spn, int spnStart, int spnEnd) {
+            if (ifStartsWithPointReturnEmpty(str, spnStart, spnEnd)) {
+                return "";
+            }
+            CharSequence x = ifStartsWithZeroesReturnEmpty(str, spn);
+            if (x == null) {
+                return str;
+            }
+            return x;
+        }
+
+        @Nullable
+        private CharSequence ifStartsWithZeroesReturnEmpty(CharSequence str, Spanned spn) {
+            if (str.length() <= 0 || str.charAt(0) != '0' || spn.length() <= 0 || spn.charAt(0) != '0' || (spn.length() > 1 && spn.charAt(1) != '0')) {
+                return null;
+            }
+            if (spn.length() <= 1 || !spn.toString().contains(Expression.SEPARATOR)) {
+                return "";
+            }
+            return str;
+        }
+
+        private boolean ifStartsWithPointReturnEmpty(CharSequence str, int spnStart, int spnEnd) {
+            if (str.length() > 0 && str.charAt(0) == '.' && spnStart == 0 && spnEnd == 1) {
+                return true;
+            }
+            return false;
+        }
     }
 
-    @Override
-    public int getViewType() {
-        return DataEntryRowTypes.NUMBER.ordinal();
-    }
-
-    @Override
-    public View getView(FragmentManager fragmentManager, LayoutInflater inflater,
-            View convertView, ViewGroup container) {
-        View view;
-        final ValueEntryHolder holder;
-
-        if (convertView != null && convertView.getTag() instanceof ValueEntryHolder) {
-            view = convertView;
-            holder = (ValueEntryHolder) view.getTag();
-            holder.listener.onRowReused();
-        } else {
-            View root = inflater.inflate(R.layout.listview_row_edit_text, container, false);
-            TextView label = (TextView) root.findViewById(R.id.text_label);
-            TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
-            TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
-            TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
-            EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
-//            detailedInfoButton = root.findViewById(R.id.detailed_info_button_layout);
-
-            editText.setInputType(InputType.TYPE_CLASS_NUMBER |
-                    InputType.TYPE_NUMBER_FLAG_DECIMAL |
-                    InputType.TYPE_NUMBER_FLAG_SIGNED);
-            editText.setHint(R.string.enter_number);
-            editText.setFilters(new InputFilter[]{new NumberFilter()});
-            editText.setOnFocusChangeListener(new OnNumberFocusChangeListener(editText));
-            editText.setSingleLine(true);
-
-            OnTextChangeListener listener = new OnTextChangeListener();
-            listener.setRow(this);
-            listener.setRowType(rowTypeTemp);
-            holder = new ValueEntryHolder(label, mandatoryIndicator, warningLabel, errorLabel,
-                    editText, listener);
-            holder.listener.setBaseValue(mValue);
-            holder.editText.addTextChangedListener(listener);
-
-            rowTypeTemp = mRowType.toString();
-            root.setTag(holder);
-            view = root;
-        }
-
-        //when recycling views we don't want to keep the focus on the edittext
-        //holder.editText.clearFocus();
-
-        if (!isEditable()) {
-            holder.editText.setEnabled(false);
-        } else {
-            holder.editText.setEnabled(true);
-        }
-
-        holder.textLabel.setText(mLabel);
-        holder.listener.setBaseValue(mValue);
-//        holder.detailedInfoButton.setOnClickListener(new OnDetailedInfoButtonClick(this));
-
-        holder.editText.setText(mValue.getValue());
-        holder.editText.setSelection(holder.editText.getText().length());
-
-//        if(isDetailedInfoButtonHidden()) {
-//            holder.detailedInfoButton.setVisibility(View.INVISIBLE);
-//        }
-//        else {
-//            holder.detailedInfoButton.setVisibility(View.VISIBLE);
-//        }
-
-        if (mWarning == null) {
-            holder.warningLabel.setVisibility(View.GONE);
-        } else {
-            holder.warningLabel.setVisibility(View.VISIBLE);
-            holder.warningLabel.setText(mWarning);
-        }
-
-        if (mError == null) {
-            holder.errorLabel.setVisibility(View.GONE);
-        } else {
-            holder.errorLabel.setVisibility(View.VISIBLE);
-            holder.errorLabel.setText(mError);
-        }
-
-        if (!mMandatory) {
-            holder.mandatoryIndicator.setVisibility(View.GONE);
-        } else {
-            holder.mandatoryIndicator.setVisibility(View.VISIBLE);
-        }
-        holder.editText.setOnEditorActionListener(mOnEditorActionListener);
-        return view;
-    }
-
-    private class OnNumberFocusChangeListener implements View.OnFocusChangeListener {
+    private class OnNumberFocusChangeListener implements OnFocusChangeListener {
         private EditText mEditText;
 
         public OnNumberFocusChangeListener(EditText editText) {
-            mEditText = editText;
+            this.mEditText = editText;
         }
 
-        @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (!hasFocus) {
-                String text = mEditText.getText().toString();
-                text = trimLeftZeroes(text);
-                if (mEditText.getText() != null && text.endsWith(".")) {
+                String text = trimLeftZeroes(this.mEditText.getText().toString());
+                if (this.mEditText.getText() != null && text.endsWith(Expression.SEPARATOR)) {
                     text = removeLastChar(text);
-                } else if (text.contains(".")) {
+                } else if (text.contains(Expression.SEPARATOR)) {
                     text = fixDecimals(text);
                 }
                 setText(text);
@@ -151,19 +74,14 @@ public class NumberEditTextRow extends TextRow {
 
         @NonNull
         private String fixDecimals(String text) {
-            int pointPosition = text.indexOf(".");
-            String removeZeroes = text.substring(pointPosition + 1,
-                    text.length());
-            removeZeroes = trimDecimalsRightZeroes(removeZeroes);
-            text = text.substring(0, pointPosition + 1) + removeZeroes;
-            text = removeIncorrectDecimals(text);
-            return text;
+            int pointPosition = text.indexOf(Expression.SEPARATOR);
+            return removeIncorrectDecimals(text.substring(0, pointPosition + 1) + trimDecimalsRightZeroes(text.substring(pointPosition + 1, text.length())));
         }
 
         @NonNull
         private String removeIncorrectDecimals(String text) {
             if (text.endsWith(".0")) {
-                text = text.substring(0, text.indexOf(".0"));
+                return text.substring(0, text.indexOf(".0"));
             }
             return text;
         }
@@ -174,63 +92,101 @@ public class NumberEditTextRow extends TextRow {
         }
 
         private void setText(String substring) {
-            //The edittext clear() should be called to avoid infinite loop listening the focus event
-            mEditText.getText().clear();
-            mEditText.append(substring);
+            this.mEditText.getText().clear();
+            this.mEditText.append(substring);
         }
 
         private String trimLeftZeroes(String text) {
-            if (text.startsWith("0") && text.length() > 1) {
-                if (text.contains(".")) {
-                    String decimals = text.substring(text.indexOf("."),
-                            text.length());
-                    text = new Integer(text.substring(0, text.indexOf("."))).toString() + decimals;
-                } else {
-                    text = new Integer(text).toString();
-                }
+            if (!text.startsWith("0") || text.length() <= 1) {
+                return text;
             }
-            return text;
+            if (!text.contains(Expression.SEPARATOR)) {
+                return new Integer(text).toString();
+            }
+            return new Integer(text.substring(0, text.indexOf(Expression.SEPARATOR))).toString() + text.substring(text.indexOf(Expression.SEPARATOR), text.length());
         }
 
         private String trimDecimalsRightZeroes(String text) {
-            if (text.endsWith("0") && text.length() > 1) {
-                return trimDecimalsRightZeroes(removeLastChar(text));
+            if (!text.endsWith("0") || text.length() <= 1) {
+                return text;
             }
-            return text;
+            return trimDecimalsRightZeroes(removeLastChar(text));
         }
     }
 
-    private static class NumberFilter implements InputFilter {
-
-        @Override
-        public CharSequence filter(CharSequence str, int start, int end,
-                Spanned spn, int spnStart, int spnEnd) {
-
-            if (ifStartsWithPointReturnEmpty(str, spnStart, spnEnd)) return EMPTY_FIELD;
-
-            CharSequence x = ifStartsWithZeroesReturnEmpty(str, spn);
-            if (x != null) return x;
-
-            return str;
+    public NumberEditTextRow(String label, boolean mandatory, String warning, BaseValue baseValue, DataEntryRowTypes rowType) {
+        this.mLabel = label;
+        this.mMandatory = mandatory;
+        this.mWarning = warning;
+        this.mValue = baseValue;
+        this.mRowType = rowType;
+        if (DataEntryRowTypes.NUMBER.equals(rowType)) {
+            checkNeedsForDescriptionButton();
+            return;
         }
+        throw new IllegalArgumentException("Unsupported row type");
+    }
 
-        @Nullable
-        private CharSequence ifStartsWithZeroesReturnEmpty(CharSequence str, Spanned spn) {
-            if ((str.length() > 0) && (str.charAt(0) == '0' && spn.length() > 0 && (spn.charAt(0)
-                    == '0' && !(spn.length() > 1 && spn.charAt(1) != '0')))) {
-                if (spn.length() > 1 && spn.toString().contains(".")) {
-                    return str;
-                }
-                return EMPTY_FIELD;
-            }
-            return null;
-        }
+    public int getViewType() {
+        return DataEntryRowTypes.NUMBER.ordinal();
+    }
 
-        private boolean ifStartsWithPointReturnEmpty(CharSequence str, int spnStart, int spnEnd) {
-            if (str.length() > 0 && str.charAt(0) == '.' && spnStart == 0 && spnEnd == 1) {
-                return true;
-            }
-            return false;
+    public View getView(FragmentManager fragmentManager, LayoutInflater inflater, View convertView, ViewGroup container) {
+        ValueEntryHolder holder;
+        View view;
+        if (convertView == null || !(convertView.getTag() instanceof ValueEntryHolder)) {
+            View root = inflater.inflate(C0845R.layout.listview_row_edit_text, container, false);
+            TextView label = (TextView) root.findViewById(C0845R.id.text_label);
+            TextView mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
+            TextView warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
+            TextView errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
+            EditText editText = (EditText) root.findViewById(C0845R.id.edit_text_row);
+            editText.setInputType(12290);
+            editText.setHint(C0845R.string.enter_number);
+            editText.setFilters(new InputFilter[]{new NumberFilter()});
+            editText.setOnFocusChangeListener(new OnNumberFocusChangeListener(editText));
+            editText.setSingleLine(true);
+            OnTextChangeListener listener = new OnTextChangeListener();
+            listener.setRow(this);
+            listener.setRowType(rowTypeTemp);
+            holder = new ValueEntryHolder(label, mandatoryIndicator, warningLabel, errorLabel, editText, listener);
+            holder.listener.setBaseValue(this.mValue);
+            holder.editText.addTextChangedListener(listener);
+            rowTypeTemp = this.mRowType.toString();
+            root.setTag(holder);
+            view = root;
+        } else {
+            view = convertView;
+            holder = (ValueEntryHolder) view.getTag();
+            holder.listener.onRowReused();
         }
+        if (isEditable()) {
+            holder.editText.setEnabled(true);
+        } else {
+            holder.editText.setEnabled(false);
+        }
+        holder.textLabel.setText(this.mLabel);
+        holder.listener.setBaseValue(this.mValue);
+        holder.editText.setText(this.mValue.getValue());
+        holder.editText.setSelection(holder.editText.getText().length());
+        if (this.mWarning == null) {
+            holder.warningLabel.setVisibility(8);
+        } else {
+            holder.warningLabel.setVisibility(0);
+            holder.warningLabel.setText(this.mWarning);
+        }
+        if (this.mError == null) {
+            holder.errorLabel.setVisibility(8);
+        } else {
+            holder.errorLabel.setVisibility(0);
+            holder.errorLabel.setText(this.mError);
+        }
+        if (this.mMandatory) {
+            holder.mandatoryIndicator.setVisibility(0);
+        } else {
+            holder.mandatoryIndicator.setVisibility(8);
+        }
+        holder.editText.setOnEditorActionListener(this.mOnEditorActionListener);
+        return view;
     }
 }

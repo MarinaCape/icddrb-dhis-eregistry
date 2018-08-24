@@ -1,32 +1,3 @@
-/*
- *  Copyright (c) 2016, University of Oslo
- *  * All rights reserved.
- *  *
- *  * Redistribution and use in source and binary forms, with or without
- *  * modification, are permitted provided that the following conditions are met:
- *  * Redistributions of source code must retain the above copyright notice, this
- *  * list of conditions and the following disclaimer.
- *  *
- *  * Redistributions in binary form must reproduce the above copyright notice,
- *  * this list of conditions and the following disclaimer in the documentation
- *  * and/or other materials provided with the distribution.
- *  * Neither the name of the HISP project nor the names of its contributors may
- *  * be used to endorse or promote products derived from this software without
- *  * specific prior written permission.
- *  *
- *  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- *  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- *  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- *  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
- *  * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- *  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- *  * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
- *  * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- *  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
-
 package org.icddrb.dhis.android.sdk.controllers;
 
 import android.content.Context;
@@ -37,37 +8,28 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-
-import java.util.List;
+import org.icddrb.dhis.android.sdk.persistence.models.ProgramRuleAction.Table;
 
 public final class GpsController implements LocationListener {
-    private final String TAG = GpsController.class.getSimpleName();
-
     private static GpsController mManager;
-
-    // Variables for caching latest
-    // latitude and longitude values
+    private final String TAG = GpsController.class.getSimpleName();
     private double mLatitude;
+    private LocationManager mLocationManager;
     private double mLongitude;
 
-    // private Location location;
-    private LocationManager mLocationManager;
-
     private GpsController(Context context) {
-        mLocationManager = (LocationManager) context
-                .getSystemService(Context.LOCATION_SERVICE);
+        this.mLocationManager = (LocationManager) context.getSystemService(Table.LOCATION);
     }
 
     public static void activateGps(Context context) {
-        GpsController.init(context);
-        GpsController.getInstance().requestLocationUpdates();
+        init(context);
+        getInstance().requestLocationUpdates();
     }
 
     public static void disableGps() {
         try {
-            GpsController.getInstance().removeUpdates();
+            getInstance().removeUpdates();
         } catch (IllegalArgumentException e) {
-            //if this is called then probably the Gps hasnt been started, so we don't need to disable
         }
     }
 
@@ -78,80 +40,67 @@ public final class GpsController implements LocationListener {
     }
 
     public static GpsController getInstance() {
-        if (mManager == null) {
-            throw new IllegalArgumentException("You have to call init() method first");
+        if (mManager != null) {
+            return mManager;
         }
-        return mManager;
+        throw new IllegalArgumentException("You have to call init() method first");
     }
 
     public void requestLocationUpdates() {
-        List<String> providers = mLocationManager.getProviders(true);
-        for (String provider : providers) {
-            Log.d(TAG, provider);
-            mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
+        for (String provider : this.mLocationManager.getProviders(true)) {
+            Log.d(this.TAG, provider);
+            this.mLocationManager.requestLocationUpdates(provider, 0, 0.0f, this, Looper.getMainLooper());
         }
     }
 
     public boolean isGpsAvailable() {
-        return mLocationManager != null;
+        return this.mLocationManager != null;
     }
 
     public static Location getLocation() {
         getInstance().requestLocationUpdates();
-
-        Criteria criteria = new Criteria();
-        String provider = getInstance().mLocationManager.getBestProvider(criteria, false);
+        String provider = getInstance().mLocationManager.getBestProvider(new Criteria(), false);
         Location location = null;
-        if(provider != null) {
+        if (provider != null) {
             location = getInstance().mLocationManager.getLastKnownLocation(provider);
         }
-
         if (location != null) {
             getInstance().mLatitude = location.getLatitude();
             getInstance().mLongitude = location.getLongitude();
         }
-
         location = new Location(provider);
         location.setLatitude(getInstance().getLatitude());
         location.setLongitude(getInstance().getLongitude());
-
         return location;
     }
 
     public void removeUpdates() {
-        if(mLocationManager!=null) {
-            mLocationManager.removeUpdates(this);
+        if (this.mLocationManager != null) {
+            this.mLocationManager.removeUpdates(this);
         }
     }
 
-    @Override
     public void onLocationChanged(Location location) {
-        mLatitude = location.getLatitude();
-        mLongitude = location.getLongitude();
+        this.mLatitude = location.getLatitude();
+        this.mLongitude = location.getLongitude();
     }
 
-    @Override
     public void onProviderDisabled(String provider) {
-        // stub implementation
-        Log.d(TAG, "Provider disabled");
+        Log.d(this.TAG, "Provider disabled");
     }
 
-    @Override
     public void onProviderEnabled(String provider) {
-        // stub implementation
-        Log.d(TAG, "Provider enabled");
+        Log.d(this.TAG, "Provider enabled");
     }
 
-    @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        // stub implementation
     }
 
     public double getLatitude() {
-        return mLatitude;
+        return this.mLatitude;
     }
 
     public double getLongitude() {
-        return mLongitude;
+        return this.mLongitude;
     }
 }
