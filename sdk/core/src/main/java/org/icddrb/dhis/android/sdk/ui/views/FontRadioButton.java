@@ -6,7 +6,7 @@ import android.graphics.Typeface;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.util.AttributeSet;
 import android.widget.RadioGroup;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.utils.TypefaceManager;
 
 public class FontRadioButton extends AppCompatRadioButton {
@@ -26,8 +26,8 @@ public class FontRadioButton extends AppCompatRadioButton {
 
     private void init(Context context, AttributeSet attributeSet) {
         if (!isInEditMode()) {
-            TypedArray attrs = context.obtainStyledAttributes(attributeSet, C0845R.styleable.ViewFont);
-            setFont(attrs.getString(C0845R.styleable.ViewFont_font));
+            TypedArray attrs = context.obtainStyledAttributes(attributeSet, R.styleable.ViewFont);
+            setFont(attrs.getString(R.styleable.ViewFont_font));
             attrs.recycle();
         }
     }

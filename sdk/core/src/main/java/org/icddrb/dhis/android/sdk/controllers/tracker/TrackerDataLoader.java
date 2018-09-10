@@ -12,7 +12,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.icddrb.dhis.android.sdk.C0845R;
+
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.ApiEndpointContainer;
 import org.icddrb.dhis.android.sdk.controllers.LoadingController;
 import org.icddrb.dhis.android.sdk.controllers.ResourceController;
@@ -73,10 +74,10 @@ final class TrackerDataLoader extends ResourceController {
                 }
                 for (OrganisationUnit organisationUnit2 : assignedOrganisationUnits) {
                     if (!(organisationUnit2.getId() == null || organisationUnit2.getId().length() == Utils.randomUUID.length())) {
-                        for (Program program : (List) programsForOrganisationUnits.get(organisationUnit2.getId())) {
+                        for (Program program : programsForOrganisationUnits.get(organisationUnit2.getId())) {
                             if (!(program.getUid() == null || program.getUid().length() == Utils.randomUUID.length())) {
                                 if (ResourceController.shouldLoad(serverDateTime, ResourceType.EVENTS, organisationUnit2.getId() + program.getUid())) {
-                                    UiUtils.postProgressMessage(context.getString(C0845R.string.loading_events) + ": " + organisationUnit2.getLabel() + ": " + program.getName(), EventType.DATA);
+                                    UiUtils.postProgressMessage(context.getString(R.string.loading_events) + ": " + organisationUnit2.getLabel() + ": " + program.getName(), EventType.DATA);
                                     try {
                                         getEventsDataFromServer(dhisApi, syncStrategy, organisationUnit2.getId(), program.getUid(), serverDateTime);
                                     } catch (APIException e) {
@@ -106,7 +107,7 @@ final class TrackerDataLoader extends ResourceController {
         if (programToEnrollmentMap.keySet().size() > 0) {
             StringBuilder sb = new StringBuilder();
             for (String programUid : programToEnrollmentMap.keySet()) {
-                for (Enrollment enrollment : (List) programToEnrollmentMap.get(programUid)) {
+                for (Enrollment enrollment : programToEnrollmentMap.get(programUid)) {
                     sb.append(enrollment.getTrackedEntityInstance() + delimiter);
                 }
                 QUERY_MAP_FULL.put(trackedEntityInstanceQueryParams, sb.toString());
@@ -128,7 +129,7 @@ final class TrackerDataLoader extends ResourceController {
 
     static void deleteRemotelyDeletedTrackedEntityInstances(Context context, DhisApi dhisApi, Hashtable<String, List<Program>> myProgramsByOrganisationUnit) {
         for (String organisationUnitUid : myProgramsByOrganisationUnit.keySet()) {
-            UiUtils.postProgressMessage(context.getString(C0845R.string.sync_deleted_tracked_entities) + ": " + organisationUnitUid, EventType.REMOVE_DATA);
+            UiUtils.postProgressMessage(context.getString(R.string.sync_deleted_tracked_entities) + ": " + organisationUnitUid, EventType.REMOVE_DATA);
             HashMap<String, List<TrackedEntityInstance>> mapTrackedEntityInstances = groupTrackedEntityInstancesByTrackedEntity(TrackerController.getTrackedEntityInstances(organisationUnitUid));
             for (String trackedEntity : mapTrackedEntityInstances.keySet()) {
                 try {
@@ -143,7 +144,7 @@ final class TrackerDataLoader extends ResourceController {
 
     private static void deleteRemotelyDeletedEnrollments(Context context, DhisApi dhisApi, Hashtable<String, List<Program>> myProgramsByOrganisationUnit) {
         for (String organisationUnitUid : myProgramsByOrganisationUnit.keySet()) {
-            UiUtils.postProgressMessage(context.getString(C0845R.string.sync_deleted_enrollments) + ": " + organisationUnitUid, EventType.REMOVE_DATA);
+            UiUtils.postProgressMessage(context.getString(R.string.sync_deleted_enrollments) + ": " + organisationUnitUid, EventType.REMOVE_DATA);
             HashMap<String, List<TrackedEntityInstance>> mapTrackedEntityInstances = groupTrackedEntityInstancesByTrackedEntity(TrackerController.getTrackedEntityInstances(organisationUnitUid));
             for (String trackedEntity : mapTrackedEntityInstances.keySet()) {
                 List<TrackedEntityInstance> trackedEntityInstanceList = (List) mapTrackedEntityInstances.get(trackedEntity);
@@ -163,9 +164,9 @@ final class TrackerDataLoader extends ResourceController {
 
     private static void deleteRemotelyDeletedRelationships(Context context, DhisApi dhisApi, Hashtable<String, List<Program>> myProgramsByOrganisationUnit) {
         for (String organisationUnitUid : myProgramsByOrganisationUnit.keySet()) {
-            for (Program program : (List) myProgramsByOrganisationUnit.get(organisationUnitUid)) {
+            for (Program program : myProgramsByOrganisationUnit.get(organisationUnitUid)) {
                 if (!(program.getUid() == null || program.getUid().length() == Utils.randomUUID.length())) {
-                    UiUtils.postProgressMessage(context.getString(C0845R.string.sync_deleted_relations) + ": " + organisationUnitUid + ": " + program.getName(), EventType.REMOVE_DATA);
+                    UiUtils.postProgressMessage(context.getString(R.string.sync_deleted_relations) + ": " + organisationUnitUid + ": " + program.getName(), EventType.REMOVE_DATA);
                     try {
                         for (TrackedEntityInstance trackedEntityInstance : TrackerController.getTrackedEntityInstances()) {
                             if (trackedEntityInstance.getRelationships() != null && trackedEntityInstance.getRelationships().size() > 0) {
@@ -200,9 +201,9 @@ final class TrackerDataLoader extends ResourceController {
         Hashtable hashtable = new Hashtable();
         Hashtable<String, List<Program>> myProgramsByOrganisationUnit = MetaDataController.getAssignedProgramsByOrganisationUnit();
         for (String organisationUnitUid : myProgramsByOrganisationUnit.keySet()) {
-            for (Program program : (List) myProgramsByOrganisationUnit.get(organisationUnitUid)) {
+            for (Program program : myProgramsByOrganisationUnit.get(organisationUnitUid)) {
                 if (!(program.getUid() == null || program.getUid().length() == Utils.randomUUID.length())) {
-                    UiUtils.postProgressMessage(context.getString(C0845R.string.sync_deleted_events) + ": " + organisationUnitUid + ": " + program.getName(), EventType.REMOVE_DATA);
+                    UiUtils.postProgressMessage(context.getString(R.string.sync_deleted_events) + ": " + organisationUnitUid + ": " + program.getName(), EventType.REMOVE_DATA);
                     try {
                         deleteRemotelyDeletedEvents(dhisApi, organisationUnitUid, program.getUid());
                     } catch (APIException e) {

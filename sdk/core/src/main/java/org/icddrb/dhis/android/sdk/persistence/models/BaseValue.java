@@ -21,6 +21,9 @@ public abstract class BaseValue extends BaseModel implements Serializable {
         this.value = baseValue.value;
     }
 
+    protected BaseValue() {
+    }
+
     @JsonAnySetter
     public void handleUnknown(String key, Object value) {
     }

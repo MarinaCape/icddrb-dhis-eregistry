@@ -6,6 +6,6 @@ import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeGrou
 
 public class Version13MigrationAddTrackedEntityAttributeGroupTable extends BaseMigration {
     public void migrate(SQLiteDatabase database) {
-        database.execSQL(new Adapter().getCreationQuery());
+        //database.execSQL(new Adapter().getCreationQuery());
     }
 }

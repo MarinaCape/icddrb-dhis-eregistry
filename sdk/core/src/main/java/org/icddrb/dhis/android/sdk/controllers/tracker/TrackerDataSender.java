@@ -88,7 +88,7 @@ final class TrackerDataSender {
             if (importSummaries != null) {
                 DateTime eventUploadTime = dhisApi.getSystemInfo().getServerDate();
                 for (ImportSummary importSummary : importSummaries) {
-                    event2 = (Event) eventMap.get(importSummary.getReference());
+                    Event event2 = (Event) eventMap.get(importSummary.getReference());
                     System.out.println("IMPORT SUMMARY: " + importSummary.getDescription());
                     if ((ImportSummary.SUCCESS.equals(importSummary.getStatus()) || ImportSummary.OK.equals(importSummary.getStatus())) && event2 != null) {
                         event2.setFromServer(true);
@@ -418,7 +418,7 @@ final class TrackerDataSender {
             if (importSummaries != null) {
                 DateTime eventUploadTime = dhisApi.getSystemInfo().getServerDate();
                 for (ImportSummary importSummary : importSummaries) {
-                    trackedEntityInstance2 = (TrackedEntityInstance) trackedEntityInstanceMap.get(importSummary.getReference());
+                    TrackedEntityInstance trackedEntityInstance2 = (TrackedEntityInstance) trackedEntityInstanceMap.get(importSummary.getReference());
                     System.out.println("IMPORT SUMMARY: " + importSummary.getDescription());
                     if (importSummary.isSuccessOrOK()) {
                         trackedEntityInstance2.setFromServer(true);

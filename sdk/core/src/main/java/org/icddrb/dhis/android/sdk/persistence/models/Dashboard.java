@@ -380,19 +380,12 @@ public final class Dashboard extends BaseMetaDataObject {
                 }
                 break;
         }
-        switch (z) {
-            case false:
-            case true:
-            case true:
-            case true:
-            case true:
-                return true;
-            case true:
-            case true:
-            case true:
-                return false;
-            default:
-                throw new IllegalArgumentException("Unsupported DashboardItemContent type");
+        if (!z) {
+            return true;
+        } else if (z) {
+            return false;
+        } else {
+            throw new IllegalArgumentException("Unsupported DashboardItemContent type");
         }
     }
 

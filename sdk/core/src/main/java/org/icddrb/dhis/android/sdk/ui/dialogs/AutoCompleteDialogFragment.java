@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.AbsTextWatcher;
 import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogAdapter.OptionAdapterValue;
 import org.icddrb.dhis.android.sdk.ui.views.FontTextView;
@@ -57,21 +57,21 @@ public class AutoCompleteDialogFragment extends DialogFragment implements OnItem
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(1, C0845R.style.Theme_AppCompat_Light_Dialog);
+        setStyle(1, R.style.Theme_AppCompat_Light_Dialog);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().setSoftInputMode(2);
-        return inflater.inflate(C0845R.layout.dialog_fragment_auto_complete, container, false);
+        return inflater.inflate(R.layout.dialog_fragment_auto_complete, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ListView mListView = (ListView) view.findViewById(C0845R.id.simple_listview);
-        ImageView closeDialogButton = (ImageView) view.findViewById(C0845R.id.close_dialog_button);
-        this.mFilter = (EditText) view.findViewById(C0845R.id.filter_options);
-        this.mDialogLabel = (TextView) view.findViewById(C0845R.id.dialog_label);
-        this.mProgressBar = (ProgressBar) view.findViewById(C0845R.id.auto_complete_dialog_progress_bar);
-        this.mFontTextView = (FontTextView) view.findViewById(C0845R.id.no_items_textview);
+        ListView mListView = (ListView) view.findViewById(R.id.simple_listview);
+        ImageView closeDialogButton = (ImageView) view.findViewById(R.id.close_dialog_button);
+        this.mFilter = (EditText) view.findViewById(R.id.filter_options);
+        this.mDialogLabel = (TextView) view.findViewById(R.id.dialog_label);
+        this.mProgressBar = (ProgressBar) view.findViewById(R.id.auto_complete_dialog_progress_bar);
+        this.mFontTextView = (FontTextView) view.findViewById(R.id.no_items_textview);
         ((InputMethodManager) getActivity().getSystemService("input_method")).hideSoftInputFromWindow(this.mFilter.getWindowToken(), 0);
         this.mProgressBar.setVisibility(8);
         this.mAdapter = new AutoCompleteDialogAdapter(LayoutInflater.from(getActivity()));

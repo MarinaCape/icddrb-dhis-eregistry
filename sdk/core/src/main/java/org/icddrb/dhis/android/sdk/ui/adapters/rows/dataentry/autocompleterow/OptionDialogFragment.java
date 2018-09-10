@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import java.util.ArrayList;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.models.Option;
 import org.icddrb.dhis.android.sdk.persistence.models.Option.Table;
 import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogAdapter.OptionAdapterValue;
@@ -39,7 +39,7 @@ public class OptionDialogFragment extends AutoCompleteDialogFragment {
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setDialogLabel(C0845R.string.find_option);
+        setDialogLabel(R.string.find_option);
         getAdapter().swapData(getOptions());
     }
 }

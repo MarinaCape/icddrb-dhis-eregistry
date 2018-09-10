@@ -9,7 +9,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.persistence.models.Option;
@@ -75,8 +75,8 @@ public class RadioButtonsOptionSetRow extends Row {
             for (int i = 0; i < options.size(); i++) {
                 Option option = (Option) options.get(i);
                 FontRadioButton fontRadioButton = new FontRadioButton(context);
-                fontRadioButton.setTextSize(0, context.getResources().getDimension(C0845R.dimen.medium_text_size));
-                fontRadioButton.setFont(context.getResources().getString(C0845R.string.regular_font_name));
+                fontRadioButton.setTextSize(0, context.getResources().getDimension(R.dimen.medium_text_size));
+                fontRadioButton.setFont(context.getResources().getString(R.string.regular_font_name));
                 fontRadioButton.setEnabled(isEditable);
                 this.radioGroup.addView(fontRadioButton, new LayoutParams(-1, -2));
                 fontRadioButton.setText(option.getDisplayName());
@@ -104,8 +104,8 @@ public class RadioButtonsOptionSetRow extends Row {
         RadioGroupRowHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof RadioGroupRowHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_radio_buttons_option_set, container, false);
-            holder = new RadioGroupRowHolder(this.mRowType, (TextView) root.findViewById(C0845R.id.text_label), (TextView) root.findViewById(C0845R.id.mandatory_indicator), (TextView) root.findViewById(C0845R.id.warning_label), (TextView) root.findViewById(C0845R.id.error_label), (RadioGroup) root.findViewById(C0845R.id.radio_group_row_option_set), new OnCheckedChangeListener());
+            View root = inflater.inflate(R.layout.listview_row_radio_buttons_option_set, container, false);
+            holder = new RadioGroupRowHolder(this.mRowType, (TextView) root.findViewById(R.id.text_label), (TextView) root.findViewById(R.id.mandatory_indicator), (TextView) root.findViewById(R.id.warning_label), (TextView) root.findViewById(R.id.error_label), (RadioGroup) root.findViewById(R.id.radio_group_row_option_set), new OnCheckedChangeListener());
             root.setTag(holder);
             view = root;
         } else {

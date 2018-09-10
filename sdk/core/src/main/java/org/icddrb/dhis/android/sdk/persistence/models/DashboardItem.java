@@ -394,7 +394,7 @@ public final class DashboardItem extends BaseMetaDataObject {
         List<DashboardElement> elements = new ArrayList();
         if (!TextUtils.isEmpty(getType())) {
             String type = getType();
-            Object obj = -1;
+            int obj = 0;
             switch (type.hashCode()) {
                 case -1983070683:
                     if (type.equals(DashboardItemContent.TYPE_RESOURCES)) {
@@ -422,7 +422,7 @@ public final class DashboardItem extends BaseMetaDataObject {
                     break;
                 case 94623710:
                     if (type.equals("chart")) {
-                        obj = null;
+                        obj = 0;
                         break;
                     }
                     break;
@@ -446,7 +446,7 @@ public final class DashboardItem extends BaseMetaDataObject {
                     break;
             }
             switch (obj) {
-                case null:
+                case 0:
                     elements.add(getChart());
                     break;
                 case 1:

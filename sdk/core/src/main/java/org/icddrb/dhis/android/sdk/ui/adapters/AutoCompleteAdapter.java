@@ -5,13 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
-import android.widget.Filter.FilterResults;
 import android.widget.Filterable;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class AutoCompleteAdapter extends BaseAdapter implements Filterable {
     private ArrayFilter mFilter;
@@ -114,7 +113,7 @@ public class AutoCompleteAdapter extends BaseAdapter implements Filterable {
     private View createViewFromResource(int position, View convertView, ViewGroup parent) {
         TextView textView;
         if (convertView == null) {
-            textView = (TextView) this.mInflater.inflate(C0845R.layout.simple_spinner_dropdown_item_custom, parent, false);
+            textView = (TextView) this.mInflater.inflate(R.layout.simple_spinner_dropdown_item_custom, parent, false);
         } else {
             textView = (TextView) convertView;
         }

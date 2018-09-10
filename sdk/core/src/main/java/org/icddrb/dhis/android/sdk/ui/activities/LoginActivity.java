@@ -15,7 +15,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.otto.Subscribe;
-import org.icddrb.dhis.android.sdk.C0845R;
+
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.DhisService;
 import org.icddrb.dhis.android.sdk.controllers.LoadingController;
@@ -55,7 +56,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(C0845R.layout.activity_login);
+        setContentView(R.layout.activity_login);
         this.mPrefs = new AppPreferences(getApplicationContext());
         setupUI();
     }
@@ -74,11 +75,11 @@ public class LoginActivity extends Activity implements OnClickListener {
     }
 
     private void setupUI() {
-        this.viewsContainer = findViewById(C0845R.id.login_views_container);
-        this.usernameEditText = (EditText) findViewById(C0845R.id.username);
-        this.passwordEditText = (EditText) findViewById(C0845R.id.password);
-        this.serverEditText = (EditText) findViewById(C0845R.id.server_url);
-        this.loginButton = (Button) findViewById(C0845R.id.login_button);
+        this.viewsContainer = findViewById(R.id.login_views_container);
+        this.usernameEditText = (EditText) findViewById(R.id.username);
+        this.passwordEditText = (EditText) findViewById(R.id.password);
+        this.serverEditText = (EditText) findViewById(R.id.server_url);
+        this.loginButton = (Button) findViewById(R.id.login_button);
         String server = "https://bd-eregistry.dhis2.org/dhis";
         String username = null;
         String password = null;
@@ -101,9 +102,9 @@ public class LoginActivity extends Activity implements OnClickListener {
         this.serverEditText.setText(server);
         this.usernameEditText.setText(username);
         this.passwordEditText.setText(password);
-        this.progressBar = (ProgressBar) findViewById(C0845R.id.progress_bar);
+        this.progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         this.progressBar.setVisibility(8);
-        this.progressText = (TextView) findViewById(C0845R.id.progress_text);
+        this.progressText = (TextView) findViewById(R.id.progress_text);
         this.progressText.setVisibility(8);
         this.loginButton.setOnClickListener(this);
     }
@@ -113,11 +114,11 @@ public class LoginActivity extends Activity implements OnClickListener {
         String password = this.passwordEditText.getText().toString();
         String serverURL = this.serverEditText.getText().toString();
         if (username.isEmpty()) {
-            showLoginFailedDialog(getString(C0845R.string.enter_username));
+            showLoginFailedDialog(getString(R.string.enter_username));
         } else if (password.isEmpty()) {
-            showLoginFailedDialog(getString(C0845R.string.enter_password));
+            showLoginFailedDialog(getString(R.string.enter_password));
         } else if (serverURL.isEmpty()) {
-            showLoginFailedDialog(getString(C0845R.string.enter_serverurl));
+            showLoginFailedDialog(getString(R.string.enter_serverurl));
         } else {
             if (username.charAt(username.length() - 1) == ' ') {
                 username = username.substring(0, username.length() - 1);
@@ -131,7 +132,7 @@ public class LoginActivity extends Activity implements OnClickListener {
         showProgress();
         HttpUrl serverUri = HttpUrl.parse(serverUrl);
         if (serverUri == null) {
-            showLoginFailedDialog(getString(C0845R.string.invalid_server_url));
+            showLoginFailedDialog(getString(R.string.invalid_server_url));
         } else {
             DhisService.logInUser(serverUri, new Credentials(username, password));
         }
@@ -187,28 +188,28 @@ public class LoginActivity extends Activity implements OnClickListener {
     }
 
     private void showProgress() {
-        this.viewsContainer.startAnimation(AnimationUtils.loadAnimation(this, C0845R.anim.out_up));
+        this.viewsContainer.startAnimation(AnimationUtils.loadAnimation(this, R.anim.out_up));
         this.viewsContainer.setVisibility(8);
         this.progressBar.setVisibility(0);
         this.progressText.setVisibility(0);
     }
 
     private void showLoginFailedDialog(String error) {
-        UiUtils.showErrorDialog((Activity) this, getString(C0845R.string.error_message), error, new C08652());
+        UiUtils.showErrorDialog((Activity) this, getString(R.string.error_message), error, new C08652());
     }
 
     public void onLoginFail(APIException e) {
         if (e.getResponse() == null) {
             showLoginFailedDialog("error" + ": " + e.getMessage());
         } else if (e.getResponse().getStatus() == 401) {
-            showLoginFailedDialog(getString(C0845R.string.invalid_username_or_password));
+            showLoginFailedDialog(getString(R.string.invalid_username_or_password));
         } else {
-            showLoginFailedDialog(getString(C0845R.string.unable_to_login) + " " + e.getMessage());
+            showLoginFailedDialog(getString(R.string.unable_to_login) + " " + e.getMessage());
         }
     }
 
     private void showLoginDialog() {
-        Animation anim = AnimationUtils.loadAnimation(this, C0845R.anim.in_down);
+        Animation anim = AnimationUtils.loadAnimation(this, R.anim.in_down);
         this.progressBar.setVisibility(8);
         this.progressText.setVisibility(8);
         this.viewsContainer.setVisibility(0);

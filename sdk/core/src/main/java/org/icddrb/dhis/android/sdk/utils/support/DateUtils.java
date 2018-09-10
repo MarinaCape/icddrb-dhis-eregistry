@@ -17,8 +17,8 @@ public class DateUtils {
     public static final SimpleDateFormat ACCESS_DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final double DAYS_IN_YEAR = 365.0d;
-    public static final PeriodFormatter DAY_SECOND_FORMAT = new PeriodFormatterBuilder().appendDays().appendSuffix(" d").appendSeparator(SEP).appendHours().appendSuffix(" h").appendSeparator(SEP).appendMinutes().appendSuffix(" m").appendSeparator(SEP).appendSeconds().appendSuffix(" s").appendSeparator(SEP).toFormatter();
     public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String DEFAULT_DATE_REGEX = "\\b\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-2])\\b";
     public static final SimpleDateFormat HTTP_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss");
     public static final SimpleDateFormat LONG_DATE_FORMAT = new SimpleDateFormat(TIMESTAMP_PATTERN);
@@ -26,8 +26,7 @@ public class DateUtils {
     private static final long MS_PER_S = 1000;
     private static final String SEP = ", ";
     public static final SimpleDateFormat[] SUPPORTED_DATE_FORMATS = new SimpleDateFormat[]{new SimpleDateFormat(StdDateFormat.DATE_FORMAT_STR_ISO8601), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"), new SimpleDateFormat(TIMESTAMP_PATTERN), new SimpleDateFormat("yyyy-MM-dd'T'HH:mm"), new SimpleDateFormat("yyyy-MM-dd'T'HH"), new SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ"), new SimpleDateFormat("yyyy-MM-dd"), new SimpleDateFormat("yyyy-MM"), new SimpleDateFormat("yyyy")};
-    public static final String TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
-
+    public static final PeriodFormatter DAY_SECOND_FORMAT = new PeriodFormatterBuilder().appendDays().appendSuffix(" d").appendSeparator(SEP).appendHours().appendSuffix(" h").appendSeparator(SEP).appendMinutes().appendSuffix(" m").appendSeparator(SEP).appendSeconds().appendSuffix(" s").appendSeparator(SEP).toFormatter();
     public static String getAccessDateString(Date date) {
         return date != null ? ACCESS_DATE_FORMAT.format(date) : null;
     }

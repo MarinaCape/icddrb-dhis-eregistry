@@ -8,7 +8,7 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.services.StartPeriodicSynchronizerService;
 
@@ -32,7 +32,7 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(1);
-        setContentView(C0845R.layout.activity_splash);
+        setContentView(R.layout.activity_splash);
         checkPermissions();
     }
 

@@ -18,7 +18,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.events.OnRowClick.ITEM_STATUS;
 import org.icddrb.dhis.android.sdk.events.OnTrackerItemClick;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
@@ -52,9 +52,9 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
         }
 
         public void onClick(View view) {
-            if (view.getId() == C0845R.id.event_container) {
+            if (view.getId() == R.id.event_container) {
                 Dhis2Application.getEventBus().post(new OnTrackerItemClick(this.trackedEntityInstance, this.status, true));
-            } else if (view.getId() == C0845R.id.status_container) {
+            } else if (view.getId() == R.id.status_container) {
                 Dhis2Application.getEventBus().post(new OnTrackerItemClick(this.trackedEntityInstance, this.status, false));
             }
         }
@@ -80,20 +80,20 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
 
     public TrackedEntityInstanceItemRow(Context context) {
         Preconditions.isNull(context, "Context must not be null");
-        this.mOfflineDrawable = context.getResources().getDrawable(C0845R.drawable.ic_legacy_offline);
-        this.mErrorDrawable = context.getResources().getDrawable(C0845R.drawable.ic_event_error);
-        this.mSentDrawable = context.getResources().getDrawable(C0845R.drawable.ic_from_server);
-        this.mSent = context.getResources().getString(C0845R.string.event_sent);
-        this.mError = context.getResources().getString(C0845R.string.event_error);
-        this.mOffline = context.getResources().getString(C0845R.string.event_offline);
+        this.mOfflineDrawable = context.getResources().getDrawable(R.drawable.ic_legacy_offline);
+        this.mErrorDrawable = context.getResources().getDrawable(R.drawable.ic_event_error);
+        this.mSentDrawable = context.getResources().getDrawable(R.drawable.ic_from_server);
+        this.mSent = context.getResources().getString(R.string.event_sent);
+        this.mError = context.getResources().getString(R.string.event_error);
+        this.mOffline = context.getResources().getString(R.string.event_offline);
     }
 
     public View getView(LayoutInflater inflater, View convertView, ViewGroup container) {
         View view;
         ViewHolder holder;
         if (convertView == null) {
-            view = inflater.inflate(C0845R.layout.listview_event_item, container, false);
-            holder = new ViewHolder((LinearLayout) view.findViewById(C0845R.id.dynamic_column_container), (ImageView) view.findViewById(C0845R.id.status_image_view), (TextView) view.findViewById(C0845R.id.status_text_view), (LinearLayout) view.findViewById(C0845R.id.status_container));
+            view = inflater.inflate(R.layout.listview_event_item, container, false);
+            holder = new ViewHolder((LinearLayout) view.findViewById(R.id.dynamic_column_container), (ImageView) view.findViewById(R.id.status_image_view), (TextView) view.findViewById(R.id.status_text_view), (LinearLayout) view.findViewById(R.id.status_container));
         } else {
             view = convertView;
             holder = (ViewHolder) view.getTag();
@@ -108,10 +108,10 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
         LayoutParams params = new LayoutParams(-1, -1, 0.75f / ((float) this.columns.size()));
         holder.container.removeAllViews();
         for (String column : this.columns) {
-            LinearLayout columnView = (LinearLayout) inflater.inflate(C0845R.layout.event_item_column, holder.container, false);
-            ((TextView) columnView.findViewById(C0845R.id.column_name)).setText(column);
+            LinearLayout columnView = (LinearLayout) inflater.inflate(R.layout.event_item_column, holder.container, false);
+            ((TextView) columnView.findViewById(R.id.column_name)).setText(column);
             holder.container.addView(columnView, params);
-            holder.container.addView(inflater.inflate(C0845R.layout.space_event_column, holder.container, false));
+            holder.container.addView(inflater.inflate(R.layout.space_event_column, holder.container, false));
         }
         if (this.mStatus != null) {
             switch (this.mStatus) {

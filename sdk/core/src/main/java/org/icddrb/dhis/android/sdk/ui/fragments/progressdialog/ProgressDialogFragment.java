@@ -4,7 +4,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class ProgressDialogFragment extends DialogFragment {
     private static final String ARG_INDETERMINATE = "indeterminate";
@@ -15,7 +15,7 @@ public class ProgressDialogFragment extends DialogFragment {
     public static final String TAG = ProgressDialogFragment.class.getSimpleName();
 
     public static ProgressDialogFragment newInstance() {
-        return newInstance(C0845R.string.loading);
+        return newInstance(R.string.loading);
     }
 
     public static ProgressDialogFragment newInstance(int message) {

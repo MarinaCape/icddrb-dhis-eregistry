@@ -90,7 +90,7 @@ public class ProgramRuleService {
         }
         for (ProgramRuleAction programRuleAction : programRule.getProgramRuleActions()) {
             if (programRuleAction.getProgramRuleActionType().equals(ProgramRuleActionType.ASSIGN) && programRuleAction.getContent() != null) {
-                programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(programRuleAction.getContent().substring(2, programRuleAction.getContent().length() - 1));
+                ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(programRuleAction.getContent().substring(2, programRuleAction.getContent().length() - 1));
                 if (!(programRuleVariable == null || programRuleVariable.getDataElement() == null)) {
                     dataElementsInRule.add(programRuleVariable.getDataElement());
                 }
@@ -126,7 +126,7 @@ public class ProgramRuleService {
         }
         for (ProgramRuleAction programRuleAction : programRule.getProgramRuleActions()) {
             if (programRuleAction.getProgramRuleActionType().equals(ProgramRuleActionType.ASSIGN) && programRuleAction.getContent() != null) {
-                programRuleVariable = (ProgramRuleVariable) VariableService.getInstance().getProgramRuleVariableMap().get(programRuleAction.getContent().substring(2, programRuleAction.getContent().length() - 1));
+                ProgramRuleVariable programRuleVariable = VariableService.getInstance().getProgramRuleVariableMap().get(programRuleAction.getContent().substring(2, programRuleAction.getContent().length() - 1));
                 if (!(programRuleVariable == null || programRuleVariable.getTrackedEntityAttribute() == null)) {
                     trackedEntityAttributesInRule.add(programRuleVariable.getTrackedEntityAttribute());
                 }

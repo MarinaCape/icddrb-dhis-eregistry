@@ -10,7 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
@@ -100,8 +100,8 @@ public class CheckBoxRow extends Row {
         CheckBoxHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof CheckBoxHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_checkbox, container, false);
-            holder = new CheckBoxHolder(root, (TextView) root.findViewById(C0845R.id.text_label), (TextView) root.findViewById(C0845R.id.mandatory_indicator), (TextView) root.findViewById(C0845R.id.warning_label), (TextView) root.findViewById(C0845R.id.error_label), (CheckBox) root.findViewById(C0845R.id.checkbox), new CheckBoxListener(), new OnCheckBoxRowClickListener());
+            View root = inflater.inflate(R.layout.listview_row_checkbox, container, false);
+            holder = new CheckBoxHolder(root, (TextView) root.findViewById(R.id.text_label), (TextView) root.findViewById(R.id.mandatory_indicator), (TextView) root.findViewById(R.id.warning_label), (TextView) root.findViewById(R.id.error_label), (CheckBox) root.findViewById(R.id.checkbox), new CheckBoxListener(), new OnCheckBoxRowClickListener());
             holder.checkBox.setOnCheckedChangeListener(holder.listener);
             holder.rootView.setOnClickListener(holder.onCheckBoxRowClickListener);
             root.setTag(holder);

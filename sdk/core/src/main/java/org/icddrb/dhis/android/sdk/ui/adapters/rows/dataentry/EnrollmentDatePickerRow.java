@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
@@ -52,9 +52,9 @@ public class EnrollmentDatePickerRow extends AbsDatePickerRow {
         final TextView textLabel;
 
         public DatePickerRowHolder(View root, Context context) {
-            this.textLabel = (TextView) root.findViewById(C0845R.id.text_label);
-            this.pickerInvoker = (TextView) root.findViewById(C0845R.id.date_picker_text_view);
-            this.clearButton = (ImageButton) root.findViewById(C0845R.id.clear_text_view);
+            this.textLabel = (TextView) root.findViewById(R.id.text_label);
+            this.pickerInvoker = (TextView) root.findViewById(R.id.date_picker_text_view);
+            this.clearButton = (ImageButton) root.findViewById(R.id.clear_text_view);
             this.dateSetListener = new DateSetListener(this.pickerInvoker);
             this.invokerListener = new OnEditTextClickListener(context, this.dateSetListener, false, this.pickerInvoker);
             this.clearButton.setOnClickListener(this.clearButtonListener);
@@ -122,7 +122,7 @@ public class EnrollmentDatePickerRow extends AbsDatePickerRow {
         DatePickerRowHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof DatePickerRowHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_event_datepicker, container, false);
+            View root = inflater.inflate(R.layout.listview_row_event_datepicker, container, false);
             holder = new DatePickerRowHolder(root, inflater.getContext());
             root.setTag(holder);
             view = root;

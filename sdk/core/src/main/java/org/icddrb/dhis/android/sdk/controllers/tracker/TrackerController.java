@@ -11,7 +11,8 @@ import com.raizlabs.android.dbflow.sql.queriable.StringQuery;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.LoadingController;
 import org.icddrb.dhis.android.sdk.controllers.ResourceController;
 import org.icddrb.dhis.android.sdk.controllers.SyncStrategy;
@@ -126,7 +127,7 @@ public final class TrackerController extends ResourceController {
     }
 
     public static void syncRemotelyDeletedData(Context context, DhisApi dhisApi) throws APIException {
-        UiUtils.postProgressMessage(context.getString(C0845R.string.synchronize_deleted_data), EventType.REMOVE_DATA);
+        UiUtils.postProgressMessage(context.getString(R.string.synchronize_deleted_data), EventType.REMOVE_DATA);
         TrackerDataLoader.deleteRemotelyDeletedData(context, dhisApi);
         Dhis2Application.getEventBus().post(new UiEvent(UiEventType.SYNCING_END));
         UiUtils.postProgressMessage("", EventType.FINISH);
@@ -256,7 +257,7 @@ public final class TrackerController extends ResourceController {
     }
 
     public static void loadDataValues(Context context, DhisApi dhisApi, SyncStrategy syncStrategy) throws APIException {
-        UiUtils.postProgressMessage(context.getString(C0845R.string.loading_metadata), EventType.METADATA);
+        UiUtils.postProgressMessage(context.getString(R.string.loading_metadata), EventType.METADATA);
         TrackerDataLoader.updateDataValueDataItems(context, dhisApi, syncStrategy);
     }
 

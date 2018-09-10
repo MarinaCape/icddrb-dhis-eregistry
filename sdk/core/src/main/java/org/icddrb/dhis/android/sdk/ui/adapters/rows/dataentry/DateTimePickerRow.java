@@ -20,7 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
@@ -52,31 +52,31 @@ public class DateTimePickerRow extends Row {
 
     private class DatePickerRowHolder {
         boolean allowDatesInFuture;
-        private Button cancel = ((Button) this.dialogView.findViewById(C0845R.id.cancel));
+        private Button cancel = ((Button) this.dialogView.findViewById(R.id.cancel));
         final ImageButton clearButton;
         final ClearButtonListener clearButtonListener = new ClearButtonListener(this.pickerInvoker);
-        private DatePicker datePicker = ((DatePicker) this.dialogView.findViewById(C0845R.id.datePicker));
+        private DatePicker datePicker = ((DatePicker) this.dialogView.findViewById(R.id.datePicker));
         private View dialogView;
         final TextView errorLabel;
         OnEditTextClickListener invokerListener;
         AlertDialog mAlertDialog;
         final TextView mandatoryIndicator;
-        private Button okButton = ((Button) this.dialogView.findViewById(C0845R.id.ok_button));
+        private Button okButton = ((Button) this.dialogView.findViewById(R.id.ok_button));
         final TextView pickerInvoker;
         final TextView textLabel;
-        private TimePicker timePicker = ((TimePicker) this.dialogView.findViewById(C0845R.id.timePicker));
+        private TimePicker timePicker = ((TimePicker) this.dialogView.findViewById(R.id.timePicker));
         final TextView warningLabel;
 
         public DatePickerRowHolder(View root, Context context, boolean allowDatesInFuture) {
-            this.textLabel = (TextView) root.findViewById(C0845R.id.text_label);
-            this.mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
-            this.warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
-            this.errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
-            this.pickerInvoker = (TextView) root.findViewById(C0845R.id.date_picker_text_view);
-            this.clearButton = (ImageButton) root.findViewById(C0845R.id.clear_text_view);
+            this.textLabel = (TextView) root.findViewById(R.id.text_label);
+            this.mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
+            this.warningLabel = (TextView) root.findViewById(R.id.warning_label);
+            this.errorLabel = (TextView) root.findViewById(R.id.error_label);
+            this.pickerInvoker = (TextView) root.findViewById(R.id.date_picker_text_view);
+            this.clearButton = (ImageButton) root.findViewById(R.id.clear_text_view);
             this.allowDatesInFuture = allowDatesInFuture;
             DateTimePickerRow.this.mContext = context;
-            this.dialogView = View.inflate(DateTimePickerRow.this.mContext, C0845R.layout.time_date_picker, null);
+            this.dialogView = View.inflate(DateTimePickerRow.this.mContext, R.layout.time_date_picker, null);
             this.clearButton.setOnClickListener(this.clearButtonListener);
         }
 
@@ -200,7 +200,7 @@ public class DateTimePickerRow extends Row {
         DatePickerRowHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof DatePickerRowHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_datepicker, container, false);
+            View root = inflater.inflate(R.layout.listview_row_datepicker, container, false);
             holder = new DatePickerRowHolder(root, inflater.getContext(), this.mAllowDatesInFuture);
             holder.mAlertDialog = holder.createDialog(this.mContext, holder.pickerInvoker, this.mValue);
             root.setTag(holder);

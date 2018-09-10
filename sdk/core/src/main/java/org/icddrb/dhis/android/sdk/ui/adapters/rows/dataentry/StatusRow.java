@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import java.util.ArrayList;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
@@ -48,8 +48,8 @@ public final class StatusRow extends Row {
 
         public void onClick(View v) {
             if (this.activity != null) {
-                String label = "HaOwL7bIdrs".equals(this.programStage.getUid()) ? this.event.getStatus().equals("COMPLETED") ? this.activity.getString(C0845R.string.incomplete) : "Complete Pregnancy Record" : this.event.getStatus().equals("COMPLETED") ? this.activity.getString(C0845R.string.incomplete) : this.activity.getString(C0845R.string.complete);
-                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label, this.event.getStatus().equals("COMPLETED") ? this.activity.getString(C0845R.string.incomplete_confirm) : this.activity.getString(C0845R.string.complete_confirm), this.event, this.complete, this.tv));
+                String label = "HaOwL7bIdrs".equals(this.programStage.getUid()) ? this.event.getStatus().equals("COMPLETED") ? this.activity.getString(R.string.incomplete) : "Complete Pregnancy Record" : this.event.getStatus().equals("COMPLETED") ? this.activity.getString(R.string.incomplete) : this.activity.getString(R.string.complete);
+                Dhis2Application.getEventBus().post(new OnCompleteEventClick(label, this.event.getStatus().equals("COMPLETED") ? this.activity.getString(R.string.incomplete_confirm) : this.activity.getString(R.string.complete_confirm), this.event, this.complete, this.tv));
             }
         }
 
@@ -83,7 +83,7 @@ public final class StatusRow extends Row {
             ArrayList<String> errors = EventDataEntryFragment.getValidationErrors(this.event, MetaDataController.getProgramStage(this.event.getProgramStageId()), this.context);
             ValidationErrorDialog dialog;
             if (errors.isEmpty()) {
-                dialog = ValidationErrorDialog.newInstance(this.context.getString(C0845R.string.validation_success), new ArrayList());
+                dialog = ValidationErrorDialog.newInstance(this.context.getString(R.string.validation_success), new ArrayList());
                 if (this.fragmentActivity != null) {
                     dialog.show(this.fragmentActivity.getSupportFragmentManager());
                     return;
@@ -113,9 +113,9 @@ public final class StatusRow extends Row {
         public StatusViewHolder(Context context, View view, Event event, ProgramStage programStage) {
             this.event = event;
             this.programStage = programStage;
-            this.complete = (Button) view.findViewById(C0845R.id.complete);
-            this.validate = (Button) view.findViewById(C0845R.id.validate);
-            this.tv = (TextView) view.findViewById(C0845R.id.tv_complete);
+            this.complete = (Button) view.findViewById(R.id.complete);
+            this.validate = (Button) view.findViewById(R.id.validate);
+            this.tv = (TextView) view.findViewById(R.id.tv_complete);
             this.onCompleteButtonClickListener = new OnCompleteClickListener(context, this.complete, this.tv, this.event, this.programStage);
             this.onValidateButtonClickListener = new OnValidateClickListener(context, this.validate, this.event);
             this.complete.setOnClickListener(this.onCompleteButtonClickListener);
@@ -125,9 +125,9 @@ public final class StatusRow extends Row {
 
         public static void updateViews(Event event, ProgramStage programStage, Button button, TextView tv, Context context) {
             if (!event.getStatus().equals("COMPLETED")) {
-                button.setText(C0845R.string.complete);
+                button.setText(R.string.complete);
             } else if (context != null) {
-                button.setText(context.getString(C0845R.string.incomplete));
+                button.setText(context.getString(R.string.incomplete));
                 button.setBackgroundColor(SupportMenu.CATEGORY_MASK);
                 tv.setVisibility(0);
             }
@@ -147,7 +147,7 @@ public final class StatusRow extends Row {
     public View getView(FragmentManager fragmentManager, LayoutInflater inflater, View convertView, ViewGroup container) {
         View view;
         if (convertView == null || !(convertView.getTag() instanceof StatusViewHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_status, container, false);
+            View root = inflater.inflate(R.layout.listview_row_status, container, false);
             this.holder = new StatusViewHolder(this.context, root, this.mEvent, this.programStage);
             root.setTag(this.holder);
             view = root;

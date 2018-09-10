@@ -3,7 +3,7 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 class AutoCompleteRowViewHolder {
     public final ImageButton clearButton;
@@ -18,12 +18,12 @@ class AutoCompleteRowViewHolder {
     public final TextView warningLabel;
 
     AutoCompleteRowViewHolder(View view) {
-        this.mandatoryIndicator = (TextView) view.findViewById(C0845R.id.mandatory_indicator);
-        this.textView = (TextView) view.findViewById(C0845R.id.text_label);
-        this.warningLabel = (TextView) view.findViewById(C0845R.id.warning_label);
-        this.errorLabel = (TextView) view.findViewById(C0845R.id.error_label);
-        this.valueTextView = (TextView) view.findViewById(C0845R.id.choose_option);
-        this.clearButton = (ImageButton) view.findViewById(C0845R.id.clear_option_value);
+        this.mandatoryIndicator = (TextView) view.findViewById(R.id.mandatory_indicator);
+        this.textView = (TextView) view.findViewById(R.id.text_label);
+        this.warningLabel = (TextView) view.findViewById(R.id.warning_label);
+        this.errorLabel = (TextView) view.findViewById(R.id.error_label);
+        this.valueTextView = (TextView) view.findViewById(R.id.choose_option);
+        this.clearButton = (ImageButton) view.findViewById(R.id.clear_option_value);
         this.onDropDownButtonListener.setListener(this.onOptionListener);
         this.clearButton.setOnClickListener(this.onClearButtonListener);
         this.valueTextView.setOnClickListener(this.onDropDownButtonListener);

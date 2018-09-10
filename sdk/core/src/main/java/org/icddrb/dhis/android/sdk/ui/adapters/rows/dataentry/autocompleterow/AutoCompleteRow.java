@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.raizlabs.android.dbflow.sql.builder.Condition;
 import com.raizlabs.android.dbflow.sql.language.Select;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.persistence.models.Option;
 import org.icddrb.dhis.android.sdk.persistence.models.OptionSet;
@@ -36,7 +36,7 @@ public final class AutoCompleteRow extends Row implements OptionNameCacher {
         View view;
         AutoCompleteRowViewHolder holder;
         if (convertView == null || !(convertView.getTag() instanceof AutoCompleteRowViewHolder)) {
-            view = inflater.inflate(C0845R.layout.listview_row_autocomplete, container, false);
+            view = inflater.inflate(R.layout.listview_row_autocomplete, container, false);
             holder = new AutoCompleteRowViewHolder(view);
             view.setTag(holder);
         } else {

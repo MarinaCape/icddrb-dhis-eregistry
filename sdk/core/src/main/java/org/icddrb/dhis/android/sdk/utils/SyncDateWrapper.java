@@ -2,7 +2,8 @@ package org.icddrb.dhis.android.sdk.utils;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
-import org.icddrb.dhis.android.sdk.C0845R;
+//import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.client.sdk.ui.AppPreferences;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
@@ -22,11 +23,11 @@ public class SyncDateWrapper {
 
     public SyncDateWrapper(Context context, AppPreferences appPreferences) {
         this.appPreferences = appPreferences;
-        this.DATE_FORMAT = context.getString(C0845R.string.date_format);
-        this.NEVER_SYNCED = context.getString(C0845R.string.never);
-        this.MIN_AGO = context.getString(C0845R.string.min_ago);
-        this.HOURS = context.getString(C0845R.string.hours);
-        this.NOW = context.getString(C0845R.string.now);
+        this.DATE_FORMAT = context.getString(R.string.date_format);
+        this.NEVER_SYNCED = context.getString(R.string.never);
+        this.MIN_AGO = context.getString(R.string.min_ago);
+        this.HOURS = context.getString(R.string.hours);
+        this.NOW = context.getString(R.string.now);
     }
 
     public void setLastSyncedNow() {

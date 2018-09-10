@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent.EventType;
@@ -54,21 +55,21 @@ public final class LoadingController {
     }
 
     static void loadInitialData(Context context, DhisApi dhisApi) throws APIException, IllegalStateException {
-        UiUtils.postProgressMessage(context.getString(C0845R.string.finishing_up), EventType.STARTUP);
+        UiUtils.postProgressMessage(context.getString(R.string.finishing_up), EventType.STARTUP);
         String message;
         if (!MetaDataController.isDataLoaded(context)) {
             Log.d(CLASS_TAG, "loading initial metadata");
             loadMetaData(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
             Dhis2Application.getEventBus().post(new UiEvent(UiEventType.INITIAL_SYNCING_END));
             message = "";
-            UiUtils.postProgressMessage(context.getString(C0845R.string.finishing_up), EventType.STARTUP);
+            UiUtils.postProgressMessage(context.getString(R.string.finishing_up), EventType.STARTUP);
             loadDataValues(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
             loadUnionData(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
             Dhis2Application.getEventBus().post(new UiEvent(UiEventType.INITIAL_SYNCING_END));
         } else if (!TrackerController.isDataLoaded(context)) {
             Log.d(CLASS_TAG, "loading initial datavalues");
             message = "";
-            UiUtils.postProgressMessage(context.getString(C0845R.string.finishing_up), EventType.STARTUP);
+            UiUtils.postProgressMessage(context.getString(R.string.finishing_up), EventType.STARTUP);
             loadDataValues(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
             loadUnionData(context, SyncStrategy.DOWNLOAD_ALL, dhisApi);
         }

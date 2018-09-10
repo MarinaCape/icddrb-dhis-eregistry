@@ -26,7 +26,7 @@ public class UnionFWA implements Serializable {
             System.out.println("Norway - users org size: " + unionUsers.size());
             for (OrganisationUnitUser org : orgOptionSets) {
                 if (unionUsers.containsKey(org.getId()) && !((List) unionUsers.get(org.getId())).isEmpty()) {
-                    for (OrganisationUnitUser o : (List) unionUsers.get(org.getId())) {
+                    for (OrganisationUnitUser o : unionUsers.get(org.getId())) {
                         List<User> userOptionSets = o.getUsers();
                         if (userOptionSets.size() > 0) {
                             List<UnionFWADropDownItem> users = new ArrayList();
@@ -66,7 +66,7 @@ public class UnionFWA implements Serializable {
             return null;
         }
         for (Entry<String, List<UnionFWADropDownItem>> users : this.mUsers.entrySet()) {
-            for (UnionFWADropDownItem user : (List) users.getValue()) {
+            for (UnionFWADropDownItem user : users.getValue()) {
                 if (user.getAlternateId().equals(userId)) {
                     return user.getLabel();
                 }
@@ -77,7 +77,7 @@ public class UnionFWA implements Serializable {
 
     public String getRootUnion(String orgId, List<OrganisationUnitUser> orgOptionSets) {
         for (Entry<String, List<OrganisationUnitUser>> entry : getUnionUsers(orgOptionSets).entrySet()) {
-            for (OrganisationUnitUser ou : (List) entry.getValue()) {
+            for (OrganisationUnitUser ou : entry.getValue()) {
                 if (ou.getId().equals(orgId)) {
                     return (String) entry.getKey();
                 }
@@ -96,13 +96,13 @@ public class UnionFWA implements Serializable {
             if (orgId != null) {
                 try {
                     if (orgId.equals(entry.getKey())) {
-                        for (UnionFWADropDownItem u : (List) entry.getValue()) {
+                        for (UnionFWADropDownItem u : entry.getValue()) {
                             users.add(u);
                         }
                     }
                 } catch (Exception e) {
                     System.out.println("Norway - FWA load exception: " + e.getMessage());
-                    for (UnionFWADropDownItem u2 : (List) entry.getValue()) {
+                    for (UnionFWADropDownItem u2 : entry.getValue()) {
                         users.add(u2);
                     }
                 }

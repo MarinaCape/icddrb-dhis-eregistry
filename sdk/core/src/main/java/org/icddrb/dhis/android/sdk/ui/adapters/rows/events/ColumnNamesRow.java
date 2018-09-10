@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class ColumnNamesRow implements EventRow {
     private List<String> columns;
@@ -27,12 +27,12 @@ public class ColumnNamesRow implements EventRow {
         View view;
         ViewHolder holder;
         if (convertView == null) {
-            view = inflater.inflate(C0845R.layout.listview_column_names_item, container, false);
-            LinearLayout rowContainer = (LinearLayout) view.findViewById(C0845R.id.dynamic_column_container);
+            view = inflater.inflate(R.layout.listview_column_names_item, container, false);
+            LinearLayout rowContainer = (LinearLayout) view.findViewById(R.id.dynamic_column_container);
             for (String column : this.columns) {
-                ((TextView) inflater.inflate(C0845R.layout.item_column, rowContainer, false).findViewById(C0845R.id.column_name)).setText(column);
+                ((TextView) inflater.inflate(R.layout.item_column, rowContainer, false).findViewById(R.id.column_name)).setText(column);
             }
-            holder = new ViewHolder((TextView) view.findViewById(C0845R.id.tracked_entity_title), (TextView) view.findViewById(C0845R.id.column_name));
+            holder = new ViewHolder((TextView) view.findViewById(R.id.tracked_entity_title), (TextView) view.findViewById(R.id.column_name));
             view.setTag(holder);
         } else {
             view = convertView;

@@ -4,7 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public final class ValidationErrorAdapter extends AbsAdapter<String> {
 
@@ -24,8 +24,8 @@ public final class ValidationErrorAdapter extends AbsAdapter<String> {
         View view;
         ViewHolder holder;
         if (convertView == null) {
-            view = getInflater().inflate(C0845R.layout.dialog_fragment_listview_item_validation_error, parent, false);
-            holder = new ViewHolder((TextView) view.findViewById(C0845R.id.text_label));
+            view = getInflater().inflate(R.layout.dialog_fragment_listview_item_validation_error, parent, false);
+            holder = new ViewHolder((TextView) view.findViewById(R.id.text_label));
             view.setTag(holder);
         } else {
             view = convertView;

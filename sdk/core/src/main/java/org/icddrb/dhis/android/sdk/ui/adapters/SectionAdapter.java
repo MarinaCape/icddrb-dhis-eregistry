@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.DataEntryFragmentSection;
 
 public final class SectionAdapter extends AbsAdapter<DataEntryFragmentSection> {
@@ -20,7 +20,7 @@ public final class SectionAdapter extends AbsAdapter<DataEntryFragmentSection> {
 
     public View getDropDownView(int position, View view, ViewGroup parent) {
         if (view == null || !view.getTag().toString().equals(DROPDOWN)) {
-            view = getInflater().inflate(C0845R.layout.toolbar_spinner_item_dropdown, parent, false);
+            view = getInflater().inflate(R.layout.toolbar_spinner_item_dropdown, parent, false);
             view.setTag(DROPDOWN);
         }
         ((TextView) view.findViewById(16908308)).setText(((DataEntryFragmentSection) getData().get(position)).getLabel());
@@ -29,7 +29,7 @@ public final class SectionAdapter extends AbsAdapter<DataEntryFragmentSection> {
 
     public View getView(int position, View view, ViewGroup parent) {
         if (view == null || !view.getTag().toString().equals(NON_DROPDOWN)) {
-            view = getInflater().inflate(C0845R.layout.toolbar_spinner_item_actionbar, parent, false);
+            view = getInflater().inflate(R.layout.toolbar_spinner_item_actionbar, parent, false);
             view.setTag(NON_DROPDOWN);
         }
         ((TextView) view.findViewById(16908308)).setText(((DataEntryFragmentSection) getData().get(position)).getLabel());

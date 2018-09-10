@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 
@@ -32,7 +32,7 @@ public class EmailAddressEditTextRow extends TextRow {
             if (email.matches("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?") || email.length() <= 0) {
                 setError(null);
             } else {
-                setError(Integer.valueOf(C0845R.string.error_email));
+                setError(Integer.valueOf(R.string.error_email));
             }
         }
 
@@ -69,14 +69,14 @@ public class EmailAddressEditTextRow extends TextRow {
         ValueEntryHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof ValueEntryHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_edit_text, container, false);
-            TextView label = (TextView) root.findViewById(C0845R.id.text_label);
-            TextView mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
-            TextView warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
-            TextView errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
-            EditText editText = (EditText) root.findViewById(C0845R.id.edit_text_row);
+            View root = inflater.inflate(R.layout.listview_row_edit_text, container, false);
+            TextView label = (TextView) root.findViewById(R.id.text_label);
+            TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
+            TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
+            TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
+            EditText editText = (EditText) root.findViewById(R.id.edit_text_row);
             editText.setInputType(32);
-            editText.setHint(C0845R.string.enter_email);
+            editText.setHint(R.string.enter_email);
             editText.setSingleLine(true);
             EmailWatcher listener = new EmailWatcher(editText, errorLabel);
             listener.setRow(this);

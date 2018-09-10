@@ -187,8 +187,8 @@ public class TrackedEntityAttribute extends BaseNameableObject {
         }
 
         public void bindToContentValues(ContentValues contentValues, TrackedEntityAttribute model) {
+            ContentValues contentValues2 = contentValues;
             if (model.name != null) {
-                ContentValues contentValues2 = contentValues;
                 contentValues2.put("name", model.name);
             } else {
                 contentValues.putNull("name");
@@ -323,8 +323,8 @@ public class TrackedEntityAttribute extends BaseNameableObject {
         }
 
         public void bindToInsertValues(ContentValues contentValues, TrackedEntityAttribute model) {
+            ContentValues contentValues2 = contentValues;
             if (model.name != null) {
-                ContentValues contentValues2 = contentValues;
                 contentValues2.put("name", model.name);
             } else {
                 contentValues.putNull("name");
@@ -623,7 +623,7 @@ public class TrackedEntityAttribute extends BaseNameableObject {
         }
 
         public final TrackedEntityAttribute newInstance() {
-            return new TrackedEntityAttribute();
+            return new TrackedEntityAttribute("");
         }
     }
 

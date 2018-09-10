@@ -9,7 +9,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 
 public class TrackedEntityInstanceDynamicColumnRows implements EventRow {
@@ -29,9 +29,9 @@ public class TrackedEntityInstanceDynamicColumnRows implements EventRow {
             }
 
             public void onClick(View view) {
-                if (view.getId() == C0845R.id.column_name) {
+                if (view.getId() == R.id.column_name) {
                     Dhis2Application.getEventBus().post(new OnTrackedEntityInstanceColumnClick(1));
-                } else if (view.getId() == C0845R.id.status_column) {
+                } else if (view.getId() == R.id.status_column) {
                     Dhis2Application.getEventBus().post(new OnTrackedEntityInstanceColumnClick(4));
                 }
             }
@@ -48,25 +48,25 @@ public class TrackedEntityInstanceDynamicColumnRows implements EventRow {
     public View getView(LayoutInflater inflater, View convertView, ViewGroup container) {
         ViewHolder holder;
         if (convertView == null) {
-            this.view = inflater.inflate(C0845R.layout.listview_column_names_item, container, false);
-            holder = new ViewHolder((TextView) this.view.findViewById(C0845R.id.tracked_entity_title), (TextView) this.view.findViewById(C0845R.id.column_name), (TextView) this.view.findViewById(C0845R.id.status_column), (LinearLayout) this.view.findViewById(C0845R.id.dynamic_column_container));
+            this.view = inflater.inflate(R.layout.listview_column_names_item, container, false);
+            holder = new ViewHolder((TextView) this.view.findViewById(R.id.tracked_entity_title), (TextView) this.view.findViewById(R.id.column_name), (TextView) this.view.findViewById(R.id.status_column), (LinearLayout) this.view.findViewById(R.id.dynamic_column_container));
             for (String column : this.columns) {
-                ((TextView) inflater.inflate(C0845R.layout.item_column, (LinearLayout) this.view.findViewById(C0845R.id.dynamic_column_container), false).findViewById(C0845R.id.column_name)).setText(column);
+                ((TextView) inflater.inflate(R.layout.item_column, (LinearLayout) this.view.findViewById(R.id.dynamic_column_container), false).findViewById(R.id.column_name)).setText(column);
             }
             this.view.setTag(holder);
         } else {
             this.view = convertView;
             holder = (ViewHolder) this.view.getTag();
         }
-        OnInternalColumnRowClickListener onInternalColumnRowClickListener = new OnInternalColumnRowClickListener();
+        ViewHolder.OnInternalColumnRowClickListener onInternalColumnRowClickListener = new ViewHolder.OnInternalColumnRowClickListener();
         LayoutParams params = new LayoutParams(-1, -1, 0.75f / ((float) this.columns.size()));
         params.gravity = 16;
         holder.columnContainer.removeAllViews();
         for (String column2 : this.columns) {
-            View columnView = inflater.inflate(C0845R.layout.item_column, holder.columnContainer, false);
-            ((TextView) columnView.findViewById(C0845R.id.column_name)).setText(column2);
+            View columnView = inflater.inflate(R.layout.item_column, holder.columnContainer, false);
+            ((TextView) columnView.findViewById(R.id.column_name)).setText(column2);
             holder.columnContainer.addView(columnView, params);
-            holder.columnContainer.addView(inflater.inflate(C0845R.layout.space_column, holder.columnContainer, false));
+            holder.columnContainer.addView(inflater.inflate(R.layout.space_column, holder.columnContainer, false));
         }
         holder.trackedEntityTitle.setText(this.mTitle);
         holder.statusItem.setOnClickListener(onInternalColumnRowClickListener);

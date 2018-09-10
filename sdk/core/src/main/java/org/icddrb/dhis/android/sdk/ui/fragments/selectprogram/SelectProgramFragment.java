@@ -21,7 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.squareup.otto.Subscribe;
 import java.util.Arrays;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisService;
 import org.icddrb.dhis.android.sdk.controllers.SyncStrategy;
 import org.icddrb.dhis.android.sdk.events.UiEvent;
@@ -98,15 +98,15 @@ public abstract class SelectProgramFragment extends BaseFragment implements OnCl
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(C0845R.layout.fragment_select_program, container, false);
+        return inflater.inflate(R.layout.fragment_select_program, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         this.mPrefs = new SelectProgramFragmentPreferences(getActivity().getApplicationContext());
-        this.mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(C0845R.id.swipe_to_refresh_layout);
-        this.mSwipeRefreshLayout.setColorSchemeResources(C0845R.color.Green, C0845R.color.Blue, C0845R.color.orange);
+        this.mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_to_refresh_layout);
+        this.mSwipeRefreshLayout.setColorSchemeResources(R.color.Green, R.color.Blue, R.color.orange);
         this.mSwipeRefreshLayout.setOnRefreshListener(this);
-        this.mListView = (ListView) view.findViewById(C0845R.id.event_listview);
+        this.mListView = (ListView) view.findViewById(R.id.event_listview);
         this.mAdapter = getAdapter(savedInstanceState);
         View header = getListViewHeader(savedInstanceState);
         setStandardButtons(header);
@@ -137,14 +137,14 @@ public abstract class SelectProgramFragment extends BaseFragment implements OnCl
     }
 
     protected View getListViewHeader(Bundle savedInstanceState) {
-        return getLayoutInflater(savedInstanceState).inflate(C0845R.layout.fragment_select_program_header, this.mListView, false);
+        return getLayoutInflater(savedInstanceState).inflate(R.layout.fragment_select_program_header, this.mListView, false);
     }
 
     protected void setStandardButtons(View header) {
-        this.mProgressBar = (ProgressBar) header.findViewById(C0845R.id.progress_bar);
+        this.mProgressBar = (ProgressBar) header.findViewById(R.id.progress_bar);
         this.mProgressBar.setVisibility(8);
-        this.mOrgUnitButton = (CardTextViewButton) header.findViewById(C0845R.id.select_organisation_unit);
-        this.mProgramButton = (CardTextViewButton) header.findViewById(C0845R.id.select_program);
+        this.mOrgUnitButton = (CardTextViewButton) header.findViewById(R.id.select_organisation_unit);
+        this.mProgramButton = (CardTextViewButton) header.findViewById(R.id.select_program);
         this.mOrgUnitButton.setOnClickListener(new C09171());
         this.mProgramButton.setOnClickListener(new C09182());
         this.mOrgUnitButton.setEnabled(true);
@@ -209,7 +209,7 @@ public abstract class SelectProgramFragment extends BaseFragment implements OnCl
     public void onRefresh() {
         if (isAdded()) {
             Context context = getActivity().getBaseContext();
-            Toast.makeText(context, getString(C0845R.string.syncing), 0).show();
+            Toast.makeText(context, getString(R.string.syncing), 0).show();
             DhisService.synchronize(context, SyncStrategy.DOWNLOAD_ALL);
         }
     }

@@ -358,7 +358,7 @@ public final class Interpretation extends BaseMetaDataObject {
         interpretation.setState(State.TO_POST);
         interpretation.setUser(user);
         String type = item.getType();
-        Object obj = -1;
+        float obj = -1;
         switch (type.hashCode()) {
             case -257288454:
                 if (type.equals("reportTable")) {
@@ -374,30 +374,29 @@ public final class Interpretation extends BaseMetaDataObject {
                 break;
             case 94623710:
                 if (type.equals("chart")) {
-                    obj = null;
+                    obj = 0;
                     break;
                 }
                 break;
         }
         InterpretationElement element;
-        switch (obj) {
-            case null:
-                element = InterpretationElement.fromDashboardElement(interpretation, item.getChart(), "chart");
-                interpretation.setType("chart");
-                interpretation.setChart(element);
-                break;
-            case 1:
-                element = InterpretationElement.fromDashboardElement(interpretation, item.getMap(), "map");
-                interpretation.setType("map");
-                interpretation.setMap(element);
-                break;
-            case 2:
-                element = InterpretationElement.fromDashboardElement(interpretation, item.getReportTable(), "reportTable");
-                interpretation.setType("reportTable");
-                interpretation.setReportTable(element);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported DashboardItem type");
+        if(obj == 0) {
+            element = InterpretationElement.fromDashboardElement(interpretation, item.getChart(), "chart");
+            interpretation.setType("chart");
+            interpretation.setChart(element);
+        }
+        if(obj == 1) {
+            element = InterpretationElement.fromDashboardElement(interpretation, item.getMap(), "map");
+            interpretation.setType("map");
+            interpretation.setMap(element);
+        }
+        if(obj == 2) {
+            element = InterpretationElement.fromDashboardElement(interpretation, item.getReportTable(), "reportTable");
+            interpretation.setType("reportTable");
+            interpretation.setReportTable(element);
+        }
+        else {
+            throw new IllegalArgumentException("Unsupported DashboardItem type");
         }
         return interpretation;
     }
@@ -560,7 +559,7 @@ public final class Interpretation extends BaseMetaDataObject {
     public List<InterpretationElement> getInterpretationElements() {
         List<InterpretationElement> elements = new ArrayList();
         String type = getType();
-        Object obj = -1;
+        int obj = 0;
         switch (type.hashCode()) {
             case -1258431572:
                 if (type.equals(TYPE_DATA_SET_REPORT)) {
@@ -582,13 +581,13 @@ public final class Interpretation extends BaseMetaDataObject {
                 break;
             case 94623710:
                 if (type.equals("chart")) {
-                    obj = null;
+                    obj = 0;
                     break;
                 }
                 break;
         }
         switch (obj) {
-            case null:
+            case 0:
                 elements.add(getChart());
                 break;
             case 1:

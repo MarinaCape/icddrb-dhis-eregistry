@@ -6,7 +6,7 @@ import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout.LayoutParams;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class CardTextViewButton extends CardView {
     private CharSequence mHint;
@@ -21,24 +21,24 @@ public class CardTextViewButton extends CardView {
         super(context, attributes);
         init(context);
         if (!isInEditMode()) {
-            TypedArray attrs = context.obtainStyledAttributes(attributes, C0845R.styleable.ButtonHint);
-            this.mHint = attrs.getString(C0845R.styleable.ButtonHint_hint);
+            TypedArray attrs = context.obtainStyledAttributes(attributes, R.styleable.ButtonHint);
+            this.mHint = attrs.getString(R.styleable.ButtonHint_hint);
             setText(this.mHint);
             attrs.recycle();
         }
     }
 
     private void init(Context context) {
-        int pxs = getResources().getDimensionPixelSize(C0845R.dimen.card_text_view_margin);
+        int pxs = getResources().getDimensionPixelSize(R.dimen.card_text_view_margin);
         LayoutParams textViewParams = new LayoutParams(-1, -2);
         textViewParams.setMargins(pxs, pxs, pxs, pxs);
         this.mTextView = new FontTextView(context);
         this.mTextView.setClickable(true);
         this.mTextView.setId(getId());
-        this.mTextView.setBackgroundResource(C0845R.drawable.spinner_background_holo_light);
-        this.mTextView.setFont(getContext().getString(C0845R.string.regular_font_name));
+        this.mTextView.setBackgroundResource(R.drawable.spinner_background_holo_light);
+        this.mTextView.setFont(getContext().getString(R.string.regular_font_name));
         this.mTextView.setLayoutParams(textViewParams);
-        this.mTextView.setTextSize(0, getResources().getDimension(C0845R.dimen.medium_text_size));
+        this.mTextView.setTextSize(0, getResources().getDimension(R.dimen.medium_text_size));
         addView(this.mTextView);
     }
 

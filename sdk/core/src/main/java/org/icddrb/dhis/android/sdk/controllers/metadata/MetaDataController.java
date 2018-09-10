@@ -12,7 +12,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.icddrb.dhis.android.sdk.C0845R;
+
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.ApiEndpointContainer;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.LoadingController;
@@ -386,7 +387,7 @@ public final class MetaDataController extends ResourceController {
 
     public static void loadMetaData(Context context, DhisApi dhisApi, SyncStrategy syncStrategy) throws APIException {
         Log.d(CLASS_TAG, "loadMetaData");
-        UiUtils.postProgressMessage(context.getString(C0845R.string.loading_metadata), EventType.METADATA);
+        UiUtils.postProgressMessage(context.getString(R.string.loading_metadata), EventType.METADATA);
         updateMetaDataItems(context, dhisApi, syncStrategy);
     }
 

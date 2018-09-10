@@ -15,7 +15,7 @@ import android.util.AttributeSet;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageButton;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class FloatingActionButton extends ImageButton {
     private static final AccelerateInterpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
@@ -48,18 +48,18 @@ public class FloatingActionButton extends ImageButton {
     private void init(AttributeSet attributeSet) {
         setClickable(true);
         this.mType = 0;
-        this.mColorNormal = getColor(C0845R.color.navy_blue);
-        this.mColorPressed = getColor(C0845R.color.dark_navy_blue);
+        this.mColorNormal = getColor(R.color.navy_blue);
+        this.mColorPressed = getColor(R.color.dark_navy_blue);
         this.mShadow = true;
-        this.mShadowSize = getDimension(C0845R.dimen.floating_action_button_shadow_size);
+        this.mShadowSize = getDimension(R.dimen.floating_action_button_shadow_size);
         if (attributeSet != null) {
-            TypedArray attrs = getContext().obtainStyledAttributes(attributeSet, C0845R.styleable.FloatingActionButton);
+            TypedArray attrs = getContext().obtainStyledAttributes(attributeSet, R.styleable.FloatingActionButton);
             if (attrs != null) {
                 try {
-                    this.mColorNormal = attrs.getColor(C0845R.styleable.FloatingActionButton_colorNormal, this.mColorNormal);
-                    this.mColorPressed = attrs.getColor(C0845R.styleable.FloatingActionButton_colorPressed, this.mColorPressed);
-                    this.mShadow = attrs.getBoolean(C0845R.styleable.FloatingActionButton_shadow, this.mShadow);
-                    this.mType = attrs.getInt(C0845R.styleable.FloatingActionButton_type, 0);
+                    this.mColorNormal = attrs.getColor(R.styleable.FloatingActionButton_colorNormal, this.mColorNormal);
+                    this.mColorPressed = attrs.getColor(R.styleable.FloatingActionButton_colorPressed, this.mColorPressed);
+                    this.mShadow = attrs.getBoolean(R.styleable.FloatingActionButton_shadow, this.mShadow);
+                    this.mType = attrs.getInt(R.styleable.FloatingActionButton_type, 0);
                 } finally {
                     attrs.recycle();
                 }
@@ -76,9 +76,9 @@ public class FloatingActionButton extends ImageButton {
         }
         Drawable shadowDrawable;
         if (this.mType == 0) {
-            shadowDrawable = getResources().getDrawable(C0845R.drawable.shadow);
+            shadowDrawable = getResources().getDrawable(R.drawable.shadow);
         } else {
-            shadowDrawable = getResources().getDrawable(C0845R.drawable.shadow_mini);
+            shadowDrawable = getResources().getDrawable(R.drawable.shadow_mini);
         }
         LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{shadowDrawable, shapeDrawable});
         layerDrawable.setLayerInset(1, this.mShadowSize, this.mShadowSize, this.mShadowSize, this.mShadowSize);

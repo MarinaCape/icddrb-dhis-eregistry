@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.DataElement;
@@ -210,7 +210,7 @@ public class EventDataEntryRuleHelper implements IProgramRuleFragmentHelper {
         }
         if (!dataElementNames.isEmpty()) {
             if (this.eventDataEntryFragment.getValidationErrorDialog() == null || !this.eventDataEntryFragment.getValidationErrorDialog().isVisible()) {
-                this.eventDataEntryFragment.setValidationErrorDialog(ValidationErrorDialog.newInstance(fragment.getString(C0845R.string.warning_hidefieldwithvalue), dataElementNames));
+                this.eventDataEntryFragment.setValidationErrorDialog(ValidationErrorDialog.newInstance(fragment.getString(R.string.warning_hidefieldwithvalue), dataElementNames));
                 if (fragment.isAdded()) {
                     this.eventDataEntryFragment.getValidationErrorDialog().show(fragment.getChildFragmentManager());
                 }

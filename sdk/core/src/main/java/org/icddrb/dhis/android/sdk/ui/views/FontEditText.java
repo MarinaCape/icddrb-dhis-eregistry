@@ -5,7 +5,7 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.widget.EditText;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.utils.TypefaceManager;
 
 public class FontEditText extends EditText {
@@ -25,8 +25,8 @@ public class FontEditText extends EditText {
 
     private void init(Context context, AttributeSet attributeSet) {
         if (!isInEditMode()) {
-            TypedArray attrs = context.obtainStyledAttributes(attributeSet, C0845R.styleable.ViewFont);
-            setFont(attrs.getString(C0845R.styleable.ViewFont_font));
+            TypedArray attrs = context.obtainStyledAttributes(attributeSet, R.styleable.ViewFont);
+            setFont(attrs.getString(R.styleable.ViewFont_font));
             attrs.recycle();
         }
     }

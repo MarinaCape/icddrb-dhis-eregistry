@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.loaders.DbLoader;
 import org.icddrb.dhis.android.sdk.persistence.loaders.Query;
@@ -65,7 +65,7 @@ public class ProgramDialogFragment extends AutoCompleteDialogFragment implements
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setDialogLabel(C0845R.string.dialog_programs);
+        setDialogLabel(R.string.dialog_programs);
         setDialogId(ID);
         this.mProgressBar.setVisibility(0);
     }
@@ -102,7 +102,7 @@ public class ProgramDialogFragment extends AutoCompleteDialogFragment implements
             }
             if (data.isEmpty()) {
                 setNoItemsTextViewVisibility(0);
-                setTextToNoItemsTextView(getString(C0845R.string.no_programs));
+                setTextToNoItemsTextView(getString(R.string.no_programs));
             }
         }
     }

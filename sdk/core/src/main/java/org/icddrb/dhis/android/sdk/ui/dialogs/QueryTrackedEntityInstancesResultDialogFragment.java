@@ -25,7 +25,7 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent;
@@ -146,39 +146,39 @@ public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragm
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(1, C0845R.style.Theme_AppCompat_Light_Dialog);
+        setStyle(1, R.style.Theme_AppCompat_Light_Dialog);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().setSoftInputMode(2);
-        return inflater.inflate(C0845R.layout.dialog_fragment_teiqueryresult, container, false);
+        return inflater.inflate(R.layout.dialog_fragment_teiqueryresult, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        this.mListView = (ListView) view.findViewById(C0845R.id.simple_listview);
-        ImageView closeDialogButton = (ImageView) view.findViewById(C0845R.id.close_dialog_button);
-        this.mFilter = (EditText) view.findViewById(C0845R.id.filter_options);
-        this.mDialogLabel = (TextView) view.findViewById(C0845R.id.dialog_label);
+        this.mListView = (ListView) view.findViewById(R.id.simple_listview);
+        ImageView closeDialogButton = (ImageView) view.findViewById(R.id.close_dialog_button);
+        this.mFilter = (EditText) view.findViewById(R.id.filter_options);
+        this.mDialogLabel = (TextView) view.findViewById(R.id.dialog_label);
         ((InputMethodManager) getActivity().getSystemService("input_method")).hideSoftInputFromWindow(this.mFilter.getWindowToken(), 0);
         this.mAdapter = new QueryTrackedEntityInstancesResultDialogAdapter(LayoutInflater.from(getActivity()), getSelectedTrackedEntityInstances(), null, getContext());
         this.mListView.setAdapter(this.mAdapter);
         this.mListView.setOnItemClickListener(this);
         this.mFilter.addTextChangedListener(new C08961());
-        this.mSelectAllButton = (Button) view.findViewById(C0845R.id.teiqueryresult_selectall);
+        this.mSelectAllButton = (Button) view.findViewById(R.id.teiqueryresult_selectall);
         this.mSelectAllButton.setOnClickListener(this);
         this.mSelectAllButton.setVisibility(0);
         if (getArguments().getBoolean("extra:selectAll")) {
-            this.mSelectAllButton.setText(getString(C0845R.string.deselect_all));
+            this.mSelectAllButton.setText(getString(R.string.deselect_all));
         }
         closeDialogButton.setOnClickListener(new C08972());
-        setDialogLabel(C0845R.string.select_to_load);
+        setDialogLabel(R.string.select_to_load);
         getAdapter().swapData(getTrackedEntityInstances());
     }
 
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         TrackedEntityInstance value = this.mAdapter.getItem(position);
         List<TrackedEntityInstance> selected = getSelectedTrackedEntityInstances();
-        CheckBox checkBox = (CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery);
+        CheckBox checkBox = (CheckBox) view.findViewById(R.id.checkBoxTeiQuery);
         if (checkBox.isChecked()) {
             selected.remove(value);
             checkBox.setChecked(false);
@@ -226,7 +226,7 @@ public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragm
     }
 
     public void onClick(View v) {
-        if (v.getId() == C0845R.id.teiqueryresult_selectall) {
+        if (v.getId() == R.id.teiqueryresult_selectall) {
             toggleSelectAll();
         }
     }
@@ -235,10 +235,10 @@ public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragm
         Bundle arguments = getArguments();
         boolean selectall = arguments.getBoolean("extra:selectAll");
         if (selectall) {
-            this.mSelectAllButton.setText(getText(C0845R.string.select_all));
+            this.mSelectAllButton.setText(getText(R.string.select_all));
             deselectAll();
         } else {
-            this.mSelectAllButton.setText(getText(C0845R.string.deselect_all));
+            this.mSelectAllButton.setText(getText(R.string.deselect_all));
             selectAll();
         }
         arguments.putBoolean("extra:selectAll", !selectall);
@@ -252,7 +252,7 @@ public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragm
         View view = null;
         for (int i = 0; i < allTrackedEntityInstances.size(); i++) {
             view = this.mAdapter.getView(i, view, null);
-            ((CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery)).setChecked(true);
+            ((CheckBox) view.findViewById(R.id.checkBoxTeiQuery)).setChecked(true);
         }
         refreshListView();
     }
@@ -263,7 +263,7 @@ public class QueryTrackedEntityInstancesResultDialogFragment extends DialogFragm
         View view = null;
         for (int i = 0; i < allTrackedEntityInstances.size(); i++) {
             view = this.mAdapter.getView(i, view, null);
-            ((CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery)).setChecked(false);
+            ((CheckBox) view.findViewById(R.id.checkBoxTeiQuery)).setChecked(false);
         }
         refreshListView();
     }

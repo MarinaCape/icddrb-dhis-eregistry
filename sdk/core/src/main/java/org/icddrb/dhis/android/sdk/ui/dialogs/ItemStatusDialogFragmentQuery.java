@@ -19,11 +19,11 @@ public class ItemStatusDialogFragmentQuery implements Query<ItemStatusDialogFrag
     public ItemStatusDialogFragmentForm query(Context context) {
         BaseSerializableModel item = null;
         String str = this.type;
-        Object obj = -1;
+        int obj = 0;
         switch (str.hashCode()) {
             case -546411710:
                 if (str.equals("TrackedEntityInstance")) {
-                    obj = null;
+                    obj = 0;
                     break;
                 }
                 break;
@@ -41,7 +41,7 @@ public class ItemStatusDialogFragmentQuery implements Query<ItemStatusDialogFrag
                 break;
         }
         switch (obj) {
-            case null:
+            case 0:
                 item = TrackerController.getTrackedEntityInstance(this.id);
                 break;
             case 1:

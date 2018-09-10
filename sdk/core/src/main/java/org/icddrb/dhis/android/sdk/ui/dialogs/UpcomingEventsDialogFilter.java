@@ -6,7 +6,7 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.loaders.DbLoader;
 import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogAdapter.OptionAdapterValue;
 import org.icddrb.dhis.android.sdk.ui.dialogs.AutoCompleteDialogFragment.OnOptionSelectedListener;
@@ -36,7 +36,7 @@ public class UpcomingEventsDialogFilter extends AutoCompleteDialogFragment imple
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setDialogLabel(C0845R.string.choose_filter);
+        setDialogLabel(R.string.choose_filter);
         setDialogId(ID);
         this.mProgressBar.setVisibility(0);
     }

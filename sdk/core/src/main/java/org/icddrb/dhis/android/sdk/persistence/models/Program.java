@@ -207,8 +207,8 @@ public class Program extends BaseMetaDataObject {
         }
 
         public void bindToContentValues(ContentValues contentValues, Program model) {
+            ContentValues contentValues2 = contentValues;
             if (model.name != null) {
-                ContentValues contentValues2 = contentValues;
                 contentValues2.put("name", model.name);
             } else {
                 contentValues.putNull("name");
@@ -345,8 +345,8 @@ public class Program extends BaseMetaDataObject {
         }
 
         public void bindToInsertValues(ContentValues contentValues, Program model) {
+            ContentValues contentValues2 = contentValues;
             if (model.name != null) {
-                ContentValues contentValues2 = contentValues;
                 contentValues2.put("name", model.name);
             } else {
                 contentValues.putNull("name");

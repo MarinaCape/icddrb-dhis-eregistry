@@ -49,7 +49,7 @@ public class ProgramIndicatorService {
 
     public static Map<String, String> getProgramIndicatorValues(Enrollment programInstance) {
         Map<String, String> result = new HashMap();
-        for (ProgramIndicator programIndicator : new HashSet(programInstance.getProgram().getProgramIndicators())) {
+        for (ProgramIndicator programIndicator : programInstance.getProgram().getProgramIndicators()) {
             if (getProgramIndicatorValue(programInstance, programIndicator) != null) {
                 result.put(programIndicator.getDisplayName(), getProgramIndicatorValue(programInstance, programIndicator));
             }
@@ -209,7 +209,7 @@ public class ProgramIndicatorService {
                         }
                     }
                     if (eventProgramStageInstance.getDataValues() != null) {
-                        dataValue22 = (DataValue) dataElementToDataValues.get(de);
+                        DataValue dataValue22 = (DataValue) dataElementToDataValues.get(de);
                         if (dataValue22 == null || dataValue22.getValue() == null || dataValue22.getValue().isEmpty()) {
                             value = "0";
                         } else {

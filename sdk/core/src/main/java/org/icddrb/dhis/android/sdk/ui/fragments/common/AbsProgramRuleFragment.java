@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramRule;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramRuleAction;
@@ -31,7 +31,7 @@ public abstract class AbsProgramRuleFragment<D> extends BaseFragment {
                 if (AbsProgramRuleFragment.this.progressDialog != null) {
                     AbsProgramRuleFragment.this.progressDialog.dismiss();
                 }
-                AbsProgramRuleFragment.this.progressDialog = ProgressDialog.show(AbsProgramRuleFragment.this.getContext(), "", AbsProgramRuleFragment.this.getString(C0845R.string.please_wait), true, false);
+                AbsProgramRuleFragment.this.progressDialog = ProgressDialog.show(AbsProgramRuleFragment.this.getContext(), "", AbsProgramRuleFragment.this.getString(R.string.please_wait), true, false);
             }
         }
     }

@@ -194,7 +194,7 @@ public class DataValue extends BaseValue {
         }
 
         public final DataValue newInstance() {
-            return new DataValue();
+            return new DataValue(0L, "", "", "", false, "");
         }
     }
 
@@ -216,7 +216,7 @@ public class DataValue extends BaseValue {
         this.providedElsewhere = dataValue.providedElsewhere;
         this.storedBy = dataValue.storedBy;
     }
-
+    public DataValue(){}
     public DataValue(Event event, String value, String dataElement, boolean providedElsewhere, String storedBy) {
         this.localEventId = event.getLocalId();
         this.event = event.getEvent();

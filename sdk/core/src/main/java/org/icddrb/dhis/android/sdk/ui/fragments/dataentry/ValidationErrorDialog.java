@@ -11,7 +11,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import java.util.ArrayList;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.ui.adapters.ValidationErrorAdapter;
 
 public final class ValidationErrorDialog extends DialogFragment implements OnClickListener {
@@ -42,17 +42,17 @@ public final class ValidationErrorDialog extends DialogFragment implements OnCli
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(1, C0845R.style.Theme_AppCompat_Light_Dialog);
+        setStyle(1, R.style.Theme_AppCompat_Light_Dialog);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(C0845R.layout.dialog_fragment_validation_errors, container, false);
+        return inflater.inflate(R.layout.dialog_fragment_validation_errors, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        this.mListView = (ListView) view.findViewById(C0845R.id.simple_listview);
-        this.mHeader = (TextView) view.findViewById(C0845R.id.header);
-        this.mButton = (Button) view.findViewById(C0845R.id.closebutton);
+        this.mListView = (ListView) view.findViewById(R.id.simple_listview);
+        this.mHeader = (TextView) view.findViewById(R.id.header);
+        this.mButton = (Button) view.findViewById(R.id.closebutton);
         String header = getArguments().getString(HEADER_EXTRA);
         if (header != null) {
             this.mHeader.setText(header);

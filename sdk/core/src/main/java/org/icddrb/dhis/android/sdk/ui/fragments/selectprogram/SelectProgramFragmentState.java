@@ -29,6 +29,8 @@ public class SelectProgramFragmentState implements Parcelable {
         }
     }
 
+    public SelectProgramFragmentState(){}
+
     public SelectProgramFragmentState(SelectProgramFragmentState state) {
         if (state != null) {
             setSyncInProcess(state.isSyncInProcess());

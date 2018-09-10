@@ -14,6 +14,9 @@ public abstract class BaseSerializableModel extends BaseIdentifiableObject {
     @JsonIgnore
     long localId = -1;
 
+    protected BaseSerializableModel() {
+    }
+
     @JsonAnySetter
     public void handleUnknown(String key, Object value) {
     }

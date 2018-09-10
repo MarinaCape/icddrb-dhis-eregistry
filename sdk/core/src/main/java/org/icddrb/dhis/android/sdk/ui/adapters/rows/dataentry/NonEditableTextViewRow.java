@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry.autocompleterow.TextRow;
 import org.icddrb.dhis.android.sdk.ui.adapters.rows.events.OnDetailedInfoButtonClick;
 
@@ -35,8 +35,8 @@ public abstract class NonEditableTextViewRow extends TextRow {
         ViewHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof ViewHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_indicator, container, false);
-            holder = new ViewHolder((TextView) root.findViewById(C0845R.id.text_label), (TextView) root.findViewById(C0845R.id.indicator_row), root.findViewById(C0845R.id.detailed_info_button_layout));
+            View root = inflater.inflate(R.layout.listview_row_indicator, container, false);
+            holder = new ViewHolder((TextView) root.findViewById(R.id.text_label), (TextView) root.findViewById(R.id.indicator_row), root.findViewById(R.id.detailed_info_button_layout));
             root.setTag(holder);
             view = root;
         } else {

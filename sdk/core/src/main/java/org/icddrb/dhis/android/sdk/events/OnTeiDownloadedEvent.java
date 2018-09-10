@@ -1,7 +1,8 @@
 package org.icddrb.dhis.android.sdk.events;
 
 import android.content.Context;
-import org.icddrb.dhis.android.sdk.C0845R;
+
+import org.icddrb.dhis.android.sdk.R;
 
 public class OnTeiDownloadedEvent {
     private boolean errorHasOccured;
@@ -33,18 +34,18 @@ public class OnTeiDownloadedEvent {
     public String getUserFriendlyMessage(Context context) {
         switch (this.eventType) {
             case START:
-                return String.format(context.getString(C0845R.string.downloading) + " 1/%s", new Object[]{Integer.valueOf(this.totalNumberOfTeis)});
+                return String.format(context.getString(R.string.downloading) + " 1/%s", new Object[]{Integer.valueOf(this.totalNumberOfTeis)});
             case UPDATE:
-                return String.format(context.getString(C0845R.string.downloading) + " %s/%s", new Object[]{Integer.valueOf(this.eventNumber), Integer.valueOf(this.totalNumberOfTeis)});
+                return String.format(context.getString(R.string.downloading) + " %s/%s", new Object[]{Integer.valueOf(this.eventNumber), Integer.valueOf(this.totalNumberOfTeis)});
             case ERROR:
-                return String.format(context.getString(C0845R.string.error_downloading) + " %s", new Object[]{Integer.valueOf(this.eventNumber)});
+                return String.format(context.getString(R.string.error_downloading) + " %s", new Object[]{Integer.valueOf(this.eventNumber)});
             case END:
                 if (this.errorHasOccured) {
-                    return context.getString(C0845R.string.downloaded_with_errors);
+                    return context.getString(R.string.downloaded_with_errors);
                 }
-                return context.getString(C0845R.string.download_complete);
+                return context.getString(R.string.download_complete);
             default:
-                return context.getString(C0845R.string.download_error_try_again);
+                return context.getString(R.string.download_error_try_again);
         }
     }
 

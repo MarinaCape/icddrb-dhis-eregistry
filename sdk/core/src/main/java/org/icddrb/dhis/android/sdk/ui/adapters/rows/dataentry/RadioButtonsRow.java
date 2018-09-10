@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
@@ -80,9 +80,9 @@ public class RadioButtonsRow extends Row {
 
         public void onCheckedChanged(RadioGroup group, int checkedId) {
             String newValue;
-            if (checkedId == C0845R.id.first_radio_button) {
+            if (checkedId == R.id.first_radio_button) {
                 newValue = "true";
-            } else if (checkedId == C0845R.id.second_radio_button) {
+            } else if (checkedId == R.id.second_radio_button) {
                 newValue = "false";
             } else {
                 newValue = "";
@@ -112,20 +112,20 @@ public class RadioButtonsRow extends Row {
         BooleanRowHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof BooleanRowHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_radio_buttons, container, false);
-            TextView label = (TextView) root.findViewById(C0845R.id.text_label);
-            TextView mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
-            TextView warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
-            TextView errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
-            CompoundButton firstButton = (CompoundButton) root.findViewById(C0845R.id.first_radio_button);
-            CompoundButton secondButton = (CompoundButton) root.findViewById(C0845R.id.second_radio_button);
-            RadioGroup radioGroup = (RadioGroup) root.findViewById(C0845R.id.radio_group_row_radio_buttons);
+            View root = inflater.inflate(R.layout.listview_row_radio_buttons, container, false);
+            TextView label = (TextView) root.findViewById(R.id.text_label);
+            TextView mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
+            TextView warningLabel = (TextView) root.findViewById(R.id.warning_label);
+            TextView errorLabel = (TextView) root.findViewById(R.id.error_label);
+            CompoundButton firstButton = (CompoundButton) root.findViewById(R.id.first_radio_button);
+            CompoundButton secondButton = (CompoundButton) root.findViewById(R.id.second_radio_button);
+            RadioGroup radioGroup = (RadioGroup) root.findViewById(R.id.radio_group_row_radio_buttons);
             if (DataEntryRowTypes.BOOLEAN.equals(this.mRowType)) {
-                firstButton.setText(C0845R.string.yes);
-                secondButton.setText(C0845R.string.no);
+                firstButton.setText(R.string.yes);
+                secondButton.setText(R.string.no);
             } else if (DataEntryRowTypes.GENDER.equals(this.mRowType)) {
-                firstButton.setText(C0845R.string.gender_male);
-                secondButton.setText(C0845R.string.gender_female);
+                firstButton.setText(R.string.gender_male);
+                secondButton.setText(R.string.gender_female);
             }
             OnCheckedChangeListener onCheckedChangeListener = new OnCheckedChangeListener();
             holder = new BooleanRowHolder(this.mRowType, label, mandatoryIndicator, warningLabel, errorLabel, firstButton, secondButton, radioGroup, onCheckedChangeListener);

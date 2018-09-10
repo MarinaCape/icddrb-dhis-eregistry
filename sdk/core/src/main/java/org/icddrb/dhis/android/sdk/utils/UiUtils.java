@@ -6,7 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent.EventType;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
@@ -37,7 +37,7 @@ public final class UiUtils {
         if (activity != null) {
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    new CustomDialogFragment(title, message, activity.getString(C0845R.string.ok_option), null).show(activity.getFragmentManager(), title);
+                    new CustomDialogFragment(title, message, activity.getString(R.string.ok_option), null).show(activity.getFragmentManager(), title);
                 }
             });
         }
@@ -47,7 +47,7 @@ public final class UiUtils {
         if (activity != null) {
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    new CustomDialogFragment(title, message, activity.getString(C0845R.string.ok_option), iconId, null).show(activity.getFragmentManager(), title);
+                    new CustomDialogFragment(title, message, activity.getString(R.string.ok_option), iconId, null).show(activity.getFragmentManager(), title);
                 }
             });
         }
@@ -57,7 +57,7 @@ public final class UiUtils {
         if (activity != null) {
             activity.runOnUiThread(new Runnable() {
                 public void run() {
-                    new CustomDialogFragment(title, message, activity.getString(C0845R.string.ok_option), onConfirmClickListener).show(activity.getFragmentManager(), title);
+                    new CustomDialogFragment(title, message, activity.getString(R.string.ok_option), onConfirmClickListener).show(activity.getFragmentManager(), title);
                 }
             });
         }

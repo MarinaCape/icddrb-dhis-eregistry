@@ -14,7 +14,7 @@ import android.widget.TimePicker;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
@@ -69,12 +69,12 @@ public class TimePickerRow extends Row {
         final TextView warningLabel;
 
         public TimePickerRowHolder(View root, Context context) {
-            this.textLabel = (TextView) root.findViewById(C0845R.id.text_label);
-            this.mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
-            this.warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
-            this.errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
-            this.pickerInvoker = (TextView) root.findViewById(C0845R.id.date_picker_text_view);
-            this.clearButton = (ImageButton) root.findViewById(C0845R.id.clear_text_view);
+            this.textLabel = (TextView) root.findViewById(R.id.text_label);
+            this.mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
+            this.warningLabel = (TextView) root.findViewById(R.id.warning_label);
+            this.errorLabel = (TextView) root.findViewById(R.id.error_label);
+            this.pickerInvoker = (TextView) root.findViewById(R.id.date_picker_text_view);
+            this.clearButton = (ImageButton) root.findViewById(R.id.clear_text_view);
             this.invokerListener = new OnEditTextClickListener(context, this.timeSetListener);
             this.clearButtonListener = new ClearButtonListener(this.pickerInvoker);
             this.clearButton.setOnClickListener(this.clearButtonListener);
@@ -121,7 +121,7 @@ public class TimePickerRow extends Row {
         TimePickerRowHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof TimePickerRowHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_timepicker, container, false);
+            View root = inflater.inflate(R.layout.listview_row_timepicker, container, false);
             holder = new TimePickerRowHolder(root, inflater.getContext());
             root.setTag(holder);
             view = root;

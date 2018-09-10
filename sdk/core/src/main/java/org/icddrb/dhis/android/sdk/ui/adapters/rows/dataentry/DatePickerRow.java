@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
@@ -72,13 +72,13 @@ public class DatePickerRow extends Row {
         final TextView warningLabel;
 
         public DatePickerRowHolder(View root, Context context, boolean allowDatesInFuture, BaseValue baseValue, String type) {
-            this.textLabel = (TextView) root.findViewById(C0845R.id.text_label);
-            this.mandatoryIndicator = (TextView) root.findViewById(C0845R.id.mandatory_indicator);
-            this.warningLabel = (TextView) root.findViewById(C0845R.id.warning_label);
-            this.errorLabel = (TextView) root.findViewById(C0845R.id.error_label);
-            this.pickerInvoker = (TextView) root.findViewById(C0845R.id.date_picker_text_view);
-            this.clearButton = (ImageButton) root.findViewById(C0845R.id.clear_text_view);
-            this.editText = (EditText) root.findViewById(C0845R.id.age_text_row);
+            this.textLabel = (TextView) root.findViewById(R.id.text_label);
+            this.mandatoryIndicator = (TextView) root.findViewById(R.id.mandatory_indicator);
+            this.warningLabel = (TextView) root.findViewById(R.id.warning_label);
+            this.errorLabel = (TextView) root.findViewById(R.id.error_label);
+            this.pickerInvoker = (TextView) root.findViewById(R.id.date_picker_text_view);
+            this.clearButton = (ImageButton) root.findViewById(R.id.clear_text_view);
+            this.editText = (EditText) root.findViewById(R.id.age_text_row);
             LocalDate currentDate = new LocalDate();
             this.picker = new DatePickerDialog(context, this.dateSetListener, currentDate.getYear(), currentDate.getMonthOfYear() - 1, currentDate.getDayOfMonth());
             if (!allowDatesInFuture) {
@@ -250,7 +250,7 @@ public class DatePickerRow extends Row {
         DatePickerRowHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof DatePickerRowHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_datepicker, container, false);
+            View root = inflater.inflate(R.layout.listview_row_datepicker, container, false);
             holder = new DatePickerRowHolder(root, inflater.getContext(), this.mAllowDatesInFuture, this.mValue, this.mType);
             root.setTag(holder);
             view = root;

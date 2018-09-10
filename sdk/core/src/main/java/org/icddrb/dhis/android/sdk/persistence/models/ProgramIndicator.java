@@ -20,8 +20,8 @@ public class ProgramIndicator extends BaseNameableObject {
     public static final String ENROLLMENT_DATE = "enrollment_date";
     public static final String EVENT_DATE = "event_date";
     public static final String EXPRESSION_NOT_WELL_FORMED = "expression_not_well_formed";
-    public static final Pattern EXPRESSION_PATTERN = Pattern.compile(EXPRESSION_REGEXP);
     public static final String EXPRESSION_REGEXP = "(#|A|V|C)\\{(\\w+|incident_date|enrollment_date|current_date|event_date)\\.?(\\w*)\\}";
+    public static final Pattern EXPRESSION_PATTERN = Pattern.compile(EXPRESSION_REGEXP);
     public static final String INCIDENT_DATE = "incident_date";
     public static final String KEY_ATTRIBUTE = "A";
     public static final String KEY_CONSTANT = "C";

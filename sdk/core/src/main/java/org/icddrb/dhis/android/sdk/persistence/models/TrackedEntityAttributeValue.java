@@ -160,6 +160,7 @@ public class TrackedEntityAttributeValue extends BaseValue implements Serializab
         this.trackedEntityInstanceId = trackedEntityAttributeValue.getTrackedEntityInstanceId();
         this.localTrackedEntityInstanceId = trackedEntityAttributeValue.getLocalTrackedEntityInstanceId();
     }
+    public TrackedEntityAttributeValue(){}
 
     public void save() {
         if (!Utils.isLocal(this.trackedEntityInstanceId) || TrackerController.getTrackedEntityAttributeValue(this.trackedEntityAttributeId, this.localTrackedEntityInstanceId) == null) {

@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.squareup.otto.Subscribe;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.events.LoadingMessageEvent;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 
@@ -22,11 +22,11 @@ public class LoadingFragment extends Fragment {
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(C0845R.layout.fragment_loading, container, false);
+        return inflater.inflate(R.layout.fragment_loading, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        this.mLoadingMessage = (TextView) view.findViewById(C0845R.id.fragment_loading_text);
+        this.mLoadingMessage = (TextView) view.findViewById(R.id.fragment_loading_text);
     }
 
     public void setText(CharSequence text) {

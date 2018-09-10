@@ -33,11 +33,11 @@ public enum ValueType {
     AGE(Date.class),
     URL(String.class);
     
-    public static final Set<ValueType> BOOLEAN_TYPES = null;
-    public static final Set<ValueType> DATE_TYPES = null;
-    public static final Set<ValueType> INTEGER_TYPES = null;
-    public static final Set<ValueType> NUMERIC_TYPES = null;
-    public static final Set<ValueType> TEXT_TYPES = null;
+    public static final Set<ValueType> BOOLEAN_TYPES;
+    public static final Set<ValueType> DATE_TYPES;
+    public static final Set<ValueType> INTEGER_TYPES;
+    public static final Set<ValueType> NUMERIC_TYPES;
+    public static final Set<ValueType> TEXT_TYPES;
     private final Class<?> javaClass;
 
     static {

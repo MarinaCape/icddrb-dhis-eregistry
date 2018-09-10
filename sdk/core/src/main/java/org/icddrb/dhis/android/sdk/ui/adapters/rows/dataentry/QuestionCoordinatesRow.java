@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import io.fabric.sdk.android.services.common.IdManager;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.GpsController;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
@@ -40,12 +40,12 @@ public final class QuestionCoordinatesRow extends TextRow {
         private final OnCaptureCoordsClickListener onButtonClickListener = new OnCaptureCoordsClickListener(this.latitude, this.longitude);
 
         public CoordinateViewHolder(View view, View detailedInfoButton) {
-            String latitudeMessage = view.getContext().getString(C0845R.string.latitude_error_message);
-            String longitudeMessage = view.getContext().getString(C0845R.string.longitude_error_message);
-            this.labelTextView = (TextView) view.findViewById(C0845R.id.text_label);
-            this.latitude = (EditText) view.findViewById(C0845R.id.latitude_edittext);
-            this.longitude = (EditText) view.findViewById(C0845R.id.longitude_edittext);
-            this.captureCoords = (ImageButton) view.findViewById(C0845R.id.capture_coordinates);
+            String latitudeMessage = view.getContext().getString(R.string.latitude_error_message);
+            String longitudeMessage = view.getContext().getString(R.string.longitude_error_message);
+            this.labelTextView = (TextView) view.findViewById(R.id.text_label);
+            this.latitude = (EditText) view.findViewById(R.id.latitude_edittext);
+            this.longitude = (EditText) view.findViewById(R.id.longitude_edittext);
+            this.captureCoords = (ImageButton) view.findViewById(R.id.capture_coordinates);
             this.detailedInfoButton = detailedInfoButton;
             this.latitudeWatcher = new LatitudeWatcher(this.latitude, this.longitude, latitudeMessage, longitudeMessage);
             this.longitudeWatcher = new LongitudeWatcher(this.latitude, this.longitude, latitudeMessage, longitudeMessage);
@@ -148,10 +148,10 @@ public final class QuestionCoordinatesRow extends TextRow {
             }
             QuestionCoordinatesRow.this.mErrorStringId = null;
             if (this.mEditTextLatitude.getText().length() > 0 && QuestionCoordinatesRow.isInvalidLatitude(this.mEditTextLatitude.getText().toString())) {
-                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(C0845R.string.error_location_values);
+                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(R.string.error_location_values);
             }
             if (this.mEditTextLongitude.getText().length() > 0 && QuestionCoordinatesRow.isInvalidLongitude(this.mEditTextLongitude.getText().toString())) {
-                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(C0845R.string.error_location_values);
+                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(R.string.error_location_values);
             }
         }
     }
@@ -175,10 +175,10 @@ public final class QuestionCoordinatesRow extends TextRow {
             }
             QuestionCoordinatesRow.this.mErrorStringId = null;
             if (this.mEditTextLatitude.getText().length() > 0 && QuestionCoordinatesRow.isInvalidLatitude(this.mEditTextLatitude.getText().toString())) {
-                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(C0845R.string.error_location_values);
+                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(R.string.error_location_values);
             }
             if (this.mEditTextLongitude.getText().length() > 0 && QuestionCoordinatesRow.isInvalidLongitude(this.mEditTextLongitude.getText().toString())) {
-                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(C0845R.string.error_location_values);
+                QuestionCoordinatesRow.this.mErrorStringId = Integer.valueOf(R.string.error_location_values);
             }
         }
     }
@@ -260,9 +260,9 @@ public final class QuestionCoordinatesRow extends TextRow {
         CoordinateViewHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof QuestionCoordinatesRow)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_event_coordinate_picker, container, false);
+            View root = inflater.inflate(R.layout.listview_row_event_coordinate_picker, container, false);
             root.setBackgroundColor(-1);
-            holder = new CoordinateViewHolder(root, root.findViewById(C0845R.id.detailed_info_button_layout));
+            holder = new CoordinateViewHolder(root, root.findViewById(R.id.detailed_info_button_layout));
             root.setTag(holder);
             view = root;
         } else {

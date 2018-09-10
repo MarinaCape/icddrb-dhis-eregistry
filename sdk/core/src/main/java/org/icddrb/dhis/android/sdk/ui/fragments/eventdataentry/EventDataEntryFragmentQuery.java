@@ -6,7 +6,7 @@ import com.crashlytics.android.Crashlytics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.GpsController;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
@@ -155,11 +155,11 @@ class EventDataEntryFragmentQuery implements Query<EventDataEntryFragmentForm> {
     }
 
     private static void addDueDateRow(Context context, EventDataEntryFragmentForm form, List<Row> rows) {
-        rows.add(new EventDueDatePickerRow(context.getString(C0845R.string.duedate), form.getEvent(), true));
+        rows.add(new EventDueDatePickerRow(context.getString(R.string.duedate), form.getEvent(), true));
     }
 
     private static void addEventDateRow(Context context, EventDataEntryFragmentForm form, List<Row> rows) {
-        rows.add(new EventDatePickerRow(form.getStage().getExecutionDateLabel() == null ? context.getString(C0845R.string.report_date) : form.getStage().getExecutionDateLabel(), form.getEvent(), false));
+        rows.add(new EventDatePickerRow(form.getStage().getExecutionDateLabel() == null ? context.getString(R.string.report_date) : form.getStage().getExecutionDateLabel(), form.getEvent(), false));
     }
 
     private static void addCoordinateRow(EventDataEntryFragmentForm form, List<Row> rows) {

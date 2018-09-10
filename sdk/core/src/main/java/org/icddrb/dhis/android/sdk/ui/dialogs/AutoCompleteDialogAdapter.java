@@ -5,13 +5,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Filter;
-import android.widget.Filter.FilterResults;
 import android.widget.Filterable;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class AutoCompleteDialogAdapter extends BaseAdapter implements Filterable {
     private ArrayFilter mFilter;
@@ -118,7 +117,7 @@ public class AutoCompleteDialogAdapter extends BaseAdapter implements Filterable
         public final TextView textView;
 
         public ViewHolder(View view) {
-            this.textView = (TextView) view.findViewById(C0845R.id.textview_item);
+            this.textView = (TextView) view.findViewById(R.id.textview_item);
         }
     }
 
@@ -151,7 +150,7 @@ public class AutoCompleteDialogAdapter extends BaseAdapter implements Filterable
         View view;
         ViewHolder holder;
         if (convertView == null) {
-            view = this.mInflater.inflate(C0845R.layout.dialog_fragment_listview_option_item, parent, false);
+            view = this.mInflater.inflate(R.layout.dialog_fragment_listview_option_item, parent, false);
             holder = new ViewHolder(view);
             view.setTag(holder);
         } else {

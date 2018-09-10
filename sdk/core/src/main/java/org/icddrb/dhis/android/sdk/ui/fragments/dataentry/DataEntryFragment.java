@@ -26,7 +26,7 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.ErrorType;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
@@ -135,11 +135,11 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(C0845R.menu.menu_data_entry, menu);
+        inflater.inflate(R.menu.menu_data_entry, menu);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(C0845R.layout.fragment_data_entry, container, false);
+        return inflater.inflate(R.layout.fragment_data_entry, container, false);
     }
 
     public ActionBar getActionBar() {
@@ -147,11 +147,11 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        this.progressBar = (ProgressBar) view.findViewById(C0845R.id.progress_bar);
+        this.progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
         this.progressBar.setVisibility(8);
-        this.listView = (ListView) view.findViewById(C0845R.id.datavalues_listview);
+        this.listView = (ListView) view.findViewById(R.id.datavalues_listview);
         this.listView.setRecyclerListener(new C09031());
-        View upButton = getLayoutInflater(savedInstanceState).inflate(C0845R.layout.up_button_layout, this.listView, false);
+        View upButton = getLayoutInflater(savedInstanceState).inflate(R.layout.up_button_layout, this.listView, false);
         this.listViewAdapter = new DataValueAdapter(getChildFragmentManager(), getLayoutInflater(savedInstanceState), this.listView, getContext());
         this.listView.addFooterView(upButton);
         this.listView.setVisibility(0);
@@ -166,7 +166,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
         if (menuItem.getItemId() == 16908332) {
             getActivity().finish();
             return true;
-        } else if (menuItem.getItemId() != C0845R.id.action_new_event) {
+        } else if (menuItem.getItemId() != R.id.action_new_event) {
             return super.onOptionsItemSelected(menuItem);
         } else {
             proceed();
@@ -216,7 +216,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
     }
 
     protected void showLoadingDialog() {
-        UiUtils.showLoadingDialog(getChildFragmentManager(), C0845R.string.please_wait);
+        UiUtils.showLoadingDialog(getChildFragmentManager(), R.string.please_wait);
     }
 
     public void hideLoadingDialog() {
@@ -238,19 +238,19 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
 
     private void showErrorsDialog(ArrayList<String> errors) {
         if (errors.isEmpty()) {
-            Toast.makeText(getContext(), C0845R.string.unable_to_complete_registration, 1).show();
+            Toast.makeText(getContext(), R.string.unable_to_complete_registration, 1).show();
             return;
         }
-        this.validationErrorDialog = ValidationErrorDialog.newInstance(getActivity().getString(C0845R.string.unable_to_complete_registration) + " " + getActivity().getString(C0845R.string.review_errors), errors);
+        this.validationErrorDialog = ValidationErrorDialog.newInstance(getActivity().getString(R.string.unable_to_complete_registration) + " " + getActivity().getString(R.string.review_errors), errors);
         this.validationErrorDialog.show(getChildFragmentManager());
     }
 
     protected void showValidationErrorDialog(HashMap<ErrorType, ArrayList<String>> errorsMap) {
         ArrayList<String> errors = new ArrayList();
-        addErrors((ArrayList) errorsMap.get(ErrorType.MANDATORY), errors, getActivity().getString(C0845R.string.missing_mandatory_field));
-        addErrors((ArrayList) errorsMap.get(ErrorType.UNIQUE), errors, getActivity().getString(C0845R.string.unique_value_form_empty));
-        addErrors((ArrayList) errorsMap.get(ErrorType.PROGRAM_RULE), errors, getActivity().getString(C0845R.string.error_message));
-        addErrors((ArrayList) errorsMap.get(ErrorType.INVALID_FIELD), errors, getActivity().getString(C0845R.string.error_message));
+        addErrors((ArrayList) errorsMap.get(ErrorType.MANDATORY), errors, getActivity().getString(R.string.missing_mandatory_field));
+        addErrors((ArrayList) errorsMap.get(ErrorType.UNIQUE), errors, getActivity().getString(R.string.unique_value_form_empty));
+        addErrors((ArrayList) errorsMap.get(ErrorType.PROGRAM_RULE), errors, getActivity().getString(R.string.error_message));
+        addErrors((ArrayList) errorsMap.get(ErrorType.INVALID_FIELD), errors, getActivity().getString(R.string.error_message));
         showErrorsDialog(errors);
     }
 
@@ -269,7 +269,7 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
 
     protected Toolbar getActionBarToolbar() {
         if (isAdded() && getActivity() != null) {
-            return (Toolbar) getActivity().findViewById(C0845R.id.toolbar);
+            return (Toolbar) getActivity().findViewById(R.id.toolbar);
         }
         throw new IllegalArgumentException("Fragment should be attached to MainActivity");
     }
@@ -307,15 +307,15 @@ public abstract class DataEntryFragment<D> extends AbsProgramRuleFragment<D> imp
     public void onShowDetailedInfo(OnDetailedInfoButtonClick eventClick) {
         String message = "";
         if ((eventClick.getRow() instanceof EventCoordinatesRow) || (eventClick.getRow() instanceof QuestionCoordinatesRow)) {
-            message = getResources().getString(C0845R.string.detailed_info_coordinate_row);
+            message = getResources().getString(R.string.detailed_info_coordinate_row);
         } else if (eventClick.getRow() instanceof StatusRow) {
-            message = getResources().getString(C0845R.string.detailed_info_status_row);
+            message = getResources().getString(R.string.detailed_info_status_row);
         } else if (eventClick.getRow() instanceof IndicatorRow) {
             message = "";
         } else {
             message = eventClick.getRow().getDescription();
         }
-        UiUtils.showConfirmDialog(getActivity(), getResources().getString(C0845R.string.detailed_info_dataelement), message, getResources().getString(C0845R.string.ok_option), new C09053());
+        UiUtils.showConfirmDialog(getActivity(), getResources().getString(R.string.detailed_info_dataelement), message, getResources().getString(R.string.ok_option), new C09053());
     }
 
     @Subscribe

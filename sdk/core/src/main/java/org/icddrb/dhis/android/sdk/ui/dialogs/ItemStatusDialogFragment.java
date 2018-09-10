@@ -32,7 +32,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.job.JobExecutor;
@@ -111,29 +111,29 @@ public abstract class ItemStatusDialogFragment extends DialogFragment implements
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(1, C0845R.style.Theme_AppCompat_Light_Dialog);
+        setStyle(1, R.style.Theme_AppCompat_Light_Dialog);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getDialog().getWindow().setSoftInputMode(2);
-        return inflater.inflate(C0845R.layout.dialog_fragment_trackedentityinstancestatus, container, false);
+        return inflater.inflate(R.layout.dialog_fragment_trackedentityinstancestatus, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        this.mItemStatusImage = (ImageView) view.findViewById(C0845R.id.itemstatus);
-        this.detailsTrigger = (LinearLayout) view.findViewById(C0845R.id.detailTrigger);
-        this.mDetails = (FontTextView) view.findViewById(C0845R.id.item_detailed_info);
-        this.mTriangle = (ImageView) view.findViewById(C0845R.id.triangle);
-        this.mStatus = (FontTextView) view.findViewById(C0845R.id.statusinfo);
-        ImageView syncDialogButton = (ImageView) view.findViewById(C0845R.id.sync_dialog_button);
-        ImageView closeDialogButton = (ImageView) view.findViewById(C0845R.id.close_dialog_button);
-        this.mDialogLabel = (TextView) view.findViewById(C0845R.id.dialog_label);
+        this.mItemStatusImage = (ImageView) view.findViewById(R.id.itemstatus);
+        this.detailsTrigger = (LinearLayout) view.findViewById(R.id.detailTrigger);
+        this.mDetails = (FontTextView) view.findViewById(R.id.item_detailed_info);
+        this.mTriangle = (ImageView) view.findViewById(R.id.triangle);
+        this.mStatus = (FontTextView) view.findViewById(R.id.statusinfo);
+        ImageView syncDialogButton = (ImageView) view.findViewById(R.id.sync_dialog_button);
+        ImageView closeDialogButton = (ImageView) view.findViewById(R.id.close_dialog_button);
+        this.mDialogLabel = (TextView) view.findViewById(R.id.dialog_label);
         closeDialogButton.setOnClickListener(this);
         syncDialogButton.setOnClickListener(this);
         this.mDetails.setOnClickListener(this);
         this.detailsTrigger.setOnClickListener(this);
         registerForContextMenu(this.mDetails);
-        setDialogLabel(C0845R.string.status);
+        setDialogLabel(R.string.status);
     }
 
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -164,18 +164,18 @@ public abstract class ItemStatusDialogFragment extends DialogFragment implements
             switch (this.mForm.getStatus()) {
                 case SENT:
                     this.detailsTrigger.setVisibility(8);
-                    this.mItemStatusImage.setImageResource(C0845R.drawable.ic_from_server);
-                    this.mStatus.setText(getString(C0845R.string.status_sent_description));
+                    this.mItemStatusImage.setImageResource(R.drawable.ic_from_server);
+                    this.mStatus.setText(getString(R.string.status_sent_description));
                     return;
                 case ERROR:
                     this.detailsTrigger.setVisibility(0);
                     FailedItem failedItem = TrackerController.getFailedItem(data.getType(), data.getItem().getLocalId());
                     if (failedItem.getHttpStatusCode() == -1) {
-                        this.mItemStatusImage.setImageResource(C0845R.drawable.ic_offline);
+                        this.mItemStatusImage.setImageResource(R.drawable.ic_offline);
                     } else {
-                        this.mItemStatusImage.setImageResource(C0845R.drawable.ic_event_error);
+                        this.mItemStatusImage.setImageResource(R.drawable.ic_event_error);
                     }
-                    this.mStatus.setText(getString(C0845R.string.default_synchronisation_error));
+                    this.mStatus.setText(getString(R.string.default_synchronisation_error));
                     if (failedItem != null) {
                         String details = "";
                         if (failedItem.getErrorMessage() != null) {
@@ -197,8 +197,8 @@ public abstract class ItemStatusDialogFragment extends DialogFragment implements
                     return;
                 case OFFLINE:
                     this.detailsTrigger.setVisibility(8);
-                    this.mStatus.setText(getString(C0845R.string.status_offline_description));
-                    this.mItemStatusImage.setImageResource(C0845R.drawable.ic_offline);
+                    this.mStatus.setText(getString(R.string.status_offline_description));
+                    this.mItemStatusImage.setImageResource(R.drawable.ic_offline);
                     return;
                 default:
                     return;
@@ -247,47 +247,47 @@ public abstract class ItemStatusDialogFragment extends DialogFragment implements
     public void copyToClipboard() {
         if (this.mDetails != null && this.mDetails.getText().length() > 0) {
             ((ClipboardManager) getActivity().getSystemService("clipboard")).setPrimaryClip(ClipData.newPlainText("Copied Text", this.mDetails.getText()));
-            Toast.makeText(getActivity(), getString(C0845R.string.copied_text), 0).show();
+            Toast.makeText(getActivity(), getString(R.string.copied_text), 0).show();
         }
     }
 
     public void writeErrorToSDCard() {
         if (this.mDetails != null && this.mDetails.getText().length() > 0) {
             StringBuilder filePath = new StringBuilder();
-            String dir = getResources().getString(C0845R.string.directory);
-            String fileName = getResources().getString(C0845R.string.error_log_file_name);
+            String dir = getResources().getString(R.string.directory);
+            String fileName = getResources().getString(R.string.error_log_file_name);
             filePath.append(Environment.getExternalStorageDirectory().getAbsolutePath());
             filePath.append(dir);
             filePath.append(fileName);
             boolean success = LogUtils.writeErrorLogToSDCard(filePath.toString(), this.mDetails.getText().toString());
             MediaScanner mediaScanner = new MediaScanner(getActivity(), filePath.toString());
             if (success) {
-                Toast.makeText(getActivity(), getResources().getString(C0845R.string.text_written_to_sd_card), 0).show();
+                Toast.makeText(getActivity(), getResources().getString(R.string.text_written_to_sd_card), 0).show();
             } else {
-                Toast.makeText(getActivity(), getResources().getString(C0845R.string.sd_card_error_message), 0).show();
+                Toast.makeText(getActivity(), getResources().getString(R.string.sd_card_error_message), 0).show();
             }
         }
     }
 
     public void onClick(View v) {
-        if (v.getId() == C0845R.id.sync_dialog_button) {
-            Toast.makeText(getActivity(), getString(C0845R.string.sending_data_server), 1).show();
+        if (v.getId() == R.id.sync_dialog_button) {
+            Toast.makeText(getActivity(), getString(R.string.sending_data_server), 1).show();
             sendToServer(this.mForm.getItem(), this);
             dismiss();
-        } else if (v.getId() == C0845R.id.close_dialog_button) {
+        } else if (v.getId() == R.id.close_dialog_button) {
             dismiss();
-        } else if (v.getId() == C0845R.id.item_detailed_info) {
+        } else if (v.getId() == R.id.item_detailed_info) {
             if (this.mDetails != null && this.mDetails.getText().length() > 0) {
             }
-        } else if (v.getId() != C0845R.id.detailTrigger) {
+        } else if (v.getId() != R.id.detailTrigger) {
         } else {
             if (this.mDetails.getVisibility() == 0) {
                 this.mDetails.setVisibility(8);
-                this.mTriangle.setImageDrawable(ContextCompat.getDrawable(getContext(), C0845R.drawable.ic_triangle_collapsed));
+                this.mTriangle.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_triangle_collapsed));
                 return;
             }
             this.mDetails.setVisibility(0);
-            this.mTriangle.setImageDrawable(ContextCompat.getDrawable(getContext(), C0845R.drawable.ic_triangle_expanded));
+            this.mTriangle.setImageDrawable(ContextCompat.getDrawable(getContext(), R.drawable.ic_triangle_expanded));
         }
     }
 
@@ -295,12 +295,12 @@ public abstract class ItemStatusDialogFragment extends DialogFragment implements
         String[] contextMenu;
         int i;
         super.onCreateContextMenu(menu, v, menuInfo);
-        if (v.getId() == C0845R.id.item_detailed_info) {
-            menu.setHeaderTitle(C0845R.string.error_description);
-            contextMenu = getResources().getStringArray(C0845R.array.copy_store_error_message);
+        if (v.getId() == R.id.item_detailed_info) {
+            menu.setHeaderTitle(R.string.error_description);
+            contextMenu = getResources().getStringArray(R.array.copy_store_error_message);
         } else {
-            menu.setHeaderTitle(C0845R.string.error_description);
-            contextMenu = getResources().getStringArray(C0845R.array.copy_store_error_message);
+            menu.setHeaderTitle(R.string.error_description);
+            contextMenu = getResources().getStringArray(R.array.copy_store_error_message);
         }
         for (i = 0; i < contextMenu.length; i++) {
             menu.add(0, i, i, contextMenu[i]);
@@ -314,7 +314,7 @@ public abstract class ItemStatusDialogFragment extends DialogFragment implements
 
     public boolean onContextItemSelected(MenuItem item) {
         int menuItemIndex = item.getItemId();
-        String[] contextMenu = getResources().getStringArray(C0845R.array.copy_store_error_message);
+        String[] contextMenu = getResources().getStringArray(R.array.copy_store_error_message);
         String menuItemName = contextMenu[menuItemIndex];
         if (item.getTitle().toString().equalsIgnoreCase(contextMenu[0])) {
             copyToClipboard();

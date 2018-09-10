@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import io.fabric.sdk.android.services.common.IdManager;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.GpsController;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
@@ -39,11 +39,11 @@ public final class EventCoordinatesRow extends Row {
         private final OnCaptureCoordsClickListener onButtonClickListener = new OnCaptureCoordsClickListener(this.latitude, this.longitude);
 
         public CoordinateViewHolder(View view, View detailedInfoButton) {
-            String latitudeMessage = view.getContext().getString(C0845R.string.latitude_error_message);
-            String longitudeMessage = view.getContext().getString(C0845R.string.longitude_error_message);
-            this.latitude = (EditText) view.findViewById(C0845R.id.latitude_edittext);
-            this.longitude = (EditText) view.findViewById(C0845R.id.longitude_edittext);
-            this.captureCoords = (ImageButton) view.findViewById(C0845R.id.capture_coordinates);
+            String latitudeMessage = view.getContext().getString(R.string.latitude_error_message);
+            String longitudeMessage = view.getContext().getString(R.string.longitude_error_message);
+            this.latitude = (EditText) view.findViewById(R.id.latitude_edittext);
+            this.longitude = (EditText) view.findViewById(R.id.longitude_edittext);
+            this.captureCoords = (ImageButton) view.findViewById(R.id.capture_coordinates);
             this.detailedInfoButton = detailedInfoButton;
             this.latitudeWatcher = new LatitudeWatcher(this.latitude, latitudeMessage);
             this.longitudeWatcher = new LongitudeWatcher(this.longitude, longitudeMessage);
@@ -156,7 +156,7 @@ public final class EventCoordinatesRow extends Row {
         private void saveLatitude(Double newValue) {
             if (newValue == null) {
                 EventCoordinatesRow.this.latitudeError = true;
-                EventCoordinatesRow.this.mErrorStringId = Integer.valueOf(C0845R.string.error_location_values);
+                EventCoordinatesRow.this.mErrorStringId = Integer.valueOf(R.string.error_location_values);
             } else {
                 EventCoordinatesRow.this.latitudeError = false;
                 if (!EventCoordinatesRow.this.longitudeError) {
@@ -193,7 +193,7 @@ public final class EventCoordinatesRow extends Row {
         private void saveLongitude(Double newValue) {
             if (newValue == null) {
                 EventCoordinatesRow.this.longitudeError = true;
-                EventCoordinatesRow.this.mErrorStringId = Integer.valueOf(C0845R.string.error_location_values);
+                EventCoordinatesRow.this.mErrorStringId = Integer.valueOf(R.string.error_location_values);
             } else {
                 EventCoordinatesRow.this.longitudeError = false;
                 if (!EventCoordinatesRow.this.latitudeError) {
@@ -231,8 +231,8 @@ public final class EventCoordinatesRow extends Row {
         CoordinateViewHolder holder;
         View view;
         if (convertView == null || !(convertView.getTag() instanceof CoordinateViewHolder)) {
-            View root = inflater.inflate(C0845R.layout.listview_row_event_coordinate_picker, container, false);
-            holder = new CoordinateViewHolder(root, root.findViewById(C0845R.id.detailed_info_button_layout));
+            View root = inflater.inflate(R.layout.listview_row_event_coordinate_picker, container, false);
+            holder = new CoordinateViewHolder(root, root.findViewById(R.id.detailed_info_button_layout));
             root.setTag(holder);
             view = root;
         } else {

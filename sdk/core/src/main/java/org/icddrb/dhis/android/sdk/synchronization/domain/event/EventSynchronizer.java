@@ -54,10 +54,10 @@ public class EventSynchronizer extends Synchronizer {
             if (eventsMapCheck.values().size() != 0) {
                 System.out.println("Synchronizing list of events ");
                 try {
-                    for (ImportSummary importSummary : this.mEventRepository.sync(new ArrayList(eventsMapCheck.values()))) {
-                        event = (Event) eventsMapCheck.get(importSummary.getReference());
+                    for (Object importSummary : this.mEventRepository.sync(new ArrayList(eventsMapCheck.values()))) {
+                        event = (Event) eventsMapCheck.get(((ImportSummary)importSummary).getReference());
                         if (event != null) {
-                            manageSyncResult(event, importSummary);
+                            manageSyncResult(event, ((ImportSummary)importSummary));
                         }
                     }
                 } catch (APIException api) {
@@ -87,13 +87,13 @@ public class EventSynchronizer extends Synchronizer {
                     Map<String, Event> eventsMapCheck = removeDeletedAndOnlyLocalEvents(events);
                     if (eventsMapCheck.values().size() != 0) {
                         System.out.println("Synchronizing removed events");
-                        for (ImportSummary importSummary : this.mEventRepository.syncRemovedEvents(new ArrayList(eventsMapCheck.values()))) {
-                            Event event = (Event) eventsMapCheck.get(importSummary.getReference());
-                            if (event == null && importSummary.getDescription() != null) {
-                                event = (Event) eventsMapCheck.get(importSummary.getDescription().replace("Deletion of event ", "").replace(" was successful", ""));
+                        for (Object importSummary : this.mEventRepository.syncRemovedEvents(new ArrayList(eventsMapCheck.values()))) {
+                            Event event = (Event) eventsMapCheck.get(((ImportSummary)importSummary).getReference());
+                            if (event == null && ((ImportSummary)importSummary).getDescription() != null) {
+                                event = (Event) eventsMapCheck.get(((ImportSummary)importSummary).getDescription().replace("Deletion of event ", "").replace(" was successful", ""));
                             }
                             if (event != null) {
-                                manageSyncResult(event, importSummary);
+                                manageSyncResult(event, ((ImportSummary)importSummary));
                             }
                         }
                     }

@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.Filter;
-import android.widget.Filter.FilterResults;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramTrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
@@ -167,7 +166,7 @@ public class QueryTrackedEntityInstancesResultDialogAdapter extends BaseAdapter 
 
         private ViewHolder(View view, LayoutInflater inflater, Context context) {
             this.mInflater = inflater;
-            this.attributeContainer = (LinearLayout) view.findViewById(C0845R.id.textviewcontainer);
+            this.attributeContainer = (LinearLayout) view.findViewById(R.id.textviewcontainer);
             this.mContext = context;
         }
 
@@ -181,12 +180,12 @@ public class QueryTrackedEntityInstancesResultDialogAdapter extends BaseAdapter 
                         ProgramTrackedEntityAttribute programTrackedEntityAttribute = (ProgramTrackedEntityAttribute) programTrackedEntityAttributeMap.get(trackedEntityAttributeValue.getTrackedEntityAttributeId());
                         StringBuilder builder = new StringBuilder();
                         builder.append(programTrackedEntityAttribute.getTrackedEntityAttribute().getDisplayName());
-                        builder.append(this.attributeContainer.getContext().getString(C0845R.string.delimiter));
-                        LinearLayout attributeLayout = (LinearLayout) this.mInflater.inflate(C0845R.layout.two_horizontal_textviews, this.attributeContainer, false);
-                        FontTextView labelTextView = (FontTextView) attributeLayout.findViewById(C0845R.id.left_textview);
+                        builder.append(this.attributeContainer.getContext().getString(R.string.delimiter));
+                        LinearLayout attributeLayout = (LinearLayout) this.mInflater.inflate(R.layout.two_horizontal_textviews, this.attributeContainer, false);
+                        FontTextView labelTextView = (FontTextView) attributeLayout.findViewById(R.id.left_textview);
                         labelTextView.setText(builder.toString());
-                        Typeface font = Typeface.createFromAsset(this.mContext.getAssets(), "fonts/" + this.mContext.getString(C0845R.string.light_font_name));
-                        Typeface font2 = Typeface.createFromAsset(this.mContext.getAssets(), "fonts/" + this.mContext.getString(C0845R.string.medium_font_name));
+                        Typeface font = Typeface.createFromAsset(this.mContext.getAssets(), "fonts/" + this.mContext.getString(R.string.light_font_name));
+                        Typeface font2 = Typeface.createFromAsset(this.mContext.getAssets(), "fonts/" + this.mContext.getString(R.string.medium_font_name));
                         SpannableStringBuilder SS = new SpannableStringBuilder(builder.toString() + trackedEntityAttributeValue.getValue());
                         SS.setSpan(new CustomTypefaceSpan(font), 0, builder.toString().length(), 34);
                         SS.setSpan(new CustomTypefaceSpan(font2), builder.toString().length(), builder.toString().length() + trackedEntityAttributeValue.getValue().length(), 34);
@@ -239,12 +238,12 @@ public class QueryTrackedEntityInstancesResultDialogAdapter extends BaseAdapter 
         TrackedEntityInstance trackedEntityInstance = (TrackedEntityInstance) this.mObjects.get(position);
         List<TrackedEntityAttributeValue> trackedEntityAttributesByProgram = getTrackedEntityAttributesByProgram(trackedEntityInstance.getAttributes(), this.programTrackedEntityAttributeMap);
         if (convertView == null) {
-            view = this.mInflater.inflate(C0845R.layout.dialog_fragment_listview_item_teiqueryresult, parent, false);
+            view = this.mInflater.inflate(R.layout.dialog_fragment_listview_item_teiqueryresult, parent, false);
             holder = new ViewHolder(view, this.mInflater, this.mContext);
             view.setTag(holder);
         } else {
             view = convertView;
-            ((CheckBox) view.findViewById(C0845R.id.checkBoxTeiQuery)).setChecked(this.selectedTrackedEntityInstances.contains(trackedEntityInstance));
+            ((CheckBox) view.findViewById(R.id.checkBoxTeiQuery)).setChecked(this.selectedTrackedEntityInstances.contains(trackedEntityInstance));
             holder = (ViewHolder) view.getTag();
         }
         if (trackedEntityInstance != null) {

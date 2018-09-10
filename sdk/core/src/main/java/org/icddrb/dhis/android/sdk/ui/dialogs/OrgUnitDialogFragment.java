@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.loaders.DbLoader;
 import org.icddrb.dhis.android.sdk.persistence.loaders.Query;
@@ -84,7 +84,7 @@ public class OrgUnitDialogFragment extends AutoCompleteDialogFragment implements
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setDialogLabel(C0845R.string.dialog_organisation_units);
+        setDialogLabel(R.string.dialog_organisation_units);
         setDialogId(ID);
         this.mProgressBar.setVisibility(0);
     }
@@ -120,10 +120,10 @@ public class OrgUnitDialogFragment extends AutoCompleteDialogFragment implements
                 this.mProgressBar.setVisibility(8);
                 if (data.getType().equals(Error.NO_ASSIGNED_ORGANISATION_UNITS)) {
                     setNoItemsTextViewVisibility(0);
-                    setTextToNoItemsTextView(getString(C0845R.string.no_organisation_units));
+                    setTextToNoItemsTextView(getString(R.string.no_organisation_units));
                 } else if (data.getType().equals(Error.NO_PROGRAMS_TO_ORGANSATION_UNIT)) {
                     setNoItemsTextViewVisibility(0);
-                    setTextToNoItemsTextView(getString(C0845R.string.no_programs));
+                    setTextToNoItemsTextView(getString(R.string.no_programs));
                 } else {
                     setNoItemsTextViewVisibility(8);
                     setTextToNoItemsTextView("");

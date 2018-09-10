@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 
 public class CardSpinner extends CardView {
     private CharSequence hint;
@@ -22,8 +22,8 @@ public class CardSpinner extends CardView {
         super(context, attributes);
         init(context);
         if (!isInEditMode()) {
-            TypedArray attrs = context.obtainStyledAttributes(attributes, C0845R.styleable.ButtonHint);
-            this.hint = attrs.getString(C0845R.styleable.ButtonHint_hint);
+            TypedArray attrs = context.obtainStyledAttributes(attributes, R.styleable.ButtonHint);
+            this.hint = attrs.getString(R.styleable.ButtonHint_hint);
             setText(this.hint);
             attrs.recycle();
         }
@@ -32,8 +32,8 @@ public class CardSpinner extends CardView {
     private void init(Context context) {
         this.spinner = new FontSpinner(context);
         this.spinner.setClickable(true);
-        this.spinner.setBackgroundResource(C0845R.drawable.spinner_background_holo_light);
-        this.spinner.setFont(getContext().getString(C0845R.string.regular_font_name));
+        this.spinner.setBackgroundResource(R.drawable.spinner_background_holo_light);
+        this.spinner.setFont(getContext().getString(R.string.regular_font_name));
         addView(this.spinner);
     }
 

@@ -21,6 +21,9 @@ public abstract class BaseIdentifiableObject extends BaseModel {
     @JsonProperty("name")
     String name;
 
+    protected BaseIdentifiableObject() {
+    }
+
     public abstract String getUid();
 
     public abstract void setUid(String str);
@@ -104,9 +107,9 @@ public abstract class BaseIdentifiableObject extends BaseModel {
                 if (persistedItem != null) {
                     updatedItem.setUid(persistedItem.getUid());
                 }
-                existingItemsMap.put(id, updatedItem);
+                existingItemsMap.put(id,(T) updatedItem);
             } else if (persistedItem != null) {
-                existingItemsMap.put(id, persistedItem);
+                existingItemsMap.put(id, (T) persistedItem);
             }
         }
         return new ArrayList(existingItemsMap.values());

@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.List;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.events.OnRowClick.ITEM_STATUS;
 import org.icddrb.dhis.android.sdk.events.OnTrackerItemClick;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
@@ -45,9 +45,9 @@ public final class EventItemRow implements EventRow {
         }
 
         public void onClick(View view) {
-            if (view.getId() == C0845R.id.event_container) {
+            if (view.getId() == R.id.event_container) {
                 Dhis2Application.getEventBus().post(new OnTrackerItemClick(this.event, this.status, true));
-            } else if (view.getId() == C0845R.id.status_container) {
+            } else if (view.getId() == R.id.status_container) {
                 Dhis2Application.getEventBus().post(new OnTrackerItemClick(this.event, this.status, false));
             }
         }
@@ -73,20 +73,20 @@ public final class EventItemRow implements EventRow {
 
     public EventItemRow(Context context) {
         Preconditions.isNull(context, "Context must not be null");
-        this.mOfflineDrawable = context.getResources().getDrawable(C0845R.drawable.ic_offline);
-        this.mErrorDrawable = context.getResources().getDrawable(C0845R.drawable.ic_event_error);
-        this.mSentDrawable = context.getResources().getDrawable(C0845R.drawable.ic_from_server);
-        this.mSent = context.getResources().getString(C0845R.string.event_sent);
-        this.mError = context.getResources().getString(C0845R.string.event_error);
-        this.mOffline = context.getResources().getString(C0845R.string.event_offline);
+        this.mOfflineDrawable = context.getResources().getDrawable(R.drawable.ic_offline);
+        this.mErrorDrawable = context.getResources().getDrawable(R.drawable.ic_event_error);
+        this.mSentDrawable = context.getResources().getDrawable(R.drawable.ic_from_server);
+        this.mSent = context.getResources().getString(R.string.event_sent);
+        this.mError = context.getResources().getString(R.string.event_error);
+        this.mOffline = context.getResources().getString(R.string.event_offline);
     }
 
     public View getView(LayoutInflater inflater, View convertView, ViewGroup container) {
         View view;
         ViewHolder holder;
         if (convertView == null) {
-            view = inflater.inflate(C0845R.layout.listview_event_item, container, false);
-            holder = new ViewHolder((LinearLayout) view.findViewById(C0845R.id.dynamic_column_container), (ImageView) view.findViewById(C0845R.id.status_image_view), (TextView) view.findViewById(C0845R.id.status_text_view), (LinearLayout) view.findViewById(C0845R.id.status_container));
+            view = inflater.inflate(R.layout.listview_event_item, container, false);
+            holder = new ViewHolder((LinearLayout) view.findViewById(R.id.dynamic_column_container), (ImageView) view.findViewById(R.id.status_image_view), (TextView) view.findViewById(R.id.status_text_view), (LinearLayout) view.findViewById(R.id.status_container));
             view.setTag(holder);
         } else {
             view = convertView;
@@ -99,7 +99,7 @@ public final class EventItemRow implements EventRow {
         view.setOnLongClickListener(listener);
         holder.statusContainer.setOnClickListener(listener);
         for (String column : this.columns) {
-            ((TextView) inflater.inflate(C0845R.layout.item_column, holder.columnContainer, false).findViewById(C0845R.id.column_name)).setText(column);
+            ((TextView) inflater.inflate(R.layout.item_column, holder.columnContainer, false).findViewById(R.id.column_name)).setText(column);
         }
         switch (this.mStatus) {
             case OFFLINE:

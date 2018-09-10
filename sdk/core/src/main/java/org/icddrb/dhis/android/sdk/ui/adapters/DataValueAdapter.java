@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
 import org.icddrb.dhis.android.sdk.persistence.models.DataValue;
@@ -130,7 +131,7 @@ public final class DataValueAdapter extends AbsAdapter<Row> {
         view.setLayoutParams(new LayoutParams(-1, -2));
         view.postInvalidate();
         view.setId(position);
-        View detailedInformationButton = view.findViewById(C0845R.id.detailed_info_button_layout);
+        View detailedInformationButton = view.findViewById(R.id.detailed_info_button_layout);
         if (dataEntryRow.getDescription() == null || dataEntryRow.getDescription().isEmpty()) {
             if (detailedInformationButton != null) {
                 detailedInformationButton.setVisibility(4);

@@ -1,5 +1,6 @@
 package org.icddrb.dhis.android.sdk.ui.fragments.settings;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build.VERSION;
@@ -22,7 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.squareup.okhttp.HttpUrl;
 import com.squareup.otto.Subscribe;
-import org.icddrb.dhis.android.sdk.C0845R;
+import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
 import org.icddrb.dhis.android.sdk.controllers.DhisService;
 import org.icddrb.dhis.android.sdk.controllers.PeriodicSynchronizerController;
@@ -67,7 +68,7 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnIte
 
         public void onClick(DialogInterface dialog, int which) {
             if (DhisController.hasUnSynchronizedDatavalues) {
-                UiUtils.showErrorDialog(SettingsFragment.this.getActivity(), SettingsFragment.this.getString(C0845R.string.error_message), SettingsFragment.this.getString(C0845R.string.unsynchronized_data_values), new C09211());
+                UiUtils.showErrorDialog(SettingsFragment.this.getActivity(), SettingsFragment.this.getString(R.string.error_message), SettingsFragment.this.getString(R.string.unsynchronized_data_values), new C09211());
                 return;
             }
             Session session = DhisController.getInstance().getSession();
@@ -98,20 +99,20 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnIte
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(C0845R.layout.fragment_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
         if (getActionBar() != null) {
-            getActionBar().setTitle(getString(C0845R.string.settings));
+            getActionBar().setTitle(getString(R.string.settings));
             getActionBar().setDisplayHomeAsUpEnabled(true);
             getActionBar().setHomeButtonEnabled(true);
         }
-        this.updateFrequencySpinner = (Spinner) view.findViewById(C0845R.id.settings_update_frequency_spinner);
+        this.updateFrequencySpinner = (Spinner) view.findViewById(R.id.settings_update_frequency_spinner);
         this.updateFrequencySpinner.setSelection(PeriodicSynchronizerController.getUpdateFrequency(getActivity()));
         this.updateFrequencySpinner.setOnItemSelectedListener(this);
-        this.synchronizeButton = (Button) view.findViewById(C0845R.id.settings_sync_button);
-        this.synchronizeRemovedEventsButton = (Button) view.findViewById(C0845R.id.settings_sync_remotely_deleted_events_button);
-        this.logoutButton = (Button) view.findViewById(C0845R.id.settings_soft_logout_button);
-        this.mProgressBar = (ProgressBar) view.findViewById(C0845R.id.settings_progessbar);
-        this.syncTextView = (TextView) view.findViewById(C0845R.id.settings_sync_textview);
+        this.synchronizeButton = (Button) view.findViewById(R.id.settings_sync_button);
+        this.synchronizeRemovedEventsButton = (Button) view.findViewById(R.id.settings_sync_remotely_deleted_events_button);
+        this.logoutButton = (Button) view.findViewById(R.id.settings_soft_logout_button);
+        this.mProgressBar = (ProgressBar) view.findViewById(R.id.settings_progessbar);
+        this.syncTextView = (TextView) view.findViewById(R.id.settings_sync_textview);
         this.mProgressBar.setVisibility(8);
         this.logoutButton.setOnClickListener(this);
         this.synchronizeButton.setOnClickListener(this);
@@ -128,13 +129,13 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnIte
     }
 
     public void onClick(View view) {
-        if (view.getId() == C0845R.id.settings_soft_logout_button) {
-            UiUtils.showConfirmDialog(getActivity(), getString(C0845R.string.logout_title), getString(C0845R.string.soft_logout_message), getString(C0845R.string.soft_logout), getString(C0845R.string.cancel), new C09221());
-        } else if (view.getId() == C0845R.id.settings_sync_button) {
+        final Context context = getActivity().getBaseContext();
+        if (view.getId() == R.id.settings_soft_logout_button) {
+            UiUtils.showConfirmDialog(getActivity(), getString(R.string.logout_title), getString(R.string.soft_logout_message), getString(R.string.soft_logout), getString(R.string.cancel), new C09221());
+        } else if (view.getId() == R.id.settings_sync_button) {
             if (isAdded()) {
-                context = getActivity().getBaseContext();
-                Toast.makeText(context, getString(C0845R.string.syncing), 0).show();
-                setProgressMessage(new LoadingMessageEvent(getString(C0845R.string.syncing), EventType.METADATA));
+                Toast.makeText(context, getString(R.string.syncing), Toast.LENGTH_LONG).show();
+                setProgressMessage(new LoadingMessageEvent(getString(R.string.syncing), EventType.METADATA));
                 new Thread() {
                     public void run() {
                         DhisService.synchronize(context, SyncStrategy.DOWNLOAD_ALL);
@@ -142,10 +143,9 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnIte
                 }.start();
                 startSync();
             }
-        } else if (view.getId() == C0845R.id.settings_sync_remotely_deleted_events_button && isAdded()) {
-            context = getActivity().getBaseContext();
-            Toast.makeText(context, getString(C0845R.string.sync_deleted_events), 0).show();
-            setProgressMessage(new LoadingMessageEvent(getString(C0845R.string.sync_deleted_events), EventType.REMOVE_DATA));
+        } else if (view.getId() == R.id.settings_sync_remotely_deleted_events_button && isAdded()) {
+            Toast.makeText(context, getString(R.string.sync_deleted_events), 0).show();
+            setProgressMessage(new LoadingMessageEvent(getString(R.string.sync_deleted_events), EventType.REMOVE_DATA));
             new Thread() {
                 public void run() {
                     DhisService.synchronizeRemotelyDeletedData(context);
@@ -163,8 +163,8 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnIte
     private void endSync() {
         changeUiVisibility(true);
         this.syncTextView.setText("");
-        this.synchronizeButton.setText(C0845R.string.synchronize_with_server);
-        this.synchronizeRemovedEventsButton.setText(C0845R.string.synchronize_deleted_data);
+        this.synchronizeButton.setText(R.string.synchronize_with_server);
+        this.synchronizeRemovedEventsButton.setText(R.string.synchronize_deleted_data);
     }
 
     private void changeUiVisibility(boolean enabled) {
@@ -188,9 +188,9 @@ public class SettingsFragment extends Fragment implements OnClickListener, OnIte
         if (event != null) {
             if (event.eventType.equals(EventType.DATA) || event.eventType.equals(EventType.METADATA) || event.eventType.equals(EventType.STARTUP)) {
                 changeUiVisibility(false);
-                this.synchronizeButton.setText(getActivity().getApplicationContext().getString(C0845R.string.synchronizing));
+                this.synchronizeButton.setText(getActivity().getApplicationContext().getString(R.string.synchronizing));
             } else if (event.eventType.equals(EventType.REMOVE_DATA)) {
-                this.synchronizeRemovedEventsButton.setText(getActivity().getApplicationContext().getString(C0845R.string.synchronizing));
+                this.synchronizeRemovedEventsButton.setText(getActivity().getApplicationContext().getString(R.string.synchronizing));
                 changeUiVisibility(false);
             } else if (event.eventType.equals(EventType.FINISH)) {
                 endSync();
