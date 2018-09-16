@@ -42,9 +42,9 @@ public enum ProgramRuleActionType {
     HIDEPROGRAMSTAGE( "hideprogramstage"),
     WARNINGONCOMPLETE("warningoncomplete"),
     SENDMESSAGE("sendmessage"),
-    SETMANDATORYFIELD("setmandatoryfield");
+    SETMANDATORYFIELD("setmandatoryfield"),
+    SCHEDULEMESSAGE("schedulemessage");
 
-    
     final String value;
 
     private ProgramRuleActionType(String value) {

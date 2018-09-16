@@ -247,10 +247,16 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
     public static String toPrettyFormat(String jsonString)
     {
         JsonParser parser = new JsonParser();
-        JsonObject json = parser.parse(jsonString).getAsJsonObject();
+        String prettyJson ;
+        try{
+            JsonObject json = parser.parse(jsonString).getAsJsonObject();
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        String prettyJson = gson.toJson(json);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            prettyJson = gson.toJson(json);
+        }catch(Exception e){
+            return jsonString;
+        }
+
 
         return prettyJson;
     }
