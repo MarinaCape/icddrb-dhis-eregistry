@@ -629,7 +629,8 @@ public class VariableService {
                             value = dataValue.getValue();
                         } else {
                             DataElement dataElement = getInstance().getDataElementMap().get(programRuleVariable.getDataElement());
-                            defaultValue = getDefaultValue(dataElement.getValueType());
+                            if(dataElement != null)
+                                defaultValue = getDefaultValue(dataElement.getValueType());
                         }
                     }
                 }
