@@ -64,7 +64,7 @@ public class EventRepository implements IEventRepository {
     }
 
     public void updateEventTimestampIfIsPushed(Event event, ImportSummary importSummary) {
-        if (importSummary.isSuccessOrOK() || importSummary.isConflictOnBatchPush()) {
+        if (importSummary != null &&(importSummary.isSuccessOrOK() || importSummary.isConflictOnBatchPush())) {
             if(!event.isDeleted()) {
                 updateEventTimestamp(event);
             }

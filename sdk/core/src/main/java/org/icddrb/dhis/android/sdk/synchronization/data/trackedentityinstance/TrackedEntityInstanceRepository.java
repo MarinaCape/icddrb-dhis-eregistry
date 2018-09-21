@@ -27,7 +27,7 @@ public class TrackedEntityInstanceRepository  implements ITrackedEntityInstanceR
     public ImportSummary sync(TrackedEntityInstance trackedEntityInstance) {
         ImportSummary importSummary = mRemoteDataSource.save(trackedEntityInstance);
 
-        if (importSummary.isSuccessOrOK()) {
+        if (importSummary != null && importSummary.isSuccessOrOK()) {
             updateTrackedEntityInstanceTimestamp(trackedEntityInstance);
         }
 

@@ -122,7 +122,7 @@ public final class DhisController {
     }
 
     public DhisApi getDhisApi() {
-        readSession();
+        //readSession();
         return dhisApi;
     }
 
