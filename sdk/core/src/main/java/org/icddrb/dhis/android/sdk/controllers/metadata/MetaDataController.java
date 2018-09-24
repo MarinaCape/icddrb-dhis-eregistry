@@ -746,6 +746,7 @@ public final class MetaDataController extends ResourceController {
         if (trackedEntityAttributes != null && !trackedEntityAttributes.isEmpty()) {
             getTrackedEntityAttributeGeneratedValuesFromServer(dhisApi, getTrackedEntityAttributes(), serverDateTime);
         }
+
     }
 
     private static void getAssignedProgramsDataFromServer(DhisApi dhisApi, DateTime serverDateTime) throws APIException {
@@ -922,20 +923,24 @@ public final class MetaDataController extends ResourceController {
         // After fetching trackedEntityAttributes from server, we want to go through all of them and fetch IDs for generation
         DateTime lastUpdated = DateTimeManager.getInstance()
                 .getLastUpdated(ResourceType.TRACKEDENTITYATTRIBUTEGENERATEDVALUES);
-
+        List<OrganisationUnit> listOrgUnit =  getAssignedOrganisationUnits();
         for (TrackedEntityAttribute trackedEntityAttribute : trackedEntityAttributes) {
             if (trackedEntityAttribute.isGenerated()) {
                 long numberOfGeneratedTrackedEntityAttributesToFetch = shouldFetchGeneratedTrackedEntityAttributeValues(trackedEntityAttribute, serverDateTime);
                 if (numberOfGeneratedTrackedEntityAttributesToFetch > 0) {
-
-                    try{
-                        List<TrackedEntityAttributeGeneratedValue> trackedEntityAttributeGeneratedValues =
-                                dhisApi.getTrackedEntityAttributeGeneratedValues(trackedEntityAttribute.getUid(), numberOfGeneratedTrackedEntityAttributesToFetch); // Downloading x generated IDs per trackedEntityAttribute
-
-                        saveBaseValueDataFromServer(ResourceType.TRACKEDENTITYATTRIBUTEGENERATEDVALUES, "", trackedEntityAttributeGeneratedValues, getTrackedEntityAttributeGeneratedValues(), serverDateTime, false);
-                    }catch (Exception e){
-                        e.printStackTrace();
+                    for(OrganisationUnit organisationUnit: listOrgUnit){
+                        try{
+                            List<TrackedEntityAttributeGeneratedValue> trackedEntityAttributeGeneratedValues =
+                                    dhisApi.getTrackedEntityAttributeGeneratedValues(trackedEntityAttribute.getUid(), numberOfGeneratedTrackedEntityAttributesToFetch, organisationUnit.getCode()); // Downloading x generated IDs per trackedEntityAttribute
+                            for(TrackedEntityAttributeGeneratedValue attributeGeneratedValue: trackedEntityAttributeGeneratedValues){
+                                attributeGeneratedValue.setTrackedEntityAttribute(trackedEntityAttribute);
+                            }
+                            saveBaseValueDataFromServer(ResourceType.TRACKEDENTITYATTRIBUTEGENERATEDVALUES, "", trackedEntityAttributeGeneratedValues, getTrackedEntityAttributeGeneratedValues(), serverDateTime, false);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
                     }
+
                     }
             }
         }

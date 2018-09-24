@@ -64,6 +64,10 @@ public class OrganisationUnit extends BaseModel {
     @Column(name = "parent")
     String parent;
 
+    @JsonProperty("code")
+    @Column(name = "code")
+    String code;
+
     @JsonProperty("programs")
     List<Program> programs;
 
@@ -137,4 +141,11 @@ public class OrganisationUnit extends BaseModel {
         SEARCH
     }
 
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 }

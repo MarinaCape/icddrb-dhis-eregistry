@@ -219,7 +219,7 @@ public interface DhisApi {
     Response getAssignedPrograms(@QueryMap Map<String, String> queryMap);
 
     // Norway @GET("/me?fields=organisationUnits[id,displayName,programs[id]],userCredentials[userRoles[programs[id]]],teiSearchOrganisationUnits")
-    @GET("/me?fields=userGroups,organisationUnits[id,displayName,programs[id,userGroupAccesses,trackedEntityType]],userCredentials[userRoles[programs[id],id]],teiSearchOrganisationUnits")
+    @GET("/me?fields=userGroups,organisationUnits[id,displayName,programs[id,userGroupAccesses,trackedEntityType],code],userCredentials[userRoles[programs[id],id]],teiSearchOrganisationUnits")
     UserAccount getUserAccount();
 
     @GET("/" + ApiEndpointContainer.ORGANISATIONUNITS + "?paging=false")
@@ -341,6 +341,6 @@ public interface DhisApi {
 
 //    @GET("/" + ApiEndpointContainer.TRACKED_ENTITY_ATTRIBUTES + "/{trackedEntityAttribute}" + "/generate")
     @GET("/"+ApiEndpointContainer.TRACKED_ENTITY_ATTRIBUTES+"/{trackedEntityAttribute}/generateAndReserve")
-    List<TrackedEntityAttributeGeneratedValue> getTrackedEntityAttributeGeneratedValues(@Path("trackedEntityAttribute") String trackedEntityAttribute, @Query("numberToReserve") long numberOfIdsToGenerate);
+    List<TrackedEntityAttributeGeneratedValue> getTrackedEntityAttributeGeneratedValues(@Path("trackedEntityAttribute") String trackedEntityAttribute, @Query("numberToReserve") long numberOfIdsToGenerate, @Query("ORG_UNIT_CODE") String code);
 
 }
