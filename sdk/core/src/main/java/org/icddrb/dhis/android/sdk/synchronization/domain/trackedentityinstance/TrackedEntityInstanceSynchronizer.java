@@ -4,16 +4,22 @@ import static android.R.attr.id;
 
 import static org.icddrb.dhis.android.sdk.persistence.models.FailedItem.TRACKEDENTITYINSTANCE;
 
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.network.APIException;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
+import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.persistence.models.Relationship;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
+import org.icddrb.dhis.android.sdk.synchronization.data.trackedentityinstance.TrackedEntityInstanceRepository;
 import org.icddrb.dhis.android.sdk.synchronization.domain.common.Synchronizer;
 import org.icddrb.dhis.android.sdk.synchronization.domain.enrollment.EnrollmentSynchronizer;
 import org.icddrb.dhis.android.sdk.synchronization.domain.enrollment.IEnrollmentRepository;
 import org.icddrb.dhis.android.sdk.synchronization.domain.event.IEventRepository;
 import org.icddrb.dhis.android.sdk.synchronization.domain.faileditem.IFailedItemRepository;
+import org.icddrb.dhis.android.sdk.ui.dialogs.ItemStatusDialogFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +32,7 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
     IEnrollmentRepository mEnrollmentRepository;
     IEventRepository mEventRepository;
     IFailedItemRepository mFailedItemRepository;
+    private boolean canUpload = true;
 
     public TrackedEntityInstanceSynchronizer(
             ITrackedEntityInstanceRepository trackedEntityInstanceRepository,
@@ -77,6 +84,15 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
 
     private void syncSingleTei(TrackedEntityInstance trackedEntityInstance) {
         try {
+
+            OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
+            if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
+                canUpload = false;
+                syncEnrollments(trackedEntityInstance.getLocalId());
+                //changeTEIToSynced(trackedEntityInstance);
+                return;
+            }
+
             ImportSummary importSummary = mTrackedEntityInstanceRepository.sync(
                     trackedEntityInstance);
 
@@ -98,20 +114,39 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
             Map<String, TrackedEntityInstance> trackedEntityInstanceMap =
                     TrackedEntityInstance.toMap(trackedEntityInstances);
 
-            List<ImportSummary> importSummaries = mTrackedEntityInstanceRepository.sync(
-                    trackedEntityInstances);
-                    for (ImportSummary importSummary : importSummaries) {
-                        TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceMap.get(
-                                importSummary.getReference());
-                        if (trackedEntityInstance != null) {
-                            if (importSummary.isSuccessOrOK()) {
-                                syncEnrollments(trackedEntityInstance.getLocalId());
-                                changeTEIToSynced(trackedEntityInstance);
-                            } else if (importSummary.isError()) {
-                                super.handleImportSummaryError(null, TRACKEDENTITYINSTANCE, 200, id);
-                            }
-                        }
+            /*for(TrackedEntityInstance trackedEntityInstance: trackedEntityInstances){
+                OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
+                if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
+                    canUpload = false;
+                    syncEnrollments(trackedEntityInstance.getLocalId());
+                    changeTEIToSynced(trackedEntityInstance);
+                    return;
+                }
+            }*/
+
+            List<ImportSummary> importSummaries = mTrackedEntityInstanceRepository.sync(trackedEntityInstances);
+
+            for (ImportSummary importSummary : importSummaries) {
+                TrackedEntityInstance trackedEntityInstance = trackedEntityInstanceMap.get(
+                        importSummary.getReference());
+                if (trackedEntityInstance != null) {
+                    if (importSummary.isSuccessOrOK()) {
+                        syncEnrollments(trackedEntityInstance.getLocalId());
+                        changeTEIToSynced(trackedEntityInstance);
+                    } else if (importSummary.isError()) {
+                        super.handleImportSummaryError(null, TRACKEDENTITYINSTANCE, 200, id);
                     }
+                }
+            }
+
+            for(TrackedEntityInstance trackedEntityInstance: trackedEntityInstances){
+                OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
+                if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
+                    canUpload = false;
+                    syncEnrollments(trackedEntityInstance.getLocalId());
+                    //changeTEIToSynced(trackedEntityInstance);
+                }
+            }
         } catch (Exception e) {
             syncOneByOne(trackedEntityInstances);
         }
@@ -135,7 +170,7 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
                 mEventRepository, mFailedItemRepository);
         List<Enrollment> enrollmentList =
                 mEnrollmentRepository.getEnrollmentsByTrackedEntityInstanceId(localId);
-        eventSynchronizer.sync(enrollmentList);
+        eventSynchronizer.sync(enrollmentList, canUpload);
     }
 
     private boolean existsRelationships(TrackedEntityInstance trackedEntityInstance) {

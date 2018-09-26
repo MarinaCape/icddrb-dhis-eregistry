@@ -6,6 +6,7 @@ import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.synchronization.domain.common.Synchronizer;
 import org.icddrb.dhis.android.sdk.synchronization.domain.event.EventSynchronizer;
 import org.icddrb.dhis.android.sdk.synchronization.domain.event.IEventRepository;
@@ -14,11 +15,13 @@ import org.icddrb.dhis.android.sdk.synchronization.domain.faileditem.IFailedItem
 import java.util.Collections;
 import java.util.List;
 
+import static org.icddrb.dhis.android.sdk.persistence.models.FailedItem.TRACKEDENTITYINSTANCE;
+
 public class EnrollmentSynchronizer extends Synchronizer {
     IEnrollmentRepository mEnrollmentRepository;
     IEventRepository mEventRepository;
     IFailedItemRepository mFailedItemRepository;
-
+    Boolean canUpload = true;
     public EnrollmentSynchronizer(IEnrollmentRepository enrollmentRepository,
             IEventRepository eventRepository,
             IFailedItemRepository failedItemRepository) {
@@ -34,10 +37,10 @@ public class EnrollmentSynchronizer extends Synchronizer {
 
         if (existsOnServerPreviously) {
             syncEvents(enrollment.getLocalId());
-            if (syncEnrollment(enrollment))
+            if (canUpload && syncEnrollment(enrollment))
                 changeEnrollmentToSynced(enrollment);
         } else {
-            if (syncEnrollment(enrollment))
+            if (canUpload && syncEnrollment(enrollment))
             {
                 syncEvents(enrollment.getLocalId());
 
@@ -51,13 +54,21 @@ public class EnrollmentSynchronizer extends Synchronizer {
                 else{
                     changeEnrollmentToSynced(enrollment);
                 }
+            }else{
+                if(syncEvents(enrollment.getLocalId())){
+                    changeEnrollmentToSynced(enrollment);
+                }
             }
         }
     }
 
-    public void sync(List<Enrollment> enrollments) {
-        Collections.sort(enrollments, new Enrollment.EnrollmentComparator());
 
+    public void sync(List<Enrollment> enrollments){
+        sync(enrollments, true);
+    }
+    public void sync(List<Enrollment> enrollments, Boolean canUpload) {
+        Collections.sort(enrollments, new Enrollment.EnrollmentComparator());
+        this.canUpload = canUpload;
         for (Enrollment enrollment : enrollments) {
             sync(enrollment);
         }
@@ -93,7 +104,7 @@ public class EnrollmentSynchronizer extends Synchronizer {
     }
 
 
-    private void syncEvents(long enrollmentId) {
+    private boolean syncEvents(long enrollmentId) {
         EventSynchronizer eventSynchronizer = new EventSynchronizer(mEventRepository,
                 mFailedItemRepository);
 
@@ -108,5 +119,7 @@ public class EnrollmentSynchronizer extends Synchronizer {
         if (events != null && events.size() > 0) {
             eventSynchronizer.sync(events);
         }
+
+        return true;
     }
 }

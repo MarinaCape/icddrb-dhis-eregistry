@@ -5,13 +5,18 @@ import android.content.Context;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.queriable.StringQuery;
 
+import org.icddrb.dhis.android.eregistry.R;
 import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.events.OnRowClick;
 import org.icddrb.dhis.android.sdk.persistence.loaders.Query;
+import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
+import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem$Table;
 import org.icddrb.dhis.android.sdk.persistence.models.Option;
 import org.icddrb.dhis.android.sdk.persistence.models.OptionSet;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.persistence.models.Program;
 import org.icddrb.dhis.android.sdk.persistence.models.ProgramTrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
@@ -159,6 +164,25 @@ public class LocalSearchResultFragmentFormQuery implements Query<LocalSearchResu
             trackedEntityInstanceItemRow.setStatus(OnRowClick.ITEM_STATUS.ERROR);
         } else {
             trackedEntityInstanceItemRow.setStatus(OnRowClick.ITEM_STATUS.OFFLINE);
+        }
+        OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(
+                trackedEntityInstanceItemRow.getTrackedEntityInstance().getOrgUnit());
+        if((orgUnit != null && orgUnit.getType() == OrganisationUnit.TYPE.SEARCH )|| orgUnit == null){
+            boolean onlyEventCompleted = true;
+            List<Enrollment> enrollments = TrackerController.getEnrollments(trackedEntityInstanceItemRow.getTrackedEntityInstance());
+            for(Enrollment enrollment: enrollments){
+                List<Event> events = TrackerController.getEventsByEnrollment(enrollment.getEnrollment());
+                if(events.size() > 0) {
+                    for (Event event : events) {
+                        if (!event.isFromServer()) {
+                            onlyEventCompleted = false;
+                        }
+                    }
+                    if(onlyEventCompleted)
+                        trackedEntityInstanceItemRow.setStatus(OnRowClick.ITEM_STATUS.SENT);
+                }
+            }
+
         }
 
         Map<String, TrackedEntityAttributeValue> trackedEntityAttributeValueMapForTrackedEntityInstance = cachedTrackedEntityAttributeValuesForTrackedEntityInstances.get(trackedEntityInstance.getLocalId());

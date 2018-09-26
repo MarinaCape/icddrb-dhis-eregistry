@@ -41,8 +41,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.events.OnRowClick;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.events.OnTrackerItemClick;
 
@@ -107,7 +109,10 @@ public class TrackedEntityInstanceItemRow implements EventRow, Comparator<Tracke
 
         onTrackedEntityInstanceInternalClickListener.setTrackedEntityInstance(mTrackedEntityInstance);
         onTrackedEntityInstanceInternalClickListener.setStatus(mStatus);
-
+        /*OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(mTrackedEntityInstance.getOrgUnit());
+        if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
+            onTrackedEntityInstanceInternalClickListener.setStatus(OnRowClick.ITEM_STATUS.SENT);
+        }*/
         view.setOnClickListener(onTrackedEntityInstanceInternalClickListener);
         view.setOnLongClickListener(onTrackedEntityInstanceInternalClickListener);
         holder.statusContainer.setOnClickListener(onTrackedEntityInstanceInternalClickListener);

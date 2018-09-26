@@ -115,6 +115,7 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
     public static final String EXTRA_TYPE = "extra:type";
     public static final String EXTRA_ARGUMENTS = "extra:Arguments";
     public static final String EXTRA_SAVED_INSTANCE_STATE = "extra:savedInstanceState";
+    private static int idEventJob = 0;
 
 //    public abstract ItemStatusDialogFragment newInstance(BaseSerializableModel item);
 
@@ -440,7 +441,11 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
 
 
     public static void sendEvent(final Event event) {
-        JobExecutor.enqueueJob(new NetworkJob<Object>(0,
+        do{
+            idEventJob++;
+        }while(JobExecutor.isJobRunning(idEventJob));
+
+        JobExecutor.enqueueJob(new NetworkJob<Object>(idEventJob,
                 ResourceType.EVENT) {
 
             @Override

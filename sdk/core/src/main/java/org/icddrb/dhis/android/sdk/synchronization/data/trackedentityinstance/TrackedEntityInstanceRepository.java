@@ -1,8 +1,14 @@
 package org.icddrb.dhis.android.sdk.synchronization.data.trackedentityinstance;
 
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
+import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
+import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
+import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.synchronization.domain.trackedentityinstance.ITrackedEntityInstanceRepository;
+import org.icddrb.dhis.android.sdk.ui.dialogs.ItemStatusDialogFragment;
 import org.joda.time.DateTime;
 
 import java.util.List;
@@ -36,7 +42,15 @@ public class TrackedEntityInstanceRepository  implements ITrackedEntityInstanceR
 
     @Override
     public List<ImportSummary> sync(List<TrackedEntityInstance> trackedEntityInstanceList) {
-
+        for(TrackedEntityInstance trackedEntityInstance: trackedEntityInstanceList){
+            OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
+            if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
+                List<Enrollment> enrollments = TrackerController.getEnrollments(trackedEntityInstance);
+                for(Enrollment enrollment: enrollments)
+                    for(Event event: TrackerController.getEventsByEnrollment(enrollment.getEnrollment()))
+                        ItemStatusDialogFragment.sendEvent(event);
+            }
+        }
         List<ImportSummary> importSummaries = mRemoteDataSource.save(trackedEntityInstanceList);
 
         Map<String, TrackedEntityInstance> trackedEntityInstanceMap =

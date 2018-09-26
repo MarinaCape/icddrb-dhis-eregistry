@@ -626,6 +626,8 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
             }
             FailedItem failedItem = TrackerController.getFailedItem(FailedItem.ENROLLMENT,
                     mForm.getEnrollment().getLocalId());
+            OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(
+                    getArguments().getString(ORG_UNIT_ID));
 
             if (failedItem != null && failedItem.getHttpStatusCode() >= 0) {
                 enrollmentServerStatus.setImageResource(R.drawable.ic_event_error);
@@ -634,7 +636,16 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
             } else {
                 enrollmentServerStatus.setImageResource(R.drawable.ic_from_server);
             }
-
+            if((orgUnit != null && orgUnit.getType() == OrganisationUnit.TYPE.SEARCH )|| (!mForm.getEnrollment().getOrgUnit().equals(orgUnit.getId()))){
+                boolean onlyEventCompleted = true;
+                for(Event event :mForm.getEnrollment().getEvents()){
+                    if(!event.isFromServer()){
+                        onlyEventCompleted = false;
+                    }
+                }
+                if(onlyEventCompleted)
+                    enrollmentServerStatus.setImageResource(R.drawable.ic_from_server);
+            }
             refreshRelationshipButton.setEnabled(mForm.getEnrollment().isFromServer());
 
             if (mForm.getEnrollment().getStatus().equals(Enrollment.CANCELLED)) {
