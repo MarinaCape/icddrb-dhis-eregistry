@@ -54,7 +54,7 @@ import java.util.Date;
 public class DatePickerRow extends Row {
     private static final String EMPTY_FIELD = "";
     private final boolean mAllowDatesInFuture;
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String DATE_FORMAT = "dd-MM-yyyy";
 
     public DatePickerRow(String label, boolean mandatory, String warning, BaseValue value, boolean allowDatesInFuture) {
         mAllowDatesInFuture = allowDatesInFuture;
