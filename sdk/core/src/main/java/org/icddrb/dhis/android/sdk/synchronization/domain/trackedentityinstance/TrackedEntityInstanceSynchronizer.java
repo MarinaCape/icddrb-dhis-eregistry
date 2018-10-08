@@ -32,7 +32,6 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
     IEnrollmentRepository mEnrollmentRepository;
     IEventRepository mEventRepository;
     IFailedItemRepository mFailedItemRepository;
-    private boolean canUpload = true;
 
     public TrackedEntityInstanceSynchronizer(
             ITrackedEntityInstanceRepository trackedEntityInstanceRepository,
@@ -84,21 +83,19 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
 
     private void syncSingleTei(TrackedEntityInstance trackedEntityInstance) {
         try {
-
+            ImportSummary importSummary = null;
             OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
-            if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
-                canUpload = false;
-                syncEnrollments(trackedEntityInstance.getLocalId());
-                //changeTEIToSynced(trackedEntityInstance);
-                return;
+            if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.ASSIGNED){
+                importSummary = mTrackedEntityInstanceRepository.sync(
+                    trackedEntityInstance);
             }
 
-            ImportSummary importSummary = mTrackedEntityInstanceRepository.sync(
-                    trackedEntityInstance);
+            /*ImportSummary importSummary = mTrackedEntityInstanceRepository.sync(
+                    trackedEntityInstance);*/
 
             if (importSummary != null && importSummary.isSuccessOrOK()) {
-                syncEnrollments(trackedEntityInstance.getLocalId());
-                changeTEIToSynced(trackedEntityInstance);
+                if(syncEnrollments(trackedEntityInstance.getLocalId()))
+                    changeTEIToSynced(trackedEntityInstance);
             } else if (importSummary != null && importSummary.isError()) {
                 super.handleImportSummaryError(importSummary, TRACKEDENTITYINSTANCE,
                         200, trackedEntityInstance.getLocalId());
@@ -107,14 +104,16 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
             super.handleSerializableItemException(api, TRACKEDENTITYINSTANCE,
                     trackedEntityInstance.getLocalId());
         }
+        if(syncEnrollments(trackedEntityInstance.getLocalId()))
+            changeTEIToSynced(trackedEntityInstance);
     }
 
     private void syncTeis(List<TrackedEntityInstance> trackedEntityInstances)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {
-        try {
+        /*try {
             Map<String, TrackedEntityInstance> trackedEntityInstanceMap =
                     TrackedEntityInstance.toMap(trackedEntityInstances);
 
-            /*for(TrackedEntityInstance trackedEntityInstance: trackedEntityInstances){
+            *//*for(TrackedEntityInstance trackedEntityInstance: trackedEntityInstances){
                 OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
                 if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
                     canUpload = false;
@@ -122,7 +121,7 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
                     changeTEIToSynced(trackedEntityInstance);
                     return;
                 }
-            }*/
+            }*//*
 
             List<ImportSummary> importSummaries = mTrackedEntityInstanceRepository.sync(trackedEntityInstances);
 
@@ -149,7 +148,8 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
             }
         } catch (Exception e) {
             syncOneByOne(trackedEntityInstances);
-        }
+        }*/
+        syncOneByOne(trackedEntityInstances);
     }
 
     private void syncOneByOne(List<TrackedEntityInstance> trackedEntityInstances) {
@@ -165,12 +165,12 @@ public class TrackedEntityInstanceSynchronizer extends Synchronizer {
                 trackedEntityInstance.getLocalId());
     }
 
-    private void syncEnrollments(long localId) {
+    private boolean syncEnrollments(long localId) {
         EnrollmentSynchronizer eventSynchronizer = new EnrollmentSynchronizer(mEnrollmentRepository,
                 mEventRepository, mFailedItemRepository);
         List<Enrollment> enrollmentList =
                 mEnrollmentRepository.getEnrollmentsByTrackedEntityInstanceId(localId);
-        eventSynchronizer.sync(enrollmentList, canUpload);
+        return eventSynchronizer.sync(enrollmentList);
     }
 
     private boolean existsRelationships(TrackedEntityInstance trackedEntityInstance) {

@@ -125,14 +125,17 @@ public class ItemStatusDialogFragment extends org.icddrb.dhis.android.sdk.ui.dia
                 EventRemoteDataSource mRemoteDataSource = new EventRemoteDataSource(DhisController.getInstance().getDhisApi());
                 EventRepository eventRepository = new EventRepository(mLocalDataSource, mRemoteDataSource);
                 FailedItemRepository failedItemRepository = new FailedItemRepository();
-
+                List<Enrollment> enrollments = TrackerController.getEnrollments(trackedEntityInstance);
+                for(Enrollment enrollment: enrollments){
+                    sendEnrollment(enrollment);
+                }
                 OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(trackedEntityInstance.getOrgUnit());
                 if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
-                    List<Enrollment> enrollments = TrackerController.getEnrollments(trackedEntityInstance);
+                    /*List<Enrollment> enrollments = TrackerController.getEnrollments(trackedEntityInstance);
                     for(Enrollment enrollment: enrollments){
                         sendEnrollment(enrollment);
-                    }
-                    return new Object();
+                    }*/
+                    //return new Object();
                 }
 
                 EnrollmentLocalDataSource enrollmentLocalDataSource = new EnrollmentLocalDataSource();
@@ -171,15 +174,18 @@ public class ItemStatusDialogFragment extends org.icddrb.dhis.android.sdk.ui.dia
                 TrackedEntityInstanceRemoteDataSource trackedEntityInstanceRemoteDataSource = new TrackedEntityInstanceRemoteDataSource(DhisController.getInstance().getDhisApi());
                 TrackedEntityInstanceLocalDataSource trackedEntityInstanceLocalDataSource = new TrackedEntityInstanceLocalDataSource();
                 TrackedEntityInstanceRepository trackedEntityInstanceRepository = new TrackedEntityInstanceRepository(trackedEntityInstanceLocalDataSource, trackedEntityInstanceRemoteDataSource);
-
+                List<Event> events = TrackerController.getEventsByEnrollment(enrollment.getEnrollment());
+                for(Event event: events){
+                    sendEvent(event);
+                }
                 FailedItemRepository  failedItemRepository = new FailedItemRepository ();
                 OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(enrollment.getOrgUnit());
                 if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
-                    List<Event> events = TrackerController.getEventsByEnrollment(enrollment.getEnrollment());
+                    /*List<Event> events = TrackerController.getEventsByEnrollment(enrollment.getEnrollment());
                     for(Event event: events){
                         sendEvent(event);
-                    }
-                    return new Object();
+                    }*/
+                    //return new Object();
                 }
                 SyncEnrollmentUseCase enrollmentUseCase = new SyncEnrollmentUseCase(enrollmentRepository, eventRepository, trackedEntityInstanceRepository, failedItemRepository);
                 enrollmentUseCase.execute(enrollment);

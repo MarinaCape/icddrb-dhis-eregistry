@@ -2,10 +2,12 @@ package org.icddrb.dhis.android.sdk.synchronization.domain.event;
 
 import static org.icddrb.dhis.android.sdk.persistence.models.FailedItem.EVENT;
 
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.network.APIException;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.synchronization.domain.common.Synchronizer;
 import org.icddrb.dhis.android.sdk.synchronization.domain.faileditem.IFailedItemRepository;
 
@@ -54,8 +56,8 @@ public class EventSynchronizer extends Synchronizer {
 
         if (eventsMapCheck.values().size() != 0) {
             System.out.println("Synchronizing list of events ");
-
-            List<ImportSummary> importSummaries = null;
+            syncOneByOne(events);
+            /*List<ImportSummary> importSummaries = null;
             try {
                 importSummaries = mEventRepository.sync(
                         new ArrayList<>(eventsMapCheck.values()));
@@ -81,7 +83,7 @@ public class EventSynchronizer extends Synchronizer {
                 }
                 //Send only missing events
                 syncOneByOne(events);
-            }
+            }*/
         }
     }
 
@@ -140,7 +142,9 @@ public class EventSynchronizer extends Synchronizer {
 
     private void syncOneByOne(List<Event> events) {
         for (Event event : events) {
-            sync(event);
+            OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(event.getOrganisationUnitId());
+            if(orgUnit != null && orgUnit.getType() == OrganisationUnit.TYPE.ASSIGNED)
+                sync(event);
         }
     }
 

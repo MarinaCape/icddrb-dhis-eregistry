@@ -61,6 +61,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 
 import org.icddrb.dhis.android.sdk.R;
 import org.icddrb.dhis.android.sdk.controllers.DhisController;
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.controllers.tracker.TrackerController;
 import org.icddrb.dhis.android.sdk.job.JobExecutor;
 import org.icddrb.dhis.android.sdk.job.NetworkJob;
@@ -71,6 +72,7 @@ import org.icddrb.dhis.android.sdk.persistence.models.Conflict;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.persistence.preferences.ResourceType;
 import org.icddrb.dhis.android.sdk.synchronization.data.enrollment.EnrollmentLocalDataSource;
@@ -460,6 +462,10 @@ public abstract class ItemStatusDialogFragment extends DialogFragment
                 EventRepository eventRepository = new EventRepository(mLocalDataSource, mRemoteDataSource);
                 FailedItemRepository failedItemRepository = new FailedItemRepository();
 
+                OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(event.getOrganisationUnitId());
+                if(orgUnit == null || orgUnit.getType() == OrganisationUnit.TYPE.SEARCH){
+                    return new Object();
+                }
                 TrackedEntityInstanceLocalDataSource trackedEntityInstanceLocalDataSource = new TrackedEntityInstanceLocalDataSource();
                 TrackedEntityInstanceRemoteDataSource trackedEntityInstanceRemoteDataSource = new TrackedEntityInstanceRemoteDataSource(DhisController.getInstance().getDhisApi());
                 ITrackedEntityInstanceRepository trackedEntityInstanceRepository = new TrackedEntityInstanceRepository(trackedEntityInstanceLocalDataSource, trackedEntityInstanceRemoteDataSource);

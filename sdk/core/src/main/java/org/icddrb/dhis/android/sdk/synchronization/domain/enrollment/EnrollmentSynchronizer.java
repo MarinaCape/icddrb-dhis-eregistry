@@ -1,11 +1,13 @@
 package org.icddrb.dhis.android.sdk.synchronization.domain.enrollment;
 
 
+import org.icddrb.dhis.android.sdk.controllers.metadata.MetaDataController;
 import org.icddrb.dhis.android.sdk.network.APIException;
 import org.icddrb.dhis.android.sdk.persistence.models.Enrollment;
 import org.icddrb.dhis.android.sdk.persistence.models.Event;
 import org.icddrb.dhis.android.sdk.persistence.models.FailedItem;
 import org.icddrb.dhis.android.sdk.persistence.models.ImportSummary;
+import org.icddrb.dhis.android.sdk.persistence.models.OrganisationUnit;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityInstance;
 import org.icddrb.dhis.android.sdk.synchronization.domain.common.Synchronizer;
 import org.icddrb.dhis.android.sdk.synchronization.domain.event.EventSynchronizer;
@@ -21,7 +23,6 @@ public class EnrollmentSynchronizer extends Synchronizer {
     IEnrollmentRepository mEnrollmentRepository;
     IEventRepository mEventRepository;
     IFailedItemRepository mFailedItemRepository;
-    Boolean canUpload = true;
     public EnrollmentSynchronizer(IEnrollmentRepository enrollmentRepository,
             IEventRepository eventRepository,
             IFailedItemRepository failedItemRepository) {
@@ -32,15 +33,17 @@ public class EnrollmentSynchronizer extends Synchronizer {
         mFailedItemRepository = failedItemRepository;
     }
 
-    public void sync(Enrollment enrollment) {
+    public boolean sync(Enrollment enrollment) {
         boolean existsOnServerPreviously = enrollment.getCreated() != null;
 
         if (existsOnServerPreviously) {
             syncEvents(enrollment.getLocalId());
-            if (canUpload && syncEnrollment(enrollment))
+            if (syncEnrollment(enrollment)) {
                 changeEnrollmentToSynced(enrollment);
+                return true;
+            }
         } else {
-            if (canUpload && syncEnrollment(enrollment))
+            if (syncEnrollment(enrollment))
             {
                 syncEvents(enrollment.getLocalId());
 
@@ -50,40 +53,46 @@ public class EnrollmentSynchronizer extends Synchronizer {
                     // Its necessary to change status from Active to Cancelled or Completed
                     if (syncEnrollment(enrollment));
                         changeEnrollmentToSynced(enrollment);
+                        return true;
                 }
                 else{
                     changeEnrollmentToSynced(enrollment);
+                    return true;
                 }
             }else{
                 if(syncEvents(enrollment.getLocalId())){
                     changeEnrollmentToSynced(enrollment);
+                    return true;
                 }
             }
         }
+        return false;
     }
 
 
-    public void sync(List<Enrollment> enrollments){
-        sync(enrollments, true);
-    }
-    public void sync(List<Enrollment> enrollments, Boolean canUpload) {
+    public boolean sync(List<Enrollment> enrollments) {
         Collections.sort(enrollments, new Enrollment.EnrollmentComparator());
-        this.canUpload = canUpload;
+        boolean okSync = true;
         for (Enrollment enrollment : enrollments) {
-            sync(enrollment);
+            if(okSync)
+                okSync = sync(enrollment);
         }
+        return okSync;
     }
 
     private boolean syncEnrollment(Enrollment enrollment) {
         boolean isSyncSuccess = true;
 
         try {
-            ImportSummary importSummary = mEnrollmentRepository.sync(enrollment);
+            ImportSummary importSummary = null;
+            OrganisationUnit orgUnit = MetaDataController.getOrganisationUnit(enrollment.getOrgUnit());
+            if(orgUnit != null && orgUnit.getType() == OrganisationUnit.TYPE.ASSIGNED)
+                importSummary = mEnrollmentRepository.sync(enrollment);
 
-            if (importSummary.isSuccessOrOK()) {
+            if (importSummary != null && importSummary.isSuccessOrOK()) {
                 isSyncSuccess = true;
 
-            } else if (importSummary.isError()) {
+            } else if (importSummary != null && importSummary.isError()) {
                 super.handleImportSummaryError(importSummary, FailedItem.ENROLLMENT, 200,
                         enrollment.getLocalId());
                 isSyncSuccess = false;
