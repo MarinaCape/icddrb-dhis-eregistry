@@ -41,6 +41,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.icddrb.dhis.android.sdk.R;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
+import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
 import org.icddrb.dhis.android.sdk.persistence.models.BaseValue;
@@ -54,7 +56,8 @@ import java.util.Date;
 public class DatePickerRow extends Row {
     private static final String EMPTY_FIELD = "";
     private final boolean mAllowDatesInFuture;
-    private static final String DATE_FORMAT = "dd-MM-yyyy";
+    private static final String DATE_FORMAT_AGE = "dd-MM-yyyy";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     public DatePickerRow(String label, boolean mandatory, String warning, BaseValue value, boolean allowDatesInFuture) {
         mAllowDatesInFuture = allowDatesInFuture;
@@ -170,13 +173,17 @@ public class DatePickerRow extends Row {
             pickerInvoker.setOnClickListener(invokerListener);
         }
 
-        public void updateViews(String label, BaseValue baseValue) {
-            dateSetListener.setBaseValue(baseValue);
-            clearButtonListener.setBaseValue(baseValue);
+        public void updateViews(String label, Object baseValue) {
+            dateSetListener.setBaseValue((BaseValue) baseValue);
+            clearButtonListener.setBaseValue((BaseValue)baseValue);
 
-            if(baseValue !=null && baseValue.getValue()!=null && !baseValue.equals("") && !baseValue.getValue().isEmpty()) {
+            if(baseValue !=null && ((BaseValue)baseValue).getValue()!=null && !baseValue.equals("") && !((BaseValue)baseValue).getValue().isEmpty()) {
                 try {
-                    Date date = new SimpleDateFormat("yyyy-MM-dd").parse(baseValue.getValue());
+                    Date date;
+                    if(baseValue instanceof TrackedEntityAttributeValue && ("UhumPu20UzS".equals(( (TrackedEntityAttributeValue)baseValue).getTrackedEntityAttributeId())))
+                        date = new SimpleDateFormat(DATE_FORMAT_AGE).parse(((BaseValue)baseValue).getValue());
+                    else
+                        date = new SimpleDateFormat(DATE_FORMAT).parse(((BaseValue)baseValue).getValue());
                     LocalDate currentDate = LocalDate.fromDateFields(date);
                     picker.updateDate(currentDate.getYear(), currentDate.getMonthOfYear() - 1 , currentDate.getDayOfMonth());
                 } catch (ParseException e) {
@@ -185,7 +192,7 @@ public class DatePickerRow extends Row {
             }
 
             textLabel.setText(label);
-            pickerInvoker.setText(baseValue.getValue());
+            pickerInvoker.setText(((BaseValue)baseValue).getValue());
         }
     }
 
@@ -239,7 +246,12 @@ public class DatePickerRow extends Row {
         public void onDateSet(DatePicker view, int year,
                               int monthOfYear, int dayOfMonth) {
             LocalDate date = new LocalDate(year, monthOfYear + 1, dayOfMonth);
-            String newValue = date.toString(DATE_FORMAT);
+            String newValue;
+            Object objValue = value;
+            if(objValue instanceof TrackedEntityAttributeValue && ("UhumPu20UzS".equals(( (TrackedEntityAttributeValue)this.value).getTrackedEntityAttributeId())))
+                newValue  = date.toString(DATE_FORMAT_AGE);
+            else
+                newValue = date.toString(DATE_FORMAT);
             textView.setText(newValue);
             value.setValue(newValue);
             System.out.println("DatePiker Saving value:" + newValue);

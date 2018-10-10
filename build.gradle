@@ -31,18 +31,18 @@ allprojects {
 ext {
     buildToolsVersion = "26.0.2"
     minSdkVersion = 15
-    compileSdkVersion = 23
-    targetSdkVersion = 23
+    compileSdkVersion = 26
+    targetSdkVersion = 26
     versionCode = 1
     versionName = "0.1.0"
 
     configuration = [
             package          : "org.icddrb.dhis.android.eregistry",
-            applicationId    : "org.icddrb.dhis.android.eregistry",
+            applicationId    : "org.icddrb.dhis.android.eregistry2",
             buildToolsVersion: "27.0.3",
             minSdkVersion    : 15,
-            compileSdkVersion: 23,
-            targetSdkVersion : 23,
+            compileSdkVersion: 26,
+            targetSdkVersion : 26,
             versionCode      : 1,
             versionName      : "1.1.0"
     ]

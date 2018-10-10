@@ -32,10 +32,16 @@ apply plugin: 'io.fabric'
 apply plugin: 'jacoco-android'
 
 android {
-
+    signingConfigs {
+        release {
+            keyAlias 'eregistry'
+            keyPassword 'eregistry'
+            storeFile file('C:/Users/mperez/Desktop/Projects/icddrb-dhis-eregistry/eregistry.keystore.jks')
+            storePassword 'eregistry'
+        }
+    }
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
-
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -44,22 +50,20 @@ android {
         applicationId rootProject.ext.configuration.applicationId
         multiDexEnabled true
     }
-
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
         debug {
             testCoverageEnabled true
         }
     }
-
     lintOptions {
         disable 'RtlSymmetry', 'RtlHardcoded'
         abortOnError false
     }
-
     packagingOptions {
         exclude 'META-INF/DEPENDENCIES.txt'
         exclude 'META-INF/LICENSE.txt'

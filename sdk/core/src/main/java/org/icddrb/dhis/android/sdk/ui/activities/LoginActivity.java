@@ -117,7 +117,7 @@ public class LoginActivity extends Activity implements OnClickListener {
         serverEditText = (EditText) findViewById(R.id.server_url);
         loginButton = (Button) findViewById(R.id.login_button);
 
-        String server = "https://bd-eregistry.dhis2.org/dhis"; //null;//mPrefs.getServerUrl();
+        String server = "https://eregistries.mohfw.gov.bd/dhis/";//https://bd-eregistry.dhis2.org/dhis"; //null;//mPrefs.getServerUrl();
         //String server = "http://103.247.238.74:8081/dhistr";
         String username = null;//mPrefs.getUsername();
         String password = null;

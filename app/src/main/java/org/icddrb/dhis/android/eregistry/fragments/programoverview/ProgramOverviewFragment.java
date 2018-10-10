@@ -1107,7 +1107,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
             for (Enrollment enrollment : enrollmentsForTEI) {
                 Program selectedProgram = (Program) mSpinner.getSelectedItem();
 
-                if (selectedProgram.getUid().equals(enrollment.getProgram().getUid())) {
+                if (selectedProgram != null && selectedProgram.getUid().equals(enrollment.getProgram().getUid())) {
                     profileCardView.setClickable(false); // Enrollment attributes is applicable.
                     profileButton.setClickable(false);
                     break;
