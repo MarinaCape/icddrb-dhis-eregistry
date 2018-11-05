@@ -41,7 +41,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import org.icddrb.dhis.android.sdk.R;
-import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttribute;
 import org.icddrb.dhis.android.sdk.persistence.models.TrackedEntityAttributeValue;
 import org.icddrb.dhis.android.sdk.ui.fragments.dataentry.RowValueChangedEvent;
 import org.icddrb.dhis.android.sdk.persistence.Dhis2Application;
@@ -180,19 +179,21 @@ public class DatePickerRow extends Row {
             if(baseValue !=null && ((BaseValue)baseValue).getValue()!=null && !baseValue.equals("") && !((BaseValue)baseValue).getValue().isEmpty()) {
                 try {
                     Date date;
-                    if(baseValue instanceof TrackedEntityAttributeValue && ("UhumPu20UzS".equals(( (TrackedEntityAttributeValue)baseValue).getTrackedEntityAttributeId())))
+                    if(((BaseValue)baseValue).getValue().split("-")[0].length() < 3)
                         date = new SimpleDateFormat(DATE_FORMAT_AGE).parse(((BaseValue)baseValue).getValue());
                     else
                         date = new SimpleDateFormat(DATE_FORMAT).parse(((BaseValue)baseValue).getValue());
                     LocalDate currentDate = LocalDate.fromDateFields(date);
                     picker.updateDate(currentDate.getYear(), currentDate.getMonthOfYear() - 1 , currentDate.getDayOfMonth());
+
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
+            pickerInvoker.setText(((BaseValue) baseValue).getValue());
 
             textLabel.setText(label);
-            pickerInvoker.setText(((BaseValue)baseValue).getValue());
+
         }
     }
 

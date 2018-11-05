@@ -98,8 +98,10 @@ public final class UiUtils {
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new CustomDialogFragment(title, message,
-                        activity.getString(R.string.ok_option), onConfirmClickListener).show(activity.getFragmentManager(), title);
+                CustomDialogFragment custom = new CustomDialogFragment(title, message,
+                        activity.getString(R.string.ok_option), onConfirmClickListener);
+                custom.setCancelable(false);
+                custom.show(activity.getFragmentManager(), title);
             }
         });
     }
