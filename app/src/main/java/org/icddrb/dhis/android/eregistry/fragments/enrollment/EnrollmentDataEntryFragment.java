@@ -214,7 +214,8 @@ public class EnrollmentDataEntryFragment extends DataEntryFragment<EnrollmentDat
                 }
                 UiUtils.showErrorDialog(getActivity(),
                         getString(R.string.error_message),
-                        getString(org.icddrb.dhis.android.eregistry.R.string.out_of_generated_ids),
+                        getString(org.icddrb.dhis.android.eregistry.R.string.out_of_generated_ids) + " "+form.getNameUnavailableAutoID() +
+                                getString(org.icddrb.dhis.android.eregistry.R.string.out_of_genetated_ids_2),
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {

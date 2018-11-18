@@ -146,6 +146,7 @@ class EnrollmentDataEntryFragmentQuery implements Query<EnrollmentDataEntryFragm
                                 trackedEntityAttributeGeneratedValue.getValue());
                         trackedEntityAttributeValues.add(trackedEntityAttributeValue);
                     } else {
+                        mForm.setNameUnavailableAutoID(trackedEntityAttribute.getDisplayName());
                         mForm.setOutOfTrackedEntityAttributeGeneratedValues(true);
                     }
                 }

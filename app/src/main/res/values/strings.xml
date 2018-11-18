@@ -75,7 +75,8 @@
     <string name="local_search">Local search</string>
     <string name="search_error">Error. Please retry</string>
 
-    <string name="out_of_generated_ids">You are out of automatically generated IDs. Please synchronise to download new ones</string>
+    <string name="out_of_generated_ids">You are out of available IDs for </string>
+    <string name="out_of_genetated_ids_2">  . Please sync for more IDs</string>
     <string name="generic_error">Error. Please retry</string>
     <string name="re_open">Re-open</string>
 

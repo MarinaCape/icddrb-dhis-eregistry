@@ -51,6 +51,7 @@ class EnrollmentDataEntryFragmentForm
     private Map<String, String> dataElementNames;
     private List<IndicatorRow> indicatorRows;
     private List<Row> dataEntryRows;
+    private String nameUnavailableAutoID;
     private boolean outOfTrackedEntityAttributeGeneratedValues;
 
     public List<Row> getDataEntryRows() {
@@ -115,5 +116,13 @@ class EnrollmentDataEntryFragmentForm
 
     public boolean isOutOfTrackedEntityAttributeGeneratedValues() {
         return outOfTrackedEntityAttributeGeneratedValues;
+    }
+
+    public String getNameUnavailableAutoID() {
+        return nameUnavailableAutoID;
+    }
+
+    public void setNameUnavailableAutoID(String nameUnavailableAutoID) {
+        this.nameUnavailableAutoID = nameUnavailableAutoID;
     }
 }
