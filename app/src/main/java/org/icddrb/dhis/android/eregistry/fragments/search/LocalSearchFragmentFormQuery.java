@@ -25,9 +25,11 @@ public class LocalSearchFragmentFormQuery implements Query<LocalSearchFragmentFo
     /*private String[] allowedRows = {"Couple number", "Household number", "Full name", "FWA Name",
             "Union Name", "Husband's Name", "Phone number", "Village name (English)",
             "Alternate family mobile number","Birth date"};*/
-    private String[] allowedRows = {"aQEvaiBpohU","ACroxpb6PGX", "pspz23dzwmO", "QWTcaK2mXeD", "xFSghu1nCGg",
+    /*private String[] allowedRows = {"aQEvaiBpohU","ACroxpb6PGX", "pspz23dzwmO", "QWTcaK2mXeD", "xFSghu1nCGg",
             "OhmSPuuHj53", "etJ8MaVKH2g", "KSSF2lnMKca", "N8skKU3roph",
-            "YFz51ppXbLr","JBLD3c3KJGX"};
+            "YFz51ppXbLr","JBLD3c3KJGX"};*/
+    private String[] allowedRows = {"I056EjniPUi","aQEvaiBpohU", "QWTcaK2mXeD", "etJ8MaVKH2g", "KSSF2lnMKca"};
+
     public LocalSearchFragmentFormQuery(String orgUnitId, String programId) {
         this.orgUnitId = orgUnitId;
         this.programId = programId;
