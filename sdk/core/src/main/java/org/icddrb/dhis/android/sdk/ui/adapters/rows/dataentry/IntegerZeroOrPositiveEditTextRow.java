@@ -2,6 +2,7 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
 
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
@@ -79,6 +80,8 @@ public class IntegerZeroOrPositiveEditTextRow extends TextRow {
 
         if (!isEditable()) {
             holder.editText.setEnabled(false);
+            if(convertView != null)
+                holder.editText.setTextColor(ContextCompat.getColor(convertView.getContext(), R.color.color_navigation_text_enabled));
         } else {
             holder.editText.setEnabled(true);
         }

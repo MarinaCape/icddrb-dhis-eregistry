@@ -522,15 +522,17 @@ public class EventDataEntryFragment extends DataEntryFragment<EventDataEntryFrag
         );
         for (DataValue dataValue : form.getEvent().getDataValues()) {
             ProgramStageDataElement dataElement = dataElements.get(dataValue.getDataElement());
-            String dataElementUid = dataElement.getDataElement().getUid();
-            if (dataElement == null) {
-                // don't do anything
-            } else if ((dataElement.getCompulsory() || listViewAdapter.getMandatoryList().contains(dataElementUid)) && isEmpty(dataValue.getValue())) {
-                if(!errors.containsKey(ErrorType.MANDATORY)){
-                    errors.put(ErrorType.MANDATORY, new ArrayList<String>());
+            String dataElementUid= "";
+            if (dataElement != null) {
+                dataElementUid = dataElement.getDataElement().getUid();
+                if ((dataElement.getCompulsory() || listViewAdapter.getMandatoryList().contains(dataElementUid)) && isEmpty(dataValue.getValue())) {
+                    if(!errors.containsKey(ErrorType.MANDATORY)){
+                        errors.put(ErrorType.MANDATORY, new ArrayList<String>());
+                    }
+                    errors.get(ErrorType.MANDATORY).add(MetaDataController.getDataElement(dataElement.getDataelement()).getDisplayName());
                 }
-                errors.get(ErrorType.MANDATORY).add(MetaDataController.getDataElement(dataElement.getDataelement()).getDisplayName());
             }
+
         }
         return errors;
     }

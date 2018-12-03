@@ -34,6 +34,7 @@ import static android.text.TextUtils.isEmpty;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -87,6 +88,8 @@ public class EventDueDatePickerRow extends AbsDatePickerRow {
         if (!isEditable()) {
             holder.clearButton.setEnabled(false);
             holder.textLabel.setEnabled(false); //change color
+            if(convertView != null)
+                holder.textLabel.setTextColor(ContextCompat.getColor(convertView.getContext(), R.color.color_navigation_text_enabled));
             holder.pickerInvoker.setEnabled(false);
         } else {
             holder.clearButton.setEnabled(true);

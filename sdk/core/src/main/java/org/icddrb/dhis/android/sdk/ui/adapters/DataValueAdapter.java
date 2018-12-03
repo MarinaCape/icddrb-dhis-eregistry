@@ -30,7 +30,9 @@
 package org.icddrb.dhis.android.sdk.ui.adapters;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,6 +109,11 @@ public final class DataValueAdapter extends AbsAdapter<Row> {
                         new CustomOnEditorActionListener());
             }
             View view = dataEntryRow.getView(mFragmentManager, getInflater(), convertView, parent);
+            if(!dataEntryRow.isEditable()){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    view.setBackground(ContextCompat.getDrawable(view.getContext(),R.color.color_disabled_text));
+                }
+            }
             view.setVisibility(View.VISIBLE); //in case recycling invisible view
             view.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
                     AbsListView.LayoutParams.WRAP_CONTENT));

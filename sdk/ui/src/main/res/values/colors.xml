@@ -51,4 +51,6 @@
 
     <color name="color_navigation_text_disabled">#24000000</color>
     <color name="color_navigation_text_enabled">#8a000000</color>
+
+    <color name="color_disabled_text">#efefef</color>
 </resources>

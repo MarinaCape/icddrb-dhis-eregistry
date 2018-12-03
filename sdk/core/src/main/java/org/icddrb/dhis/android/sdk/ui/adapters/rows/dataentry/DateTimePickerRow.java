@@ -31,6 +31,7 @@ package org.icddrb.dhis.android.sdk.ui.adapters.rows.dataentry;
 
 import android.content.Context;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,6 +97,8 @@ public class DateTimePickerRow extends Row {
         if (!isEditable()) {
             holder.clearButton.setEnabled(false);
             holder.pickerInvoker.setEnabled(false);
+            if(convertView != null)
+                holder.pickerInvoker.setTextColor(ContextCompat.getColor(convertView.getContext(), R.color.color_navigation_text_enabled));
         } else {
             holder.clearButton.setEnabled(true);
             holder.pickerInvoker.setEnabled(true);
