@@ -59,8 +59,10 @@ public class DataEntryRowFactory {
             row = new RadioButtonsRow(trackedEntityAttributeName, mandatory, null, baseValue, DataEntryRowTypes.BOOLEAN);
         } else if (valueType.equals(ValueType.TRUE_ONLY)) {
             row = new CheckBoxRow(trackedEntityAttributeName, mandatory, null, baseValue);
-        } else if (valueType.equals(ValueType.DATE) || valueType.equals(ValueType.AGE)) {
+        } else if (valueType.equals(ValueType.DATE)) {
             row = new DatePickerRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
+        } else if (valueType.equals(ValueType.AGE)) {
+            row = new AgeRow(trackedEntityAttributeName, mandatory, null, baseValue, allowFutureDate);
         } else if (valueType.equals(ValueType.TIME)) {
             row = new TimePickerRow(trackedEntityAttributeName, mandatory, null, baseValue);
         } else if (valueType.equals(ValueType.DATETIME)) {
