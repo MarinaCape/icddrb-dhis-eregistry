@@ -33,7 +33,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -441,6 +443,7 @@ public class ProgramOverviewFragment extends AbsProgramRuleFragment implements V
         super.onResume();
         reloadProgramRules();
         Dhis2Application.getEventBus().register(this);
+        getLoaderManager().initLoader(LOADER_ID, getArguments(), this);
     }
 
     @Override

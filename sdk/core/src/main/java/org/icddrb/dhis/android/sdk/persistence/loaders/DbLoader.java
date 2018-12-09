@@ -30,6 +30,7 @@
 package org.icddrb.dhis.android.sdk.persistence.loaders;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.v4.content.AsyncTaskLoader;
 
 import com.raizlabs.android.dbflow.structure.Model;
@@ -124,7 +125,10 @@ public class DbLoader<T> extends AsyncTaskLoader<T> {
         }
 
         // Begin monitoring the underlying data source.
-        //registerObservers();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            registerObservers();
+        }
+
 
         if (takeContentChanged() || mData == null) {
             // When the observer detects a change, it should call onContentChanged()

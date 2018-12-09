@@ -280,7 +280,7 @@ public class EnrollmentDataEntryFragment extends DataEntryFragment<EnrollmentDat
         for (TrackedEntityAttributeValue value : form.getEnrollment().getAttributes()) {
             ProgramTrackedEntityAttribute programTrackedEntityAttribute = dataElements.get(value.getTrackedEntityAttributeId());
 
-            if ((programTrackedEntityAttribute.getMandatory() || getListViewAdapter().getMandatoryList().contains(programTrackedEntityAttribute.getTrackedEntityAttributeId())) && isEmpty(value.getValue())) {
+            if (programTrackedEntityAttribute != null && (programTrackedEntityAttribute.getMandatory() || getListViewAdapter().getMandatoryList().contains(programTrackedEntityAttribute.getTrackedEntityAttributeId())) && isEmpty(value.getValue())) {
                 if(!errors.containsKey(ErrorType.MANDATORY)){
                     errors.put(ErrorType.MANDATORY, new ArrayList<String>());
                 }

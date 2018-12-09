@@ -114,6 +114,11 @@ public final class DataValueAdapter extends AbsAdapter<Row> {
                     view.setBackground(ContextCompat.getDrawable(view.getContext(),R.color.color_disabled_text));
                 }
             }
+            else{
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    view.setBackground(ContextCompat.getDrawable(view.getContext(),R.color.white));
+                }
+            }
             view.setVisibility(View.VISIBLE); //in case recycling invisible view
             view.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
                     AbsListView.LayoutParams.WRAP_CONTENT));

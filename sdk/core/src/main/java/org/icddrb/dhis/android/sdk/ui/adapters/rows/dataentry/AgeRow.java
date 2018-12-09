@@ -134,8 +134,8 @@ public class AgeRow extends Row {
             pickerInvoker = (TextView) root.findViewById(R.id.date_picker_text_view);
             clearButton = (ImageButton) root.findViewById(R.id.clear_text_view);
             years = (FontEditText) root.findViewById(R.id.years);
-            months = root.findViewById(R.id.months);
-            days = root.findViewById(R.id.days);
+            months = (FontEditText)root.findViewById(R.id.months);
+            days = (FontEditText)root.findViewById(R.id.days);
 //            this.detailedInfoButton = detailedInfoButton;
 
             dateSetListener = new AgeRow.DateSetListener(pickerInvoker);
@@ -152,24 +152,40 @@ public class AgeRow extends Row {
 
             clearButton.setOnClickListener(clearButtonListener);
             pickerInvoker.setOnClickListener(invokerListener);
-            years.setOnFocusChangeListener(listener);
-            months.setOnFocusChangeListener(listener);
-            days.setOnFocusChangeListener(listener);
+            years.setOnFocusChangeListener(listenerYears);
+            months.setOnFocusChangeListener(listenerMonths);
+            days.setOnFocusChangeListener(listenerDays);
 
         }
 
-        private final View.OnFocusChangeListener listener = new View.OnFocusChangeListener() {
+        private final View.OnFocusChangeListener listenerYears = new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                if(!b)
+                if(!b && !years.getText().toString().equals("")) {
                     handleSingleInputs();
+                }
             }
         };
-
+        private final View.OnFocusChangeListener listenerMonths = new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(!b && !months.getText().toString().equals("")){
+                    handleSingleInputs();
+                }
+            }
+        };
+        private final View.OnFocusChangeListener listenerDays = new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if(!b && !days.getText().toString().equals("")) {
+                    handleSingleInputs();
+                }
+            }
+        };
         public void updateViews(String label, Object baseValue) {
             dateSetListener.setBaseValue((BaseValue) baseValue);
             clearButtonListener.setBaseValue((BaseValue)baseValue);
-
+            LocalDate currentDate = null;
             if(baseValue !=null && ((BaseValue)baseValue).getValue()!=null && !baseValue.equals("") && !((BaseValue)baseValue).getValue().isEmpty()) {
                 try {
                     Date date;
@@ -177,15 +193,16 @@ public class AgeRow extends Row {
                         date = new SimpleDateFormat(DATE_FORMAT_AGE).parse(((BaseValue)baseValue).getValue());
                     else
                         date = new SimpleDateFormat(DATE_FORMAT).parse(((BaseValue)baseValue).getValue());
-                    LocalDate currentDate = LocalDate.fromDateFields(date);
+                    currentDate = LocalDate.fromDateFields(date);
                     picker.updateDate(currentDate.getYear(), currentDate.getMonthOfYear() - 1 , currentDate.getDayOfMonth());
-                    handleDateInput(currentDate.getYear(), currentDate.getMonthOfYear() - 1 , currentDate.getDayOfMonth());
-
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
             }
             pickerInvoker.setText(((BaseValue) baseValue).getValue());
+
+            if(currentDate != null)
+                handleDateInput(currentDate.getYear(), currentDate.getMonthOfYear() - 1 , currentDate.getDayOfMonth());
 
             textLabel.setText(label);
 
@@ -220,13 +237,12 @@ public class AgeRow extends Row {
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
 
-            String result = uiDateFormat().format(calendar.getTime());
-
             int[] dateDifference = getDifference(calendar.getTime(), Calendar.getInstance().getTime());
-            days.setText(String.valueOf(dateDifference[2]));
-            months.setText(String.valueOf(dateDifference[1]));
-            years.setText(String.valueOf(dateDifference[0]));
-
+            if(!pickerInvoker.getText().equals("")){
+                days.setText(String.valueOf(dateDifference[2]));
+                months.setText(String.valueOf(dateDifference[1]));
+                years.setText(String.valueOf(dateDifference[0]));
+            }
         }
 
 
