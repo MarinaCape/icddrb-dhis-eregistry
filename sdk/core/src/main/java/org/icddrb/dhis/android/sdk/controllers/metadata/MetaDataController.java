@@ -141,7 +141,7 @@ import java.util.Set;
  */
 public final class MetaDataController extends ResourceController {
     private final static String CLASS_TAG = "MetaDataController";
-    private final static long TRACKED_ENTITY_ATTRITBUTE_GENERATED_VALUE_THRESHOLD = 100;
+    private final static long TRACKED_ENTITY_ATTRITBUTE_GENERATED_VALUE_THRESHOLD = 20;
 
     private MetaDataController() {
     }
@@ -935,7 +935,7 @@ public final class MetaDataController extends ResourceController {
                             for(TrackedEntityAttributeGeneratedValue attributeGeneratedValue: trackedEntityAttributeGeneratedValues){
                                 attributeGeneratedValue.setTrackedEntityAttribute(trackedEntityAttribute);
                             }
-                            saveBaseValueDataFromServer(ResourceType.TRACKEDENTITYATTRIBUTEGENERATEDVALUES, "", trackedEntityAttributeGeneratedValues, getTrackedEntityAttributeGeneratedValues(), serverDateTime, false);
+                            saveBaseValueDataFromServer(ResourceType.TRACKEDENTITYATTRIBUTEGENERATEDVALUES, "", trackedEntityAttributeGeneratedValues, getTrackedEntityAttributeGeneratedValues(), serverDateTime, true);
                         }catch (Exception e){
                             e.printStackTrace();
                         }
