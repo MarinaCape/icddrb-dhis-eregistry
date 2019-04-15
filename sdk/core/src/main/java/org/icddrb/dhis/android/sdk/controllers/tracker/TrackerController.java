@@ -279,6 +279,19 @@ public final class TrackerController extends ResourceController {
     }
 
     /**
+     * Returns a list of events for the given server-assigned UID. Note that if possible,
+     * getEventsByEnrollment(long) should always be used if possible, as the UID may change if the
+     * enrollment is created locally on the device, and then synced with the server.
+     *
+     * @param enrollment
+     * @return
+     */
+    public static List<Event> getEventsByEnrollmentWithoutDeletes(String enrollment) {
+        return new Select().from(Event.class).where(Condition.column(Event$Table.ENROLLMENT).is(enrollment)).and
+                (Condition.column(Event$Table.STATUS).isNot(Event.STATUS_DELETED)).queryList();
+    }
+
+    /**
      * returns a list of events for a given localEnrollmentId
      *
      * @param localEnrollmentId

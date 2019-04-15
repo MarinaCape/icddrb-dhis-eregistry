@@ -209,7 +209,7 @@ public class Enrollment extends BaseSerializableModel {
      * @return List of events.
      */
     public List<Event> getEvents(boolean reLoad) {
-        if (events == null || reLoad) events = TrackerController.getEventsByEnrollment(localId);
+        if (events == null || reLoad) events = TrackerController.getEventsByEnrollmentWithoutDeletes(enrollment);
         return events;
     }
 
