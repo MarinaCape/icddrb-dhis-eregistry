@@ -37,7 +37,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -75,7 +75,7 @@ public abstract class BaseValue extends BaseModel implements Serializable {
     }
 
     public static <T extends BaseValue> Map<String, T> toMap(Collection<T> objects) {
-        Map<String, T> map = new HashMap<>();
+        Map<String, T> map = new LinkedHashMap<>();
         if (objects != null && objects.size() > 0) {
             for (T object : objects) {
                 if (object.getValue() != null) {
