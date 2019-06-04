@@ -91,7 +91,11 @@ public final class DataValueAdapter extends AbsAdapter<Row> {
         if (getData() != null) {
             Row dataEntryRow = getData().get(position);
             String id = dataEntryRow.getItemId();
+
             dataEntryRow.setEditable(!disabledDataElementRows.containsKey(id));
+
+            if(dataEntryRow.isShouldNeverBeEdited())
+                dataEntryRow.setEditable(false);
             if(mandatoryProgramRuleDataElementRows.contains(id)){
                 dataEntryRow.setMandatory(true);
             } else if(mandatoryDataElementRows.contains(id)){
